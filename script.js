@@ -2,56 +2,51 @@ function init () {
   const startButton = document.getElementById('start');
   const stopButton = document.getElementById('stop');
   const resetButton = document.getElementById('reset');
-  const display = document.querySelector('#timer');
-
-  const duration = 60 * 25
-  let startTime = Date.now(),
-        diff,
-        minutes,
-        seconds;
+  const secs = document.getElementById('seconds');
+  const mins = document.getElementById('minutes');
 
   function myTimer () {
-    // get the number of seconds that have elapsed since 
-    // myTimer() was called
-    diff = duration - (((Date.now() - startTime) / 1000) | 0);
+    if (secs.innerText <= 0) {
+      secs.innerText = 60;
+      mins.innerText--;
+      if (mins.innerText < 10 && secs.innerText == 60){
+        mins.innerText = "0" + mins.innerText;
+      } 
+    }
 
-    // does the same job as parseInt truncates the float
-    minutes = (diff / 60) | 0;
-    seconds = (diff % 60) | 0;
+    secs.innerText--;
 
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-
-    display.textContent = minutes + ":" + seconds; 
-
-    if (diff <= 0) {
-        // add one second so that the count down starts at the full duration
-        // example 05:00 not 04:59
-        startTime = Date.now() + 1000;
+    secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+     
+    // bug with clearInterval allowing start and stop to bypass this
+    if (secs.innerText <= 0 && mins.innerText <= 0) {
+      window.clearInterval(startTimer);
+      startButton.disabled = true;
+      stopButton.disabled = true;
+      // play alarm
     }
   }
-
-  let started = false;
-  let stopped = false
   
   startButton.addEventListener('click', () => {
-    if (!started || stopped) {
-      myTimer();
-      startTimer = setInterval(myTimer, 1000);
-      started = true
-      stopped = false;
-    }
+    myTimer();
+    startTimer = setInterval(myTimer, 1000);
+    startButton.disabled = true;
+    stopButton.disabled = false;
   });
 
   stopButton.addEventListener('click', () => {
-    this.clearInterval(startTimer)
-    stopped = true
+    window.clearInterval(startTimer)
+    stopButton.disabled = true;
+    startButton.disabled = false;
   });
 
-  // reset.addEventListener('click', () => {
-  //   this.clearInterval(startTimer)
-  //   stopped = true
-  // });
+  resetButton.addEventListener('click', () => {
+    window.clearInterval(startTimer)
+    secs.innerText = '0' + 0;
+    mins.innerText = 25;
+    stopButton.disabled = false;
+    startButton.disabled = false;
+  });
 }
 
 window.onload = function () {
