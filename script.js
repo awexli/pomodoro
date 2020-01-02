@@ -13,6 +13,8 @@ function init () {
   
   let startTimer;
   let end = false;
+  let loops = 0;
+  let count = 0;
 
   function myTimer () {
     checkTimer();
@@ -34,7 +36,10 @@ function init () {
     } 
   }
 
-  function checkTimer () {
+  
+  
+
+  function checkTimer() {
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
       startBtn.disabled = true;
@@ -42,7 +47,20 @@ function init () {
       decrementBtn.disabled = true;
       incrementBtn.disabled = true;
       end = true;
-      // play alarm
+
+      // play alarm for 3 sec
+      
+      // loop one cycle
+      if (loops != 3) {
+        count++;
+        if (count > 2) {
+          count = 1;
+          loops++;
+        }
+
+        if (count == 1) shortBreakBtn.click();
+        if (count == 2) pomodoroBtn.click();
+      }
     }
   }
 
@@ -57,14 +75,13 @@ function init () {
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
-
+    
     secs.innerText = '0' + 0;
     mins.innerText = min < 10 ? '0' + min : min;
     end = false;
   }
 
-  function starTime (startPressed, loopPressed) {
-    // check if loop is already pressed
+  function starTime () {
     myTimer();
     startTimer = setInterval(myTimer, 1000);
     startBtn.disabled = true;
@@ -72,7 +89,7 @@ function init () {
     end = false;
   }
   
-  // buttons *******************************************************************
+  // ****************************** BUTTONS *********************************** // 
   startBtn.addEventListener('click', () => {
     starTime(true, false);
   });
@@ -96,7 +113,7 @@ function init () {
   });
 
   longBreakBtn.addEventListener('click', () => {
-    resetTimer(true, 30);
+    resetTimer(true, 15);
   });
 
   incrementBtn.addEventListener('click', () => {
@@ -112,7 +129,13 @@ function init () {
   });
 
   loopBtn.addEventListener('click', () => {
-    starTime(true, false);
+    decrementBtn.disabled = true;
+    incrementBtn.disabled = true;
+
+    loops = 0;
+    count = 0;
+
+    resetTimer(true, 25);
   });
 }
 
