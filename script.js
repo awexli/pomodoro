@@ -1,33 +1,47 @@
 function init () {
-  const startBtn = document.getElementById('start');
-  const stopBtn = document.getElementById('stop');
-  const resetBtn = document.getElementById('reset');
+  const startBtn = document.querySelector('#start');
+  const stopBtn = document.querySelector('#stop');
+  const resetBtn = document.querySelector('#reset');
   const pomodoroBtn = document.querySelector('#pomodoro');
   const shortBreakBtn = document.querySelector('#short-break');
   const longBreakBtn = document.querySelector('#long-break');
-  const secs = document.getElementById('seconds');
-  const mins = document.getElementById('minutes');
+  const incrementBtn = document.querySelector('#increment');
+  const decrementBtn = document.querySelector('#decrement');
+  const loopBtn = document.querySelector('#loop');
+  const secs = document.querySelector('#seconds');
+  const mins = document.querySelector('#minutes');
+  
   let startTimer;
+  let end = false;
 
   function myTimer () {
-    if (secs.innerText <= 0) {
+    checkTimer();
+
+    if (secs.innerText <= 0 && !end) {
+      
       secs.innerText = 60;
-      mins.innerText--;
+
+      if (mins.innerText != 0) mins.innerText--;
+
       if (mins.innerText < 10 && secs.innerText == 60){
         mins.innerText = "0" + mins.innerText;
       } 
     }
 
-    secs.innerText--;
+    if (!end) {
+      secs.innerText--;
+      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+    } 
+  }
 
-    secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-     
-    // bug with clearInterval() allows spamming start and stop
-    // at the last second (ex. 00:01) to bypass this
+  function checkTimer () {
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
       startBtn.disabled = true;
       stopBtn.disabled = true;
+      decrementBtn.disabled = true;
+      incrementBtn.disabled = true;
+      end = true;
       // play alarm
     }
   }
@@ -46,15 +60,21 @@ function init () {
 
     secs.innerText = '0' + 0;
     mins.innerText = min < 10 ? '0' + min : min;
-    
+    end = false;
   }
-  
-  // buttons *******************************************************************
-  startBtn.addEventListener('click', () => {
+
+  function starTime (startPressed, loopPressed) {
+    // check if loop is already pressed
     myTimer();
     startTimer = setInterval(myTimer, 1000);
     startBtn.disabled = true;
     stopBtn.disabled = false;
+    end = false;
+  }
+  
+  // buttons *******************************************************************
+  startBtn.addEventListener('click', () => {
+    starTime(true, false);
   });
 
   stopBtn.addEventListener('click', () => {
@@ -77,6 +97,22 @@ function init () {
 
   longBreakBtn.addEventListener('click', () => {
     resetTimer(true, 30);
+  });
+
+  incrementBtn.addEventListener('click', () => {
+    mins.innerText++;
+    mins.innerText = mins.innerText < 10 ? '0' + mins.innerText : mins.innerText;
+    decrementBtn.disabled = false;
+  });
+
+  decrementBtn.addEventListener('click', () => {
+    mins.innerText--;
+    mins.innerText = mins.innerText < 10 ? '0' + mins.innerText : mins.innerText;
+    if (mins.innerText <= 0) decrementBtn.disabled = true;
+  });
+
+  loopBtn.addEventListener('click', () => {
+    starTime(true, false);
   });
 }
 
