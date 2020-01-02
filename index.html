@@ -8,15 +8,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <p id="timer">
-    <span id="minutes">00</span>
-    :
-    <span id="seconds">05</span>
-  </p>
-  <div class="buttons">
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
-    <button id="reset">Reset</button>
+  <div class="container">
+    <div class="timers">
+      <button id="pomodoro">Pomodoro</button>
+      <button id="short-break">Short Break</button>
+      <button id="long-break">Long Break</button>
+    </div>
+
+    <p id="clock">
+      <span id="minutes">25</span>
+      <span>:</span>
+      <span id="seconds">00</span>
+    </p>
+
+    <div class="buttons">
+      <button id="start">Start</button>
+      <button id="stop">Stop</button>
+      <button id="reset">Reset</button>
+    </div>
+
   </div>
   <script src="script.js"></script>
 </body>

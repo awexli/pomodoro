@@ -1,7 +1,11 @@
-p {
+.container {
   text-align: center;
 }
 
-.buttons {
-  text-align: center;
+.timers button {
+  border: 1px solid black;
+}
+
+#clock span {
+  font-size: 12rem;
 }
