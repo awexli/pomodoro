@@ -13,11 +13,12 @@ function init () {
   
   let startTimer;
   let end = false;
+  let looping = false;
   let loops = 0;
   let count = 0;
 
-  function myTimer () {
-    checkTimer();
+  function myTimer() {
+    checkEndTimer();
 
     if (secs.innerText <= 0 && !end) {
       
@@ -36,22 +37,17 @@ function init () {
     } 
   }
 
-  
-  
-
-  function checkTimer() {
+  function checkEndTimer() {
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
-      startBtn.disabled = true;
-      stopBtn.disabled = true;
-      decrementBtn.disabled = true;
-      incrementBtn.disabled = true;
+      disableStartStopButtons();
+      disableIncDecButtons();
       end = true;
 
       // play alarm for 3 sec
       
       // loop one cycle
-      if (loops != 3) {
+      if (looping && loops != 3) {
         count++;
         if (count > 2) {
           count = 1;
@@ -64,11 +60,11 @@ function init () {
     }
   }
 
-  function resetTimer (autoStart, min) {
+  function resetTimer(autoStart, min) {
     if (!autoStart) {
       window.clearInterval(startTimer)
-      startBtn.disabled = false;
-      stopBtn.disabled = false;
+      enableStartStopButtons();
+      enableIncDecButtons();
     } else {
       window.clearInterval(startTimer)
       startTimer = setInterval(myTimer, 1000);
@@ -81,12 +77,32 @@ function init () {
     end = false;
   }
 
-  function starTime () {
+  function starTime() {
     myTimer();
     startTimer = setInterval(myTimer, 1000);
     startBtn.disabled = true;
     stopBtn.disabled = false;
     end = false;
+  }
+
+  function disableIncDecButtons() {
+    incrementBtn.disabled = true;
+    decrementBtn.disabled = true;
+  }
+
+  function disableStartStopButtons() {
+    startBtn.disabled = true;
+    stopBtn.disabled = true;
+  }
+
+  function enableStartStopButtons() {
+    startBtn.disabled = false;
+    stopBtn.disabled = false;
+  }
+
+  function enableIncDecButtons() {
+    incrementBtn.disabled = false;
+    decrementBtn.disabled = false;
   }
   
   // ****************************** BUTTONS *********************************** // 
@@ -102,6 +118,7 @@ function init () {
 
   resetBtn.addEventListener('click', () => {
     resetTimer(false, 25);
+    looping = false;
   });
 
   pomodoroBtn.addEventListener('click', () => {
@@ -129,9 +146,9 @@ function init () {
   });
 
   loopBtn.addEventListener('click', () => {
-    decrementBtn.disabled = true;
-    incrementBtn.disabled = true;
+    disableIncDecButtons();
 
+    looping = true;
     loops = 0;
     count = 0;
 
