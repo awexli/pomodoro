@@ -50,9 +50,9 @@ function init () {
       disableStartStopButtons();
       disableIncDecButtons();
       end = true;
-
-      // play alarm for 3 sec
       
+      playSound('./alarm.mp3');
+
       // loop one cycle
       if (looping && loops != 3) {
         count++;
@@ -90,6 +90,18 @@ function init () {
     startBtn.disabled = true;
     stopBtn.disabled = false;
     end = false;
+  }
+
+  function playSound(url){
+    var audio = document.createElement('audio');
+    audio.style.display = "none";
+    audio.setAttribute("id", "alarm");
+    audio.src = url;
+    audio.autoplay = true;
+    audio.onended = function(){
+      audio.remove() //Remove when played.
+    };
+    document.body.appendChild(audio);
   }
 
   function disableIncDecButtons() {
