@@ -1,16 +1,23 @@
 function init () {
+  const secs = document.querySelector('#seconds');
+  const mins = document.querySelector('#minutes');
+
   const startBtn = document.querySelector('#start');
   const stopBtn = document.querySelector('#stop');
   const resetBtn = document.querySelector('#reset');
+  const loopBtn = document.querySelector('#loop');
+  
+  const incrementBtn = document.querySelector('#increment');
+  const decrementBtn = document.querySelector('#decrement');
+
+  // timer buttons = buttons on top of clock
+  const timerButtons = document.querySelector('.timers');
+  const timerChildren = timerButtons.childNodes;
+
   const pomodoroBtn = document.querySelector('#pomodoro');
   const shortBreakBtn = document.querySelector('#short-break');
   const longBreakBtn = document.querySelector('#long-break');
-  const incrementBtn = document.querySelector('#increment');
-  const decrementBtn = document.querySelector('#decrement');
-  const loopBtn = document.querySelector('#loop');
-  const secs = document.querySelector('#seconds');
-  const mins = document.querySelector('#minutes');
-  
+
   let startTimer;
   let end = false;
   let looping = false;
@@ -96,9 +103,9 @@ function init () {
   }
 
   function disableTimerButtons() {
-    pomodoroBtn.disabled = true;
-    shortBreakBtn.disabled = true;
-    longBreakBtn.disabled = true;
+    for (let i = 0; i < timerChildren.length; i++) {
+      timerChildren[i].disabled = true;
+    }
   }
 
   function enableStartStopButtons() {
@@ -112,9 +119,9 @@ function init () {
   }
 
   function enableTimerButtons() {
-    pomodoroBtn.disabled = false;
-    shortBreakBtn.disabled = false;
-    longBreakBtn.disabled = false;
+    for (let i = 0; i < timerChildren.length; i++) {
+      timerChildren[i].disabled = false;
+    }
   }
   
   // ****************************** BUTTONS *********************************** // 
@@ -161,7 +168,6 @@ function init () {
   loopBtn.addEventListener('click', () => {
     disableIncDecButtons();
     disableTimerButtons();
-
     looping = true;
     loops = 0;
     count = 0;
