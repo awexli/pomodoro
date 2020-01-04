@@ -95,6 +95,12 @@ function init () {
     stopBtn.disabled = true;
   }
 
+  function disableTimerButtons() {
+    pomodoroBtn.disabled = true;
+    shortBreakBtn.disabled = true;
+    longBreakBtn.disabled = true;
+  }
+
   function enableStartStopButtons() {
     startBtn.disabled = false;
     stopBtn.disabled = false;
@@ -103,6 +109,12 @@ function init () {
   function enableIncDecButtons() {
     incrementBtn.disabled = false;
     decrementBtn.disabled = false;
+  }
+
+  function enableTimerButtons() {
+    pomodoroBtn.disabled = false;
+    shortBreakBtn.disabled = false;
+    longBreakBtn.disabled = false;
   }
   
   // ****************************** BUTTONS *********************************** // 
@@ -119,6 +131,7 @@ function init () {
   resetBtn.addEventListener('click', () => {
     resetTimer(false, 25);
     looping = false;
+    enableTimerButtons();
   });
 
   pomodoroBtn.addEventListener('click', () => {
@@ -147,6 +160,7 @@ function init () {
 
   loopBtn.addEventListener('click', () => {
     disableIncDecButtons();
+    disableTimerButtons();
 
     looping = true;
     loops = 0;
