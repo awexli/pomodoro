@@ -11,7 +11,7 @@ function init () {
   const decrementBtn = document.querySelector('#decrement');
 
   // timer buttons = buttons on top of clock
-  const timerButtons = document.querySelector('.timers');
+  const timerButtons = document.querySelector('#timers');
   const timerChildren = timerButtons.childNodes;
 
   const pomodoroBtn = document.querySelector('#pomodoro');
@@ -45,13 +45,19 @@ function init () {
   }
 
   function checkEndTimer() {
+    // prevents playSound() from being called when spamming start and stop
+    if (secs.innerText <= 1 && mins.innerText <= 1) {
+      secs.innerText--;
+      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+    }
+    
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
       disableStartStopButtons();
       disableIncDecButtons();
       end = true;
       
-      playSound('./alarm.mp3');
+      playSound('./alarm.ogg');
 
       // loop one cycle
       if (looping && loops != 3) {
@@ -101,7 +107,20 @@ function init () {
     audio.onended = function(){
       audio.remove() //Remove when played.
     };
+    listenToRemove(audio);
     document.body.appendChild(audio);
+  }
+
+  /**
+   * Removes the audio element from the body when any button is clicked
+   * @param  {HTMLAudioElement} audio Audio element
+   */
+  function listenToRemove(audio) {
+    document.querySelectorAll(".button").forEach(element => {
+      element.addEventListener('click', () => {
+        audio.remove();
+      });
+    });
   }
 
   function disableIncDecButtons() {
