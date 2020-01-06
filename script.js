@@ -23,6 +23,7 @@ function init () {
   let looping = false;
   let loops = 0;
   let count = 0;
+  let duration;
 
   function myTimer() {
     checkEndTimer();
@@ -45,12 +46,12 @@ function init () {
   }
 
   function checkEndTimer() {
-    // prevents playSound() from being called when spamming start and stop
-    if (secs.innerText <= 1 && mins.innerText <= 1) {
+     // prevents playSound() from being called when spamming start and stop
+     if (secs.innerText <= 1 && mins.innerText <= 0) {
       secs.innerText--;
       secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
     }
-    
+
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
       disableStartStopButtons();
@@ -58,18 +59,35 @@ function init () {
       end = true;
       
       playSound('./alarm.ogg');
+      
+      loopTimers(duration);
+    }
+  }
+  
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-      // loop one cycle
-      if (looping && loops != 3) {
-        count++;
-        if (count > 2) {
-          count = 1;
-          loops++;
-        }
+  async function waitForAudio(button) {
+    await sleep(8200);
+    button.disabled = false;
+    button.click()
+    button.disabled = true;
+  }
+  
 
-        if (count == 1) shortBreakBtn.click();
-        if (count == 2) pomodoroBtn.click();
+  function loopTimers() {
+    if (end && looping && loops != 3) {
+      count++;
+
+      if (count > 2) {
+        count = 1;
+        loops++;
       }
+
+      if (count == 1) waitForAudio(shortBreakBtn);
+
+      if (count == 2) waitForAudio(pomodoroBtn);
     }
   }
 
@@ -80,7 +98,7 @@ function init () {
       enableIncDecButtons();
     } else {
       window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
+      startTimer = setInterval(myTimer, 50);
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
@@ -98,22 +116,25 @@ function init () {
     end = false;
   }
 
+  /**
+   * Appends and autoplays an audio file in the body
+   * @param  {string} url Audio file path
+   * @return {void} undefined
+   */
   function playSound(url){
-    var audio = document.createElement('audio');
+    const audio = document.createElement('audio');
     audio.style.display = "none";
     audio.setAttribute("id", "alarm");
     audio.src = url;
     audio.autoplay = true;
-    audio.onended = function(){
-      audio.remove() //Remove when played.
-    };
-    listenToRemove(audio);
     document.body.appendChild(audio);
+    listenToRemove(audio);
   }
 
   /**
-   * Removes the audio element from the body when any button is clicked
+   * Removes the audio element from the body
    * @param  {HTMLAudioElement} audio Audio element
+   * @return {void} undefined
    */
   function listenToRemove(audio) {
     document.querySelectorAll(".button").forEach(element => {
@@ -121,6 +142,10 @@ function init () {
         audio.remove();
       });
     });
+
+    audio.onended = function(){
+      audio.remove() //Remove when played.
+    };
   }
 
   function disableIncDecButtons() {
@@ -173,15 +198,15 @@ function init () {
   });
 
   pomodoroBtn.addEventListener('click', () => {
-    resetTimer(true, 25);
+    resetTimer(true, 1);
   });
 
   shortBreakBtn.addEventListener('click', () => {
-    resetTimer(true, 5);
+    resetTimer(true, 1);
   });
 
   longBreakBtn.addEventListener('click', () => {
-    resetTimer(true, 15);
+    resetTimer(true, 1);
   });
 
   incrementBtn.addEventListener('click', () => {
@@ -203,7 +228,7 @@ function init () {
     loops = 0;
     count = 0;
 
-    resetTimer(true, 25);
+    resetTimer(true, 1);
   });
 }
 
