@@ -23,7 +23,56 @@ function init () {
   let looping = false;
   let loops = 0;
   let count = 0;
-  let duration;
+  let testTime = 1
+
+  // ****************************** BUTTONS *********************************** // 
+  startBtn.addEventListener('click', () => {
+    starTime(true, false);
+  });
+
+  stopBtn.addEventListener('click', () => {
+    window.clearInterval(startTimer)
+    stopBtn.disabled = true;
+    startBtn.disabled = false;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    resetTimer(false, 25);
+    looping = false;
+    enableTimerButtons();
+  });
+
+  pomodoroBtn.addEventListener('click', () => {
+    resetTimer(true, testTime);
+  });
+
+  shortBreakBtn.addEventListener('click', () => {
+    resetTimer(true, testTime);
+  });
+
+  longBreakBtn.addEventListener('click', () => {
+    resetTimer(true, testTime);
+  });
+
+  incrementBtn.addEventListener('click', () => {
+    incDecMinutes(1);
+    decrementBtn.disabled = false;
+  });
+
+  decrementBtn.addEventListener('click', () => {
+    incDecMinutes(-1);
+  });
+
+  loopBtn.addEventListener('click', () => {
+    disableIncDecButtons();
+    disableTimerButtons();
+    looping = true;
+    loops = 0;
+    count = 0;
+
+    resetTimer(true, testTime);
+  });
+  // ****************************** END BUTTONS *********************************** // 
 
   function myTimer() {
     checkEndTimer();
@@ -74,7 +123,6 @@ function init () {
     button.click()
     button.disabled = true;
   }
-  
 
   function loopTimers() {
     if (end && looping && loops != 3) {
@@ -148,6 +196,22 @@ function init () {
     };
   }
 
+  /**
+   * Increments or decrements minutes
+   * @param  {number} operation 1 or -1
+   * @return {void} undefined
+   */
+  const incDecMinutes = (operation) => {
+    if (operation === 1) mins.innerText++;
+
+    if (operation === -1) mins.innerText--;
+
+    if (mins.innerText <= 0) decrementBtn.disabled = true;
+
+    mins.innerText = mins.innerText < 10 ? '0' + mins.innerText : mins.innerText;
+  }
+
+  // ************************ ENABLE/DISABLE FUNCTIONS *************************** // 
   function disableIncDecButtons() {
     incrementBtn.disabled = true;
     decrementBtn.disabled = true;
@@ -179,57 +243,6 @@ function init () {
       timerChildren[i].disabled = false;
     }
   }
-  
-  // ****************************** BUTTONS *********************************** // 
-  startBtn.addEventListener('click', () => {
-    starTime(true, false);
-  });
-
-  stopBtn.addEventListener('click', () => {
-    window.clearInterval(startTimer)
-    stopBtn.disabled = true;
-    startBtn.disabled = false;
-  });
-
-  resetBtn.addEventListener('click', () => {
-    resetTimer(false, 25);
-    looping = false;
-    enableTimerButtons();
-  });
-
-  pomodoroBtn.addEventListener('click', () => {
-    resetTimer(true, 1);
-  });
-
-  shortBreakBtn.addEventListener('click', () => {
-    resetTimer(true, 1);
-  });
-
-  longBreakBtn.addEventListener('click', () => {
-    resetTimer(true, 1);
-  });
-
-  incrementBtn.addEventListener('click', () => {
-    mins.innerText++;
-    mins.innerText = mins.innerText < 10 ? '0' + mins.innerText : mins.innerText;
-    decrementBtn.disabled = false;
-  });
-
-  decrementBtn.addEventListener('click', () => {
-    mins.innerText--;
-    mins.innerText = mins.innerText < 10 ? '0' + mins.innerText : mins.innerText;
-    if (mins.innerText <= 0) decrementBtn.disabled = true;
-  });
-
-  loopBtn.addEventListener('click', () => {
-    disableIncDecButtons();
-    disableTimerButtons();
-    looping = true;
-    loops = 0;
-    count = 0;
-
-    resetTimer(true, 1);
-  });
 }
 
 window.onload = function () {
