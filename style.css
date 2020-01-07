@@ -1,8 +1,35 @@
-body {
+html, body {
+  box-sizing: border-box;
   background-color: rgb(56, 54, 54);
   color: beige;
   padding: 0;
   margin: 0;
+  font-family: 'Ubuntu', sans-serif;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+footer {
+	text-align: center;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+@media (max-height: 625px) {
+  .container {
+    display:flex; 
+    flex-direction:column; 
+    transform: scale(0.9);
+  }
+  
+  footer {
+    position: relative;
+  }
 }
 
 .container {
@@ -11,6 +38,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
 }
+
 .timers button {
   border: 1px solid black;
 }
@@ -36,13 +64,15 @@ body {
 
 .sections {
   align-self: center;
+  padding: 0;
+  margin: 1rem 0 0 0;
 }
 
-footer {
-	text-align: center;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
+#settings {
+  background-color: rgb(46, 44, 44);
+  border-radius: 8px;
+  margin-top: 1rem;
+  padding: 0 1rem 1rem 1rem;
 }
 
 p {
@@ -52,4 +82,30 @@ p {
 
 a:visited {
   color: rgb(58, 124, 223);
+}
+
+button {
+  background-color: beige;
+  border-style: none;
+  font-weight: bold;
+  padding: 1rem;
+  border-radius: 2px;
+  transition: 0.5s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  filter: alpha(opacity=50); /* For IE8 and earlier */
+}
+
+button:hover {
+  opacity: 0.5;
+  filter: alpha(opacity=50); /* For IE8 and earlier */
+}
+
+button:focus {outline:0;}
+
+.adjust-button {
+  padding: 5px 1rem 5px 1rem;
+  font-size: large;
 }
