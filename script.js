@@ -7,9 +7,6 @@ function init () {
   const resetBtn = document.querySelector('#reset');
   const loopBtn = document.querySelector('#loop');
   
-  const incrementBtn = document.querySelector('#increment');
-  const decrementBtn = document.querySelector('#decrement');
-
   // timer buttons = buttons on top of clock
   const timerButtons = document.querySelector('#timers');
   const timerChildren = timerButtons.childNodes;
