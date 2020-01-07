@@ -72,8 +72,8 @@ function init () {
 
     resetTimer(true, testTime);
   });
-  // ****************************** END BUTTONS *********************************** // 
 
+  // ****************************** MAIN FUNCTIONS *********************************** // 
   function myTimer() {
     checkEndTimer();
 
@@ -109,7 +109,7 @@ function init () {
       
       playSound('./alarm.ogg');
       
-      loopTimers(duration);
+      loopTimers();
     }
   }
   
@@ -120,7 +120,7 @@ function init () {
   async function waitForAudio(button) {
     await sleep(8200);
     button.disabled = false;
-    button.click()
+    button.click();
     button.disabled = true;
   }
 
@@ -206,7 +206,9 @@ function init () {
 
     if (operation === -1) mins.innerText--;
 
-    if (mins.innerText <= 0) decrementBtn.disabled = true;
+    if (mins.innerText < 0) mins.innerText = 60;
+
+    if (mins.innerText > 60) mins.innerText = 0;
 
     mins.innerText = mins.innerText < 10 ? '0' + mins.innerText : mins.innerText;
   }
