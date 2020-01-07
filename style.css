@@ -1,5 +1,9 @@
 .container {
+  margin: 10% 0 10% 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .timers button {
@@ -7,10 +11,24 @@
 }
 
 #clock span {
-  font-size: 12rem;
+  font-size: 8rem;
 }
 
-#adjust-time {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+#pomo-adjust {
+  display: flex;
+  justify-content: center;
+}
+
+.adjust-time {
+  margin: 0 5px 0 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.adjust-time span {
+  margin: 5px 0 5px 0;
+}
+
+.sections {
+  align-self: center;
 }

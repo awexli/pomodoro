@@ -9,28 +9,57 @@
 </head>
 <body>
   <div class="container">
-    <div id="timers">
+
+    <div id="timers" class="sections">
       <button id="pomodoro" class="button">Pomodoro</button>
       <button id="short-break" class="button">Short Break</button>
       <button id="long-break" class="button">Long Break</button>
     </div>
 
-    <p id="clock">
-      <span id="minutes">00</span>
+    <p id="clock" class="sections">
+      <span id="minutes">25</span>
       <span>:</span>
-      <span id="seconds">02</span>
+      <span id="seconds">00</span>
     </p>
 
-    <div id="main-buttons">
+    <div id="main-buttons" class="sections">
       <button id="start" class="button">Start</button>
       <button id="stop" class="button">Stop</button>
       <button id="reset" class="button">Reset</button>
       <button id="loop" class="button">Loop</button>
-      <div id="adjust-time">
-        <button id="increment" class="button">+</button>
-        <button id="decrement" class="button">-<v/button>
+    </div>
+
+    <div class="sections">
+
+      <div>
+        <h2>Settings</h1>
+        <p>[Reset] button to apply your new times (mins)</p>
+      </div>
+  
+      <div id="pomo-adjust">
+        <div class="adjust-time">
+          <p>Pomo</p>
+          <button id="increment" class="adjust-button increment">+</button>
+          <span id="pomo-mins">25</span>
+          <button id="decrement" class="adjust-button decrement">-</button>
+        </div>
+  
+        <div class="adjust-time">
+          <p>Short</p>
+          <button class="adjust-button increment">+</button>
+          <span id="short-mins">5</span>
+          <button class="adjust-button decrement">-</button>
+        </div>
+  
+        <div class="adjust-time">
+          <p>Long</p>
+          <button class="adjust-button increment">+</button>
+          <span id="long-mins">15</span>
+          <button class="adjust-button decrement">-</button>
+        </div>
       </div>
     </div>
+
   </div>
   <script src="script.js"></script>
 </body>
