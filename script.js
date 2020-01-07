@@ -100,9 +100,9 @@ function init () {
 
     if (operation === -1) m.innerText--;
 
-    if (m.innerText < 0) m.innerText = 60;
+    if (m.innerText < 1) m.innerText = 60;
 
-    if (m.innerText > 60) m.innerText = 0;
+    if (m.innerText > 60) m.innerText = 1;
   }
 
   function myTimer() {
