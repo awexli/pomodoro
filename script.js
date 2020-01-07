@@ -135,7 +135,6 @@ function init () {
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
       disableStartStopButtons();
-      disableIncDecButtons();
       end = true;
       
       playSound('./alarm.ogg');
