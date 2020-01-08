@@ -137,7 +137,7 @@ function init () {
       disableStartStopButtons();
       end = true;
       
-      playSound('./alarm.ogg');
+      playSound();
       
       loopTimers();
     }
@@ -199,13 +199,9 @@ function init () {
    * @param  {string} url Audio file path
    * @return {void} undefined
    */
-  function playSound(url){
-    const audio = document.createElement('audio');
-    audio.style.display = "none";
-    audio.setAttribute("id", "alarm");
-    audio.src = url;
-    audio.autoplay = true;
-    document.body.appendChild(audio);
+  function playSound(){
+    const audio = document.getElementById('audio');
+    audio.play();
     listenToRemove(audio);
   }
 
@@ -217,13 +213,15 @@ function init () {
   function listenToRemove(audio) {
     document.querySelectorAll(".button").forEach(element => {
       element.addEventListener('click', () => {
-        audio.remove();
+        audio.pause();
       });
     });
 
     audio.onended = function(){
-      audio.remove() //Remove when played.
+      audio.pause() //Remove when played.
     };
+
+    audio.curentTime = 0;
   }
 
   // ************************ ENABLE/DISABLE FUNCTIONS *************************** // 

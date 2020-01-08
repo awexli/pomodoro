@@ -80,8 +80,12 @@ p {
   margin: 0 0 1rem 0;
 }
 
+a {
+  color: aqua;
+}
+
 a:visited {
-  color: rgb(58, 124, 223);
+  color: rgb(146, 179, 228);
 }
 
 button {
