@@ -66,16 +66,23 @@ function init () {
     resetTimer(true, pomoTime);
   });
 
-  function listenTimerUpdate() {
+  function listenAdjustButtons() {
     let timer = null;
 
-    // Simulate updating custom timer on hold
-    adjustButtons
-      .forEach(element => element.addEventListener('mousedown', evt => {
-        timer = setInterval(() => {
-          evt.target.click();
-        }, 200);
-    }));
+      /**
+     * Increments or decrements minutes
+     * @param  {number} operation 1 or -1
+     * @return {void} undefined
+     */
+    const incDecMinutes = (operation, m) => {
+      if (operation === 1) m.innerText++;
+
+      if (operation === -1) m.innerText--;
+
+      if (m.innerText < 1) m.innerText = 60;
+
+      if (m.innerText > 60) m.innerText = 1;
+    }
 
     // Set up a custom click event handler
     adjustButtons
@@ -102,37 +109,37 @@ function init () {
         if (id == 'long-mins') longTime = minutes.innerText;
       }));
 
+    // Simulate updating custom timer on hold
     adjustButtons
-      .forEach(element => element.addEventListener("mouseup", () => {
-      clearInterval(timer);
-    }));
+      .forEach(element => element.addEventListener('mousedown', evt => {
+        timer = setInterval(() => {
+          evt.target.click();
+        }, 120);
+      }));
+      
+    adjustButtons
+        .forEach(element => element.addEventListener("mouseup", () => {
+          clearInterval(timer);
+      }));
 
     // If the mouse is dragged out of the original element
     // and then the mouse is released, the timer will stop
     adjustButtons
       .forEach(element => element.addEventListener("mouseleave", () => {
-      clearInterval(timer);
-    }));
+        clearInterval(timer);
+      }));
   }
 
-  listenTimerUpdate();
-  
+  listenAdjustButtons();
 
   // ****************************** MAIN FUNCTIONS *********************************** // 
   
-  /**
-   * Increments or decrements minutes
-   * @param  {number} operation 1 or -1
-   * @return {void} undefined
-   */
-  const incDecMinutes = (operation, m) => {
-    if (operation === 1) m.innerText++;
-
-    if (operation === -1) m.innerText--;
-
-    if (m.innerText < 1) m.innerText = 60;
-
-    if (m.innerText > 60) m.innerText = 1;
+  function starTime() {
+    myTimer();
+    startTimer = setInterval(myTimer, 1000);
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    end = false;
   }
 
   function myTimer() {
@@ -156,85 +163,22 @@ function init () {
   }
 
   function checkEndTimer() {
-     // prevents playSound() from being called when spamming start and stop
-     if (secs.innerText <= 1 && mins.innerText <= 0) {
-      secs.innerText--;
-      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-    }
+    // prevents playSound() from being called when spamming start and stop
+    if (secs.innerText <= 1 && mins.innerText <= 0) {
+     secs.innerText--;
+     secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+   }
 
-    if (secs.innerText <= 0 && mins.innerText <= 0) {
-      window.clearInterval(startTimer);
-      buttonsDisabled([startBtn, stopBtn], true);
-      end = true;
-      
-      playSound('./alarm.ogg');
-      
-      loopTimers();
-    }
-  }
-  
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+   if (secs.innerText <= 0 && mins.innerText <= 0) {
+     window.clearInterval(startTimer);
+     buttonsDisabled([startBtn, stopBtn], true);
+     playSound('./alarm.ogg');
+     loopTimers();
+     end = true;
+   }
+ }
 
-  async function waitForAudio(button) {
-    await sleep(8200);
-    button.disabled = false;
-    button.click();
-    button.disabled = true;
-  }
-
-  /**
-   * Loops one cycle of the pomodoro technique
-   * @param  {void} void
-   * @return {void} undefined
-   */
-  function loopTimers() {
-    if (end && looping && loops != 3) {
-      count++;
-
-      if (count > 2) {
-        count = 1;
-        loops++;
-        console.log(loops)
-      }
-
-      if (loops == 3 && count == 1) {
-        waitForAudio(longBreakBtn);
-      } else if (count == 1) {
-        waitForAudio(shortBreakBtn);
-      }
-
-      if (count == 2) waitForAudio(pomodoroBtn);
-    }
-  }
-
-  function resetTimer(autoStart, min) {
-    if (!autoStart) {
-      window.clearInterval(startTimer)
-      buttonsDisabled([startBtn, stopBtn], false);
-      buttonsDisabled(adjustButtons, false);
-    } else {
-      window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-    }
-    
-    secs.innerText = '0' + 0;
-    mins.innerText = min < 10 ? '0' + min : min;
-    end = false;
-  }
-
-  function starTime() {
-    myTimer();
-    startTimer = setInterval(myTimer, 1000);
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-    end = false;
-  }
-
-  /**
+ /**
    * Appends and autoplays an audio file in the body
    * @param  {string} url Audio file path
    * @return {void} undefined
@@ -264,6 +208,58 @@ function init () {
     audio.onended = function(){
       audio.remove();
     };
+  }
+
+  /**
+   * Loops one cycle of the pomodoro technique
+   * @param  {void} void
+   * @return {void} undefined
+   */
+  function loopTimers() {
+    if (end && looping && loops != 3) {
+      count++;
+
+      if (count > 2) {
+        count = 1;
+        loops++;
+      }
+
+      if (loops == 3 && count == 1) {
+        waitForAudio(longBreakBtn);
+      } else if (count == 1) {
+        waitForAudio(shortBreakBtn);
+      }
+
+      if (count == 2) waitForAudio(pomodoroBtn);
+    }
+  }
+
+  async function waitForAudio(button) {
+    await sleep(8200);
+    button.disabled = false;
+    button.click();
+    button.disabled = true;
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function resetTimer(autoStart, min) {
+    if (!autoStart) {
+      window.clearInterval(startTimer)
+      buttonsDisabled([startBtn, stopBtn], false);
+      buttonsDisabled(adjustButtons, false);
+    } else {
+      window.clearInterval(startTimer)
+      startTimer = setInterval(myTimer, 1000);
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    }
+    
+    secs.innerText = '0' + 0;
+    mins.innerText = min < 10 ? '0' + min : min;
+    end = false;
   }
 
   function buttonsDisabled(buttons, bool) {
