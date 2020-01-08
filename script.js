@@ -1,4 +1,5 @@
 function init () {
+  // make this all less redundant
   const secs = document.querySelector('#seconds');
   const mins = document.querySelector('#minutes');
   
@@ -7,13 +8,15 @@ function init () {
   const resetBtn = document.querySelector('#reset');
   const loopBtn = document.querySelector('#loop');
   
-  // timer buttons = buttons on top of clock
-  const timerButtons = document.querySelector('#timers');
-  const timerChildren = timerButtons.childNodes;
-
   const pomodoroBtn = document.querySelector('#pomodoro');
   const shortBreakBtn = document.querySelector('#short-break');
   const longBreakBtn = document.querySelector('#long-break');
+
+  // timer buttons = buttons on top of clock
+  const timers = document.querySelector('#timers');
+  const timerButtons = timers.childNodes;
+  
+  const adjustButtons = document.querySelectorAll('.adjust-button');
 
   let startTimer;
   let end = false;
@@ -37,8 +40,8 @@ function init () {
 
   resetBtn.addEventListener('click', () => {
     resetTimer(false, pomoTime);
+    buttonsDisabled(timerButtons, false);
     looping = false;
-    enableTimerButtons();
   });
 
   pomodoroBtn.addEventListener('click', () => {
@@ -54,8 +57,8 @@ function init () {
   });
 
   loopBtn.addEventListener('click', () => {
-    disableIncDecButtons();
-    disableTimerButtons();
+    buttonsDisabled(adjustButtons, true);
+    buttonsDisabled(timerButtons, true);
     looping = true;
     loops = 0;
     count = 0;
@@ -67,19 +70,18 @@ function init () {
     let timer = null;
 
     // Simulate updating custom timer on hold
-    document.querySelectorAll('.adjust-button')
-    .forEach(element => element.addEventListener('mousedown', evt => {
-      timer = setInterval(() => {
-        evt.target.click();
-      }, 200);
-
+    adjustButtons
+      .forEach(element => element.addEventListener('mousedown', evt => {
+        timer = setInterval(() => {
+          evt.target.click();
+        }, 200);
     }));
 
     // Set up a custom click event handler
-    document.querySelectorAll('.adjust-button')
+    adjustButtons
       .forEach(element => element.addEventListener("click", e => {
         let className = e.target.classList[1];
-        let minutes
+        let minutes;
         let id;
 
         if (className == 'increment') {
@@ -91,22 +93,23 @@ function init () {
           minutes = document.getElementById(id);
           incDecMinutes(-1, minutes);
         }
-
+        
+        // Side effects
         if (id == 'pomo-mins') pomoTime = minutes.innerText;
 
         if (id == 'short-mins') shortTime = minutes.innerText;
 
         if (id == 'long-mins') longTime = minutes.innerText;
-    }));
+      }));
 
-    document.querySelectorAll('.adjust-button')
+    adjustButtons
       .forEach(element => element.addEventListener("mouseup", () => {
       clearInterval(timer);
     }));
 
     // If the mouse is dragged out of the original element
     // and then the mouse is released, the timer will stop
-    document.querySelectorAll('.adjust-button')
+    adjustButtons
       .forEach(element => element.addEventListener("mouseleave", () => {
       clearInterval(timer);
     }));
@@ -161,7 +164,7 @@ function init () {
 
     if (secs.innerText <= 0 && mins.innerText <= 0) {
       window.clearInterval(startTimer);
-      disableStartStopButtons();
+      buttonsDisabled([startBtn, stopBtn], true);
       end = true;
       
       playSound('./alarm.ogg');
@@ -209,8 +212,8 @@ function init () {
   function resetTimer(autoStart, min) {
     if (!autoStart) {
       window.clearInterval(startTimer)
-      enableStartStopButtons();
-      enableIncDecButtons();
+      buttonsDisabled([startBtn, stopBtn], false);
+      buttonsDisabled(adjustButtons, false);
     } else {
       window.clearInterval(startTimer)
       startTimer = setInterval(myTimer, 1000);
@@ -263,41 +266,10 @@ function init () {
     };
   }
 
-  // ************************ ENABLE/DISABLE FUNCTIONS *************************** // 
-  function disableIncDecButtons() {
-    document.querySelectorAll('.adjust-button')
-      .forEach(button => {
-        button.disabled = true;
-      })
-  }
-
-  function disableStartStopButtons() {
-    startBtn.disabled = true;
-    stopBtn.disabled = true;
-  }
-
-  function disableTimerButtons() {
-    for (let i = 0; i < timerChildren.length; i++) {
-      timerChildren[i].disabled = true;
-    }
-  }
-
-  function enableStartStopButtons() {
-    startBtn.disabled = false;
-    stopBtn.disabled = false;
-  }
-
-  function enableIncDecButtons() {
-    document.querySelectorAll('.adjust-button')
-      .forEach(button => {
-        button.disabled = false;
-      })
-  }
-
-  function enableTimerButtons() {
-    for (let i = 0; i < timerChildren.length; i++) {
-      timerChildren[i].disabled = false;
-    }
+  function buttonsDisabled(buttons, bool) {
+    buttons.forEach(button => {
+      button.disabled = bool;
+    });
   }
 }
 
