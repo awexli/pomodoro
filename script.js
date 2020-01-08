@@ -43,14 +43,17 @@ function init () {
 
   pomodoroBtn.addEventListener('click', () => {
     resetTimer(true, pomoTime);
+    console.log('pomo')
   });
 
   shortBreakBtn.addEventListener('click', () => {
     resetTimer(true, shortTime);
+    console.log('short')
   });
 
   longBreakBtn.addEventListener('click', () => {
     resetTimer(true, longTime);
+    console.log('long')
   });
 
   loopBtn.addEventListener('click', () => {
@@ -61,12 +64,15 @@ function init () {
     count = 0;
 
     resetTimer(true, pomoTime);
+    console.log('pomo')
   });
 
-  let timer = null;
-
-  // Simulate updating custom timer on hold
-  document.querySelectorAll('.adjust-button')
+  
+  function listenTimerUpdate() {
+    let timer = null;
+    
+    // Simulate updating custom timer on hold
+    document.querySelectorAll('.adjust-button')
     .forEach(element => element.addEventListener('mousedown', evt => {
       timer = setInterval(() => {
         evt.target.click();
@@ -74,41 +80,45 @@ function init () {
 
     }));
 
-  // Set up a custom click event handler
-  document.querySelectorAll('.adjust-button')
-    .forEach(element => element.addEventListener("click", function(e){
-      let className = e.target.classList[1];
-      let minutes
-      let id;
+    // Set up a custom click event handler
+    document.querySelectorAll('.adjust-button')
+      .forEach(element => element.addEventListener("click", function(e){
+        let className = e.target.classList[1];
+        let minutes
+        let id;
 
-      if (className == 'increment') {
-        id = e.target.nextElementSibling.attributes.id.value;
-        minutes = document.getElementById(id);
-        incDecMinutes(1, minutes);
-      } else {
-        id = e.target.previousElementSibling.attributes.id.value;
-        minutes = document.getElementById(id);
-        incDecMinutes(-1, minutes);
-      }
+        if (className == 'increment') {
+          id = e.target.nextElementSibling.attributes.id.value;
+          minutes = document.getElementById(id);
+          incDecMinutes(1, minutes);
+        } else {
+          id = e.target.previousElementSibling.attributes.id.value;
+          minutes = document.getElementById(id);
+          incDecMinutes(-1, minutes);
+        }
 
-      if (id == 'pomo-mins') pomoTime = minutes.innerText;
+        if (id == 'pomo-mins') pomoTime = minutes.innerText;
 
-      if (id == 'short-mins') shortTime = minutes.innerText;
+        if (id == 'short-mins') shortTime = minutes.innerText;
 
-      if (id == 'long-mins') longTime = minutes.innerText;
-  }));
+        if (id == 'long-mins') longTime = minutes.innerText;
+    }));
 
-  document.querySelectorAll('.adjust-button')
-    .forEach(element => element.addEventListener("mouseup", () => {
-    clearInterval(timer);
-  }));
+    document.querySelectorAll('.adjust-button')
+      .forEach(element => element.addEventListener("mouseup", () => {
+      clearInterval(timer);
+    }));
 
-  // If the mouse is dragged out of the original element
-  // and then the mouse is released, the timer will stop
-  document.querySelectorAll('.adjust-button')
-    .forEach(element => element.addEventListener("mouseleave", () => {
-    clearInterval(timer);
-  }));
+    // If the mouse is dragged out of the original element
+    // and then the mouse is released, the timer will stop
+    document.querySelectorAll('.adjust-button')
+      .forEach(element => element.addEventListener("mouseleave", () => {
+      clearInterval(timer);
+    }));
+  }
+
+  listenTimerUpdate();
+  
 
   // ****************************** MAIN FUNCTIONS *********************************** // 
   
@@ -159,7 +169,7 @@ function init () {
       disableStartStopButtons();
       end = true;
       
-      playSound();
+      playSound('./alarm.ogg');
       
       loopTimers();
     }
@@ -183,9 +193,14 @@ function init () {
       if (count > 2) {
         count = 1;
         loops++;
+        console.log(loops)
       }
 
-      if (count == 1) waitForAudio(shortBreakBtn);
+      if (loops == 3 && count == 1) {
+        waitForAudio(longBreakBtn);
+      } else if (count == 1) {
+        waitForAudio(shortBreakBtn);
+      }
 
       if (count == 2) waitForAudio(pomodoroBtn);
     }
@@ -198,7 +213,7 @@ function init () {
       enableIncDecButtons();
     } else {
       window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
+      startTimer = setInterval(myTimer, 50);
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
@@ -221,9 +236,13 @@ function init () {
    * @param  {string} url Audio file path
    * @return {void} undefined
    */
-  function playSound(){
-    const audio = document.getElementById('audio');
-    audio.play();
+  function playSound(url){
+    const audio = document.createElement('audio');
+    audio.style.display = "none";
+    audio.setAttribute("id", "alarm");
+    audio.src = url;
+    audio.autoplay = true;
+    document.body.appendChild(audio);
     listenToRemove(audio);
   }
 
@@ -235,15 +254,13 @@ function init () {
   function listenToRemove(audio) {
     document.querySelectorAll(".button").forEach(element => {
       element.addEventListener('click', () => {
-        audio.pause();
+        audio.remove();
       });
     });
 
     audio.onended = function(){
-      audio.pause() //Remove when played.
+      audio.remove();
     };
-
-    audio.curentTime = 0;
   }
 
   // ************************ ENABLE/DISABLE FUNCTIONS *************************** // 
