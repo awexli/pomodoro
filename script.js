@@ -43,17 +43,14 @@ function init () {
 
   pomodoroBtn.addEventListener('click', () => {
     resetTimer(true, pomoTime);
-    console.log('pomo')
   });
 
   shortBreakBtn.addEventListener('click', () => {
     resetTimer(true, shortTime);
-    console.log('short')
   });
 
   longBreakBtn.addEventListener('click', () => {
     resetTimer(true, longTime);
-    console.log('long')
   });
 
   loopBtn.addEventListener('click', () => {
@@ -64,13 +61,11 @@ function init () {
     count = 0;
 
     resetTimer(true, pomoTime);
-    console.log('pomo')
   });
 
-  
   function listenTimerUpdate() {
     let timer = null;
-    
+
     // Simulate updating custom timer on hold
     document.querySelectorAll('.adjust-button')
     .forEach(element => element.addEventListener('mousedown', evt => {
@@ -82,7 +77,7 @@ function init () {
 
     // Set up a custom click event handler
     document.querySelectorAll('.adjust-button')
-      .forEach(element => element.addEventListener("click", function(e){
+      .forEach(element => element.addEventListener("click", e => {
         let className = e.target.classList[1];
         let minutes
         let id;
@@ -186,6 +181,11 @@ function init () {
     button.disabled = true;
   }
 
+  /**
+   * Loops one cycle of the pomodoro technique
+   * @param  {void} void
+   * @return {void} undefined
+   */
   function loopTimers() {
     if (end && looping && loops != 3) {
       count++;
@@ -213,7 +213,7 @@ function init () {
       enableIncDecButtons();
     } else {
       window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 50);
+      startTimer = setInterval(myTimer, 1000);
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
