@@ -63,9 +63,20 @@ function init () {
     resetTimer(true, pomoTime);
   });
 
-  // Set custom timers
+  let timer = null;
+
+  // Simulate updating custom timer on hold
   document.querySelectorAll('.adjust-button')
-    .forEach(element => element.addEventListener('click', e => {
+    .forEach(element => element.addEventListener('mousedown', evt => {
+      timer = setInterval(() => {
+        evt.target.click();
+      }, 200);
+
+    }));
+
+  // Set up a custom click event handler
+  document.querySelectorAll('.adjust-button')
+    .forEach(element => element.addEventListener("click", function(e){
       let className = e.target.classList[1];
       let minutes
       let id;
@@ -85,8 +96,19 @@ function init () {
       if (id == 'short-mins') shortTime = minutes.innerText;
 
       if (id == 'long-mins') longTime = minutes.innerText;
+  }));
 
-    }));
+  document.querySelectorAll('.adjust-button')
+    .forEach(element => element.addEventListener("mouseup", () => {
+    clearInterval(timer);
+  }));
+
+  // If the mouse is dragged out of the original element
+  // and then the mouse is released, the timer will stop
+  document.querySelectorAll('.adjust-button')
+    .forEach(element => element.addEventListener("mouseleave", () => {
+    clearInterval(timer);
+  }));
 
   // ****************************** MAIN FUNCTIONS *********************************** // 
   
