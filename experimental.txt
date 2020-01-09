@@ -1,0 +1,15 @@
+function storeButtons(theButtons) {
+    const buttons = [];
+    theButtons.forEach(button => {
+      buttons.push(button);
+    })
+    return buttons;
+  } 
+  
+  function findButton(id, buttons) {
+    for (let value of buttons) {
+      if (value.attributes.id.value == id) {
+        return value;
+      }
+    }
+  }

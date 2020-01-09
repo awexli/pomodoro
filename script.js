@@ -1,22 +1,18 @@
 function init () {
-  // make this all less redundant
   const secs = document.querySelector('#seconds');
   const mins = document.querySelector('#minutes');
   
   const startBtn = document.querySelector('#start');
   const stopBtn = document.querySelector('#stop');
-  const resetBtn = document.querySelector('#reset');
-  const loopBtn = document.querySelector('#loop');
   
+  // Timer buttons
   const pomodoroBtn = document.querySelector('#pomodoro');
   const shortBreakBtn = document.querySelector('#short-break');
   const longBreakBtn = document.querySelector('#long-break');
-
-  // timer buttons = buttons on top of clock
-  const timers = document.querySelector('#timers');
-  const timerButtons = timers.childNodes;
   
   const adjustButtons = document.querySelectorAll('.adjust-button');
+  const timerButtons = document.querySelectorAll('.timer-button')
+  const mainBtns = document.querySelectorAll('.buttons');
 
   let startTimer;
   let end = false;
@@ -27,49 +23,43 @@ function init () {
   let shortTime = 5;
   let longTime = 15;
 
-  // ****************************** BUTTONS *********************************** // 
-  startBtn.addEventListener('click', () => {
-    starTime(true, false);
-  });
-
-  stopBtn.addEventListener('click', () => {
-    window.clearInterval(startTimer);
-    stopBtn.disabled = true;
-    startBtn.disabled = false;
-  });
-
-  resetBtn.addEventListener('click', () => {
-    resetTimer(false, pomoTime);
-    buttonsDisabled(timerButtons, false);
-    looping = false;
-  });
-
-  pomodoroBtn.addEventListener('click', () => {
-    resetTimer(true, pomoTime);
-  });
-
-  shortBreakBtn.addEventListener('click', () => {
-    resetTimer(true, shortTime);
-  });
-
-  longBreakBtn.addEventListener('click', () => {
-    resetTimer(true, longTime);
-  });
-
-  loopBtn.addEventListener('click', () => {
-    buttonsDisabled(adjustButtons, true);
-    buttonsDisabled(timerButtons, true);
-    looping = true;
-    loops = 0;
-    count = 0;
-
-    resetTimer(true, pomoTime);
-  });
+  // ****************************** BUTTONS *********************************** //
+  mainBtns.forEach(button => {
+    button.addEventListener('click', e => {
+      const buttonId = e.target.attributes.id.value;
+      switch(buttonId) {
+        case 'start':
+          starTime(true, false);
+          break;
+        case 'stop':
+          stopThread();
+          break;
+        case 'reset':
+          resetThread();
+          break;
+        case 'loop':
+          loopThread();
+          break;
+        case 'pomo':
+          resetTimer(true, pomoTime);
+          break;
+        case 'short':
+          resetTimer(true, shortTime);
+          break;
+        case 'long':
+          resetTimer(true, longTime);
+          break;
+        default:
+          console.error('id doesnt exist');
+          break;
+      }
+    })
+  })
 
   function listenAdjustButtons() {
     let timer = null;
 
-      /**
+    /**
      * Increments or decrements minutes
      * @param  {number} operation 1 or -1
      * @return {void} undefined
@@ -87,7 +77,7 @@ function init () {
     // Set up a custom click event handler
     adjustButtons
       .forEach(element => element.addEventListener("click", e => {
-        let className = e.target.classList[1];
+        const className = e.target.classList[1];
         let minutes;
         let id;
 
@@ -133,7 +123,27 @@ function init () {
   listenAdjustButtons();
 
   // ****************************** MAIN FUNCTIONS *********************************** // 
-  
+  function loopThread() {
+    buttonsDisabled(adjustButtons, true);
+    buttonsDisabled(timerButtons, true);
+    resetTimer(true, pomoTime);
+    looping = true;
+    loops = 0;
+    count = 0;
+  }
+
+  function resetThread() {
+    resetTimer(false, pomoTime);
+    buttonsDisabled(timerButtons, false);
+    looping = false;
+  }
+
+  function stopThread() {
+    window.clearInterval(startTimer);
+    stopBtn.disabled = true;
+    startBtn.disabled = false;
+  }
+
   function starTime() {
     myTimer();
     startTimer = setInterval(myTimer, 1000);
@@ -146,7 +156,6 @@ function init () {
     checkEndTimer();
 
     if (secs.innerText <= 0 && !end) {
-      
       secs.innerText = 60;
 
       if (mins.innerText != 0) mins.innerText--;
@@ -167,13 +176,13 @@ function init () {
     if (secs.innerText <= 1 && mins.innerText <= 0) {
      secs.innerText--;
      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-   }
+    }
 
    if (secs.innerText <= 0 && mins.innerText <= 0) {
      window.clearInterval(startTimer);
      buttonsDisabled([startBtn, stopBtn], true);
      playSound('./alarm.ogg');
-     loopTimers();
+     cycleTimers();
      end = true;
    }
  }
@@ -215,7 +224,7 @@ function init () {
    * @param  {void} void
    * @return {void} undefined
    */
-  function loopTimers() {
+  function cycleTimers() {
     if (end && looping && loops != 3) {
       count++;
 
