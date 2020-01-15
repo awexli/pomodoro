@@ -243,12 +243,12 @@ function init () {
   }
 
   async function defaultWaitAudio(audio) {
-    await sleep(8000);
+    await sleep(8800);
     audio.remove();
   }
 
   async function waitForAudio(button) {
-    await sleep(8000);
+    await sleep(8800);
     button.disabled = false;
     button.click();
     button.disabled = true;
@@ -265,7 +265,7 @@ function init () {
       buttonsDisabled(adjustButtons, false);
     } else {
       window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
+      startTimer = setInterval(myTimer, 10);
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
