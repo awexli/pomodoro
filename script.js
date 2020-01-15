@@ -6,9 +6,9 @@ function init () {
   const stopBtn = document.querySelector('#stop');
   
   // Timer buttons
-  const pomodoroBtn = document.querySelector('#pomodoro');
-  const shortBreakBtn = document.querySelector('#short-break');
-  const longBreakBtn = document.querySelector('#long-break');
+  const pomodoroBtn = document.querySelector('#pomo');
+  const shortBreakBtn = document.querySelector('#short');
+  const longBreakBtn = document.querySelector('#long');
   
   const adjustButtons = document.querySelectorAll('.adjust-button');
   const timerButtons = document.querySelectorAll('.timer-button')
@@ -181,9 +181,9 @@ function init () {
    if (secs.innerText <= 0 && mins.innerText <= 0) {
      window.clearInterval(startTimer);
      buttonsDisabled([startBtn, stopBtn], true);
-     playSound('./alarm.ogg');
-     cycleTimers();
+     playSound('./alert.wav');
      end = true;
+     cycleTimers();
    }
  }
 
@@ -198,6 +198,7 @@ function init () {
     audio.setAttribute("id", "alarm");
     audio.src = url;
     audio.autoplay = true;
+    audio.loop = true;
     document.body.appendChild(audio);
     listenToRemove(audio);
   }
@@ -208,15 +209,13 @@ function init () {
    * @return {void} undefined
    */
   function listenToRemove(audio) {
-    document.querySelectorAll(".button").forEach(element => {
+    document.querySelectorAll(".buttons").forEach(element => {
       element.addEventListener('click', () => {
         audio.remove();
       });
     });
 
-    audio.onended = function(){
-      audio.remove();
-    };
+    defaultWaitAudio(audio);
   }
 
   /**
@@ -243,8 +242,13 @@ function init () {
     }
   }
 
+  async function defaultWaitAudio(audio) {
+    await sleep(8000);
+    audio.remove();
+  }
+
   async function waitForAudio(button) {
-    await sleep(8200);
+    await sleep(8000);
     button.disabled = false;
     button.click();
     button.disabled = true;
@@ -261,7 +265,7 @@ function init () {
       buttonsDisabled(adjustButtons, false);
     } else {
       window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
+      startTimer = setInterval(myTimer, 10);
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
