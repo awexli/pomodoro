@@ -265,7 +265,7 @@ function init () {
       buttonsDisabled(adjustButtons, false);
     } else {
       window.clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 10);
+      startTimer = setInterval(myTimer, 1000);
       startBtn.disabled = true;
       stopBtn.disabled = false;
     }
