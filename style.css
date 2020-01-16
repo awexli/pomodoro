@@ -13,34 +13,11 @@ html, body {
   box-sizing: inherit;
 }
 
-footer {
-	text-align: center;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-}
-
-@media (max-height: 625px) {
-  .container {
-    display:flex; 
-    flex-direction:column; 
-    transform: scale(0.9);
-  }
-  
-  footer {
-    position: relative;
-  }
-}
-
 .container {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-}
-
-.timers button {
-  border: 1px solid black;
 }
 
 #clock span {
@@ -92,7 +69,7 @@ button {
   background-color: beige;
   border-style: none;
   font-weight: bold;
-  padding: 1rem;
+  padding: 15px;
   border-radius: 2px;
   transition: 0.5s;
 }
@@ -109,7 +86,30 @@ button:hover {
 
 button:focus {outline:0;}
 
+.main-button {
+  padding: 1rem 22px 1rem 22px;
+}
+
 .adjust-button {
   padding: 5px 1rem 5px 1rem;
   font-size: large;
+}
+
+footer {
+	text-align: center;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+@media (max-height: 625px) {
+  .container {
+    display:flex; 
+    flex-direction:column; 
+    transform: scale(0.9);
+  }
+  
+  footer {
+    position: relative;
+  }
 }
