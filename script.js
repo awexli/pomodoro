@@ -64,7 +64,7 @@ function init () {
     const incDecMinutes = (e, isInc) => {
       let num;
       let id;
-
+      
       if (isInc) {
         id = e.target.nextElementSibling.id
         num = 1;
@@ -80,7 +80,7 @@ function init () {
      * Increments or decrements minutes in settings
      */
     const update = (id, operater) => {
-      min = document.getElementById(id);
+      const min = document.getElementById(id);
 
       if (operater === 1) {
         min.innerText++;
