@@ -181,7 +181,7 @@ function init () {
    if (secs.innerText <= 0 && mins.innerText <= 0) {
      window.clearInterval(startTimer);
      buttonsDisabled([startBtn, stopBtn], true);
-     playSound('./alert.wav');
+     playSound('./alarm.wav');
      end = true;
      cycleTimers();
    }
@@ -243,12 +243,12 @@ function init () {
   }
 
   async function defaultWaitAudio(audio) {
-    await sleep(8800);
+    await sleep(9200);
     audio.remove();
   }
 
   async function waitForAudio(button) {
-    await sleep(8800);
+    await sleep(9200);
     button.disabled = false;
     button.click();
     button.disabled = true;
