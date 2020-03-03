@@ -11,8 +11,7 @@ function init () {
   const longBreakBtn = document.querySelector('#long');
   
   const adjustButtons = document.querySelectorAll('.adjust-button');
-  const timerButtons = document.querySelectorAll('.timer-button')
-  const mainBtns = document.querySelectorAll('.buttons');
+  const timerButtons = document.querySelectorAll('.timer-button');
 
   let startTimer;
   let end = false;
@@ -24,82 +23,92 @@ function init () {
   let longTime = 15;
 
   // ****************************** BUTTONS *********************************** //
-  mainBtns.forEach(button => {
-    button.addEventListener('click', e => {
-      const buttonId = e.target.attributes.id.value;
-      switch(buttonId) {
-        case 'start':
-          starTime(true, false);
-          break;
-        case 'stop':
-          stopThread();
-          break;
-        case 'reset':
-          resetThread();
-          break;
-        case 'loop':
-          loopThread();
-          break;
-        case 'pomo':
-          resetTimer(true, pomoTime);
-          break;
-        case 'short':
-          resetTimer(true, shortTime);
-          break;
-        case 'long':
-          resetTimer(true, longTime);
-          break;
-        default:
-          console.error('id doesnt exist');
-          break;
-      }
-    })
-  })
-
-  function listenAdjustButtons() {
-    let timer = null;
-
-    /**
-     * Increments or decrements minutes
-     * @param  {number} operation 1 or -1
-     * @return {void} undefined
-     */
-    const incDecMinutes = (operation, m) => {
-      if (operation === 1) m.innerText++;
-
-      if (operation === -1) m.innerText--;
-
-      if (m.innerText < 1) m.innerText = 60;
-
-      if (m.innerText > 60) m.innerText = 1;
+  document.addEventListener("click", e => {
+    switch(e.target.id) {
+      case 'start':
+        starTime(true, false);
+        break;
+      case 'stop':
+        stopThread();
+        break;
+      case 'reset':
+        resetThread();
+        break;
+      case 'loop':
+        loopThread();
+        break;
+      case 'pomo':
+        resetTimer(true, pomoTime);
+        break;
+      case 'short':
+        resetTimer(true, shortTime);
+        break;
+      case 'long':
+        resetTimer(true, longTime);
+        break;
+      default:
+        break;
     }
 
-    // Set up a custom click event handler
-    adjustButtons
-      .forEach(element => element.addEventListener("click", e => {
-        const className = e.target.classList[1];
-        let minutes;
-        let id;
+    if (e.target.classList[1] == "increment") {
+      settings.incDecMinutes(e, true);
+    }
 
-        if (className == 'increment') {
-          id = e.target.nextElementSibling.attributes.id.value;
-          minutes = document.getElementById(id);
-          incDecMinutes(1, minutes);
-        } else {
-          id = e.target.previousElementSibling.attributes.id.value;
-          minutes = document.getElementById(id);
-          incDecMinutes(-1, minutes);
-        }
-        
-        // Side effects
-        if (id == 'pomo-mins') pomoTime = minutes.innerText;
+    if (e.target.classList[1] == "decrement") {
+      settings.incDecMinutes(e, false);
+    }
+  })
 
-        if (id == 'short-mins') shortTime = minutes.innerText;
+  const settings = (() => {
+    
+    const incDecMinutes = (e, isInc) => {
+      let num;
+      let id;
 
-        if (id == 'long-mins') longTime = minutes.innerText;
-      }));
+      if (isInc) {
+        id = e.target.nextElementSibling.id
+        num = 1;
+      } else {
+        id = e.target.previousElementSibling.id
+        num = -1;
+      }
 
-    // Simulate updating custom timer on hold
+      update(id, num);
+    }
+
+    /**
+     * Increments or decrements minutes in settings
+     */
+    const update = (id, operater) => {
+      min = document.getElementById(id);
+
+      if (operater === 1) {
+        min.innerText++;
+      } else {
+        min.innerText--;
+      }
+
+      if (min.innerText < 1) {
+        min.innerText = 60;
+      }
+
+      if (min.innerText > 60) {
+        min.innerText = 1;
+      }
+
+      apply(id, min);
+    }
+
+    const apply = (id, min) => {
+      if (id == 'pomo-mins') pomoTime = min.innerText;
+
+      if (id == 'short-mins') shortTime = min.innerText;
+
+      if (id == 'long-mins') longTime = min.innerText;
+    }
+
+    let timer = null;
+    // simulate press and hold
     adjustButtons
       .forEach(element => element.addEventListener('mousedown', evt => {
         timer = setInterval(() => {
@@ -118,9 +127,9 @@ function init () {
       .forEach(element => element.addEventListener("mouseleave", () => {
         clearInterval(timer);
       }));
-  }
-
-  listenAdjustButtons();
+    
+    return { incDecMinutes };
+  })();
 
   // ****************************** MAIN FUNCTIONS *********************************** // 
   function loopThread() {
