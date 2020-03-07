@@ -29,13 +29,13 @@ function init () {
         starTime(true, false);
         break;
       case 'stop':
-        stopThread();
+        thread.stop();
         break;
       case 'reset':
-        resetThread();
+        thread.reset();
         break;
       case 'loop':
-        loopThread();
+        thread.loop();
         break;
       case 'pomo':
         resetTimer(true, pomoTime);
@@ -132,26 +132,31 @@ function init () {
   })();
 
   // ****************************** MAIN FUNCTIONS *********************************** // 
-  function loopThread() {
-    buttonsDisabled(adjustButtons, true);
-    buttonsDisabled(timerButtons, true);
-    resetTimer(true, pomoTime);
-    looping = true;
-    loops = 0;
-    count = 0;
-  }
 
-  function resetThread() {
-    resetTimer(false, pomoTime);
-    buttonsDisabled(timerButtons, false);
-    looping = false;
-  }
+  const thread = (() => {
+    const loop = () => {
+      buttonsDisabled(adjustButtons, true);
+      buttonsDisabled(timerButtons, true);
+      resetTimer(true, pomoTime);
+      looping = true;
+      loops = 0;
+      count = 0;
+    }
 
-  function stopThread() {
-    window.clearInterval(startTimer);
-    stopBtn.disabled = true;
-    startBtn.disabled = false;
-  }
+    const reset = () => {
+      resetTimer(false, pomoTime);
+      buttonsDisabled(timerButtons, false);
+      looping = false;
+    }
+
+    const stop = () => {
+      clearInterval(startTimer);
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+    }
+
+    return { loop, reset, stop }
+  })();
 
   function starTime() {
     myTimer();
@@ -178,6 +183,8 @@ function init () {
       secs.innerText--;
       secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
     } 
+    
+    document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
   }
 
   function checkEndTimer() {
@@ -188,7 +195,7 @@ function init () {
     }
 
    if (secs.innerText <= 0 && mins.innerText <= 0) {
-     window.clearInterval(startTimer);
+     clearInterval(startTimer);
      buttonsDisabled([startBtn, stopBtn], true);
      playSound('./alarm.wav');
      end = true;
@@ -206,9 +213,9 @@ function init () {
     audio.style.display = "none";
     audio.setAttribute("id", "alarm");
     audio.src = url;
-    audio.autoplay = true;
     audio.loop = true;
     document.body.appendChild(audio);
+    audio.play();
     listenToRemove(audio);
   }
 
@@ -252,12 +259,12 @@ function init () {
   }
 
   async function defaultWaitAudio(audio) {
-    await sleep(9200);
+    await sleep(18400);
     audio.remove();
   }
 
   async function waitForAudio(button) {
-    await sleep(9200);
+    await sleep(18400);
     button.disabled = false;
     button.click();
     button.disabled = true;
@@ -269,11 +276,11 @@ function init () {
 
   function resetTimer(autoStart, min) {
     if (!autoStart) {
-      window.clearInterval(startTimer)
+      clearInterval(startTimer)
       buttonsDisabled([startBtn, stopBtn], false);
       buttonsDisabled(adjustButtons, false);
     } else {
-      window.clearInterval(startTimer)
+      clearInterval(startTimer)
       startTimer = setInterval(myTimer, 1000);
       startBtn.disabled = true;
       stopBtn.disabled = false;
@@ -291,6 +298,4 @@ function init () {
   }
 }
 
-window.onload = function () {
-  this.init()
-};
+init();
