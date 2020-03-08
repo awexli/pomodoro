@@ -197,41 +197,45 @@ function init () {
    if (secs.innerText <= 0 && mins.innerText <= 0) {
      clearInterval(startTimer);
      buttonsDisabled([startBtn, stopBtn], true);
-     playSound('./alarm.wav');
+     playSound();
      end = true;
      cycleTimers();
    }
  }
 
- /**
-   * Appends and autoplays an audio file in the body
-   * @param  {string} url Audio file path
-   * @return {void} undefined
-   */
-  function playSound(url){
-    const audio = document.createElement('audio');
-    audio.style.display = "none";
-    audio.setAttribute("id", "alarm");
-    audio.src = url;
-    audio.loop = true;
-    document.body.appendChild(audio);
-    audio.play();
-    listenToRemove(audio);
+  const alarm = new Audio("./alarm.wav");
+  function playSound(){
+    alarm.play();
+    let loopAlarm = setInterval(() => {
+      alarm.play();
+    }, 1000)
+    listenToRemove(loopAlarm);
   }
 
-  /**
-   * Removes the audio element from the body
-   * @param  {HTMLAudioElement} audio Audio element
-   * @return {void} undefined
-   */
-  function listenToRemove(audio) {
+  function listenToRemove(loop) {
     document.querySelectorAll(".buttons").forEach(element => {
       element.addEventListener('click', () => {
-        audio.remove();
+        clearInterval(loop);
       });
     });
 
-    defaultWaitAudio(audio);
+    defaultWaitAudio(loop);
+  }
+
+  async function defaultWaitAudio(loop) {
+    await sleep(9200);
+    clearInterval(loop);
+  }
+
+  async function waitForAudio(button) {
+    await sleep(9200);
+    button.disabled = false;
+    button.click();
+    button.disabled = true;
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -256,22 +260,6 @@ function init () {
 
       if (count == 2) waitForAudio(pomodoroBtn);
     }
-  }
-
-  async function defaultWaitAudio(audio) {
-    await sleep(9200);
-    audio.remove();
-  }
-
-  async function waitForAudio(button) {
-    await sleep(9200);
-    button.disabled = false;
-    button.click();
-    button.disabled = true;
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   function resetTimer(autoStart, min) {
