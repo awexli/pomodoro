@@ -1,35 +1,19 @@
 function init () {
-  const secs = document.querySelector('#seconds');
-  const mins = document.querySelector('#minutes');
-  
-  const startBtn = document.querySelector('#start');
-  const stopBtn = document.querySelector('#stop');
-  
-  // Timer buttons
-  const pomodoroBtn = document.querySelector('#pomo');
-  const shortBreakBtn = document.querySelector('#short');
-  const longBreakBtn = document.querySelector('#long');
-  
-  const adjustButtons = document.querySelectorAll('.adjust-button');
-  const timerButtons = document.querySelectorAll('.timer-button');
 
-  let startTimer;
-  let end = false;
-  let looping = false;
-  let loops = 0;
-  let count = 0;
-  let pomoTime = 25;
-  let shortTime = 5;
-  let longTime = 15;
+  // default times
+  let def = {
+    pomo: 25,
+    short: 5,
+    long: 15
+  }
 
-  // ****************************** BUTTONS *********************************** //
   document.addEventListener("click", e => {
     switch(e.target.id) {
       case 'start':
-        starTime(true, false);
+        timer.start();
         break;
       case 'stop':
-        thread.stop();
+        timer.stop();
         break;
       case 'reset':
         thread.reset();
@@ -38,13 +22,13 @@ function init () {
         thread.loop();
         break;
       case 'pomo':
-        resetTimer(true, pomoTime);
+        timer.reset(true, def.pomo);
         break;
       case 'short':
-        resetTimer(true, shortTime);
+        timer.reset(true, def.short);
         break;
       case 'long':
-        resetTimer(true, longTime);
+        timer.reset(true, def.long);
         break;
       default:
         break;
@@ -59,8 +43,147 @@ function init () {
     }
   })
 
-  const settings = (() => {
+  // ****************************** MAIN *********************************** // 
+  const timer = (() => {
+    const secs = document.querySelector('#seconds');
+    const mins = document.querySelector('#minutes');
+    const startBtn = document.querySelector('#start');
+    const stopBtn = document.querySelector('#stop');
+
+    let startTimer;
+    let end = false;
+
+    const start = () => {
+      tick();
+      startTimer = setInterval(tick, 1000);
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      end = false;
+    }
+
+    const tick = () => {
+      checkEnd();
+
+      if (secs.innerText <= 0 && !end) {
+        secs.innerText = 60;
+
+        if (mins.innerText != 0) mins.innerText--;
+
+        if (mins.innerText < 10 && secs.innerText == 60){
+          mins.innerText = "0" + mins.innerText;
+        } 
+      }
+
+      if (!end) {
+        secs.innerText--;
+        secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+      } 
+      
+      document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
+    }
     
+    const checkEnd = () => {
+      // prevents audio.play() from being called when spamming start and stop
+      if (secs.innerText <= 1 && mins.innerText <= 0) {
+        secs.innerText--;
+        secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+      }
+ 
+      if (secs.innerText <= 0 && mins.innerText <= 0) {
+        clearInterval(startTimer);
+        buttonsDisabled([startBtn, stopBtn], true);
+        audio.play();
+        end = true;
+        thread.cycle();
+      }
+    }
+
+    const stop = () => {
+      clearInterval(startTimer);
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+    }
+
+    const reset = (autoStart, min) => {
+      if (!autoStart) {
+        clearInterval(startTimer)
+        buttonsDisabled([startBtn, stopBtn], false);
+      } else {
+        clearInterval(startTimer)
+        startTimer = setInterval(tick, 1000);
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+      }
+      
+      secs.innerText = '0' + 0;
+      mins.innerText = min < 10 ? '0' + min : min;
+      document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
+      end = false;
+    }
+
+    const isEnd = () => {
+      return end;
+    }
+
+    return { start, stop, reset, isEnd };
+  })();
+
+  // ****************************** THREADS (Loops) *********************************** // 
+  const thread = (() => {
+    
+    const timerButtons = document.querySelectorAll('.timer-button');
+    const [pomoBtn, shortBtn, longBtn] = timerButtons;
+
+    let looping = false;
+    let loops = 0;
+    let count = 0;
+
+    const loop = () => {
+      buttonsDisabled(timerButtons, true);
+      timer.reset(true, def.pomo);
+      looping = true;
+      loops = 0;
+      count = 0;
+    }
+
+    /**
+     * Loops one cycle of the pomodoro technique
+     * @param  {void} void
+     * @return {void} undefined
+     */
+    const cycle = () => {
+      if (timer.isEnd() && looping && loops != 3) {
+        count++;
+  
+        if (count > 2) {
+          count = 1;
+          loops++;
+        }
+  
+        if (loops == 3 && count == 1) {
+          audio.waitThen(longBtn);
+        } else if (count == 1) {
+          audio.waitThen(shortBtn);
+        }
+  
+        if (count == 2) audio.waitThen(pomoBtn);
+      }
+    }
+
+    const reset = () => {
+      timer.reset(false, def.pomo);
+      buttonsDisabled(timerButtons, false);
+      looping = false;
+    }
+    
+    return { loop, reset, cycle }
+  })();
+
+  // ****************************** SETTINGS *********************************** // 
+  const settings = (() => {
+
+    const adjustButtons = document.querySelectorAll('.adjust-button');
+
     const incDecMinutes = (e, isInc) => {
       let num;
       let id;
@@ -76,9 +199,6 @@ function init () {
       update(id, num);
     }
 
-    /**
-     * Increments or decrements minutes in settings
-     */
     const update = (id, operater) => {
       const min = document.getElementById(id);
 
@@ -100,11 +220,11 @@ function init () {
     }
 
     const apply = (id, min) => {
-      if (id == 'pomo-mins') pomoTime = min.innerText;
+      if (id == 'pomo-mins') def.pomo = min.innerText;
 
-      if (id == 'short-mins') shortTime = min.innerText;
+      if (id == 'short-mins') def.short = min.innerText;
 
-      if (id == 'long-mins') longTime = min.innerText;
+      if (id == 'long-mins') def.long = min.innerText;
     }
 
     let timer = null;
@@ -131,153 +251,48 @@ function init () {
     return { incDecMinutes };
   })();
 
-  // ****************************** MAIN FUNCTIONS *********************************** // 
+  // ****************************** AUDIO *********************************** // 
+  const audio = (() => {
+    const alarm = new Audio("./alarm.wav");
 
-  const thread = (() => {
-    const loop = () => {
-      buttonsDisabled(adjustButtons, true);
-      buttonsDisabled(timerButtons, true);
-      resetTimer(true, pomoTime);
-      looping = true;
-      loops = 0;
-      count = 0;
-    }
-
-    const reset = () => {
-      resetTimer(false, pomoTime);
-      buttonsDisabled(timerButtons, false);
-      looping = false;
-    }
-
-    const stop = () => {
-      clearInterval(startTimer);
-      stopBtn.disabled = true;
-      startBtn.disabled = false;
-    }
-
-    return { loop, reset, stop }
-  })();
-
-  function starTime() {
-    myTimer();
-    startTimer = setInterval(myTimer, 1000);
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-    end = false;
-  }
-
-  function myTimer() {
-    checkEndTimer();
-
-    if (secs.innerText <= 0 && !end) {
-      secs.innerText = 60;
-
-      if (mins.innerText != 0) mins.innerText--;
-
-      if (mins.innerText < 10 && secs.innerText == 60){
-        mins.innerText = "0" + mins.innerText;
-      } 
-    }
-
-    if (!end) {
-      secs.innerText--;
-      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-    } 
-    
-    document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
-  }
-
-  function checkEndTimer() {
-    // prevents playSound() from being called when spamming start and stop
-    if (secs.innerText <= 1 && mins.innerText <= 0) {
-     secs.innerText--;
-     secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-    }
-
-   if (secs.innerText <= 0 && mins.innerText <= 0) {
-     clearInterval(startTimer);
-     buttonsDisabled([startBtn, stopBtn], true);
-     playSound();
-     end = true;
-     cycleTimers();
-   }
- }
-
-  const alarm = new Audio("./alarm.wav");
-  function playSound(){
-    alarm.play();
-    let loopAlarm = setInterval(() => {
+    const play = () =>{
       alarm.play();
-    }, 1000)
-    listenToRemove(loopAlarm);
-  }
 
-  function listenToRemove(loop) {
-    document.querySelectorAll(".buttons").forEach(element => {
-      element.addEventListener('click', () => {
-        clearInterval(loop);
+      let loopAlarm = setInterval(() => {
+        alarm.play();
+      }, 1000)
+
+      listenToRemove(loopAlarm);
+    }
+
+    const listenToRemove = (loop) => {
+      document.querySelectorAll(".buttons").forEach(element => {
+        element.addEventListener('click', () => {
+          clearInterval(loop);
+        });
       });
-    });
-
-    defaultWaitAudio(loop);
-  }
-
-  async function defaultWaitAudio(loop) {
-    await sleep(9200);
-    clearInterval(loop);
-  }
-
-  async function waitForAudio(button) {
-    await sleep(9200);
-    button.disabled = false;
-    button.click();
-    button.disabled = true;
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Loops one cycle of the pomodoro technique
-   * @param  {void} void
-   * @return {void} undefined
-   */
-  function cycleTimers() {
-    if (end && looping && loops != 3) {
-      count++;
-
-      if (count > 2) {
-        count = 1;
-        loops++;
-      }
-
-      if (loops == 3 && count == 1) {
-        waitForAudio(longBreakBtn);
-      } else if (count == 1) {
-        waitForAudio(shortBreakBtn);
-      }
-
-      if (count == 2) waitForAudio(pomodoroBtn);
+  
+      defaultWaitAudio(loop);
     }
-  }
 
-  function resetTimer(autoStart, min) {
-    if (!autoStart) {
-      clearInterval(startTimer)
-      buttonsDisabled([startBtn, stopBtn], false);
-      buttonsDisabled(adjustButtons, false);
-    } else {
-      clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
+    async function defaultWaitAudio(loop) {
+      await sleep(9200);
+      clearInterval(loop);
     }
-    
-    secs.innerText = '0' + 0;
-    mins.innerText = min < 10 ? '0' + min : min;
-    end = false;
-  }
+
+    async function waitThen(button) {
+      await sleep(9200);
+      button.disabled = false;
+      button.click();
+      button.disabled = true;
+    }
+
+    const sleep = ms => {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    return { play, waitThen }
+  })();
 
   function buttonsDisabled(buttons, bool) {
     buttons.forEach(button => {
@@ -287,3 +302,7 @@ function init () {
 }
 
 init();
+
+// cache
+// continue button for loop 
+// volume control
