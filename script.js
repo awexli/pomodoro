@@ -1,26 +1,11 @@
 function init () {
-  const secs = document.querySelector('#seconds');
-  const mins = document.querySelector('#minutes');
-  
-  const startBtn = document.querySelector('#start');
-  const stopBtn = document.querySelector('#stop');
-  
-  // Timer buttons
-  const pomodoroBtn = document.querySelector('#pomo');
-  const shortBreakBtn = document.querySelector('#short');
-  const longBreakBtn = document.querySelector('#long');
-  
-  const adjustButtons = document.querySelectorAll('.adjust-button');
-  const timerButtons = document.querySelectorAll('.timer-button');
 
-  let startTimer;
-  let end = false;
-  let looping = false;
-  let loops = 0;
-  let count = 0;
-  let pomoTime = 25;
-  let shortTime = 5;
-  let longTime = 15;
+  // default times
+  let def = {
+    pomo: 25,
+    short: 5,
+    long: 15
+  }
 
   document.addEventListener("click", e => {
     switch(e.target.id) {
@@ -28,7 +13,7 @@ function init () {
         timer.start();
         break;
       case 'stop':
-        thread.stop();
+        timer.stop();
         break;
       case 'reset':
         thread.reset();
@@ -37,13 +22,13 @@ function init () {
         thread.loop();
         break;
       case 'pomo':
-        timer.reset(true, pomoTime);
+        timer.reset(true, def.pomo);
         break;
       case 'short':
-        timer.reset(true, shortTime);
+        timer.reset(true, def.short);
         break;
       case 'long':
-        timer.reset(true, longTime);
+        timer.reset(true, def.long);
         break;
       default:
         break;
@@ -60,6 +45,13 @@ function init () {
 
   // ****************************** MAIN *********************************** // 
   const timer = (() => {
+    const secs = document.querySelector('#seconds');
+    const mins = document.querySelector('#minutes');
+    const startBtn = document.querySelector('#start');
+    const stopBtn = document.querySelector('#stop');
+
+    let startTimer;
+    let end = false;
 
     const start = () => {
       tick();
@@ -102,39 +94,20 @@ function init () {
         buttonsDisabled([startBtn, stopBtn], true);
         audio.play();
         end = true;
-        cycle();
+        thread.cycle();
       }
     }
 
-    /**
-     * Loops one cycle of the pomodoro technique
-     * @param  {void} void
-     * @return {void} undefined
-     */
-    const cycle = () => {
-      if (end && looping && loops != 3) {
-        count++;
-  
-        if (count > 2) {
-          count = 1;
-          loops++;
-        }
-  
-        if (loops == 3 && count == 1) {
-          audio.waitThen(longBreakBtn);
-        } else if (count == 1) {
-          audio.waitThen(shortBreakBtn);
-        }
-  
-        if (count == 2) audio.waitThen(pomodoroBtn);
-      }
+    const stop = () => {
+      clearInterval(startTimer);
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
     }
 
     const reset = (autoStart, min) => {
       if (!autoStart) {
         clearInterval(startTimer)
         buttonsDisabled([startBtn, stopBtn], false);
-        buttonsDisabled(adjustButtons, false);
       } else {
         clearInterval(startTimer)
         startTimer = setInterval(tick, 1000);
@@ -148,38 +121,68 @@ function init () {
       end = false;
     }
 
-    return { start, reset };
+    const isEnd = () => {
+      return end;
+    }
+
+    return { start, stop, reset, isEnd };
   })();
 
-  // ****************************** THREADS *********************************** // 
+  // ****************************** THREADS (Loops) *********************************** // 
   const thread = (() => {
+    
+    const timerButtons = document.querySelectorAll('.timer-button');
+    const [pomoBtn, shortBtn, longBtn] = timerButtons;
+
+    let looping = false;
+    let loops = 0;
+    let count = 0;
 
     const loop = () => {
-      buttonsDisabled(adjustButtons, true);
       buttonsDisabled(timerButtons, true);
-      timer.reset(true, pomoTime);
+      timer.reset(true, def.pomo);
       looping = true;
       loops = 0;
       count = 0;
     }
 
+    /**
+     * Loops one cycle of the pomodoro technique
+     * @param  {void} void
+     * @return {void} undefined
+     */
+    const cycle = () => {
+      if (timer.isEnd() && looping && loops != 3) {
+        count++;
+  
+        if (count > 2) {
+          count = 1;
+          loops++;
+        }
+  
+        if (loops == 3 && count == 1) {
+          audio.waitThen(longBtn);
+        } else if (count == 1) {
+          audio.waitThen(shortBtn);
+        }
+  
+        if (count == 2) audio.waitThen(pomoBtn);
+      }
+    }
+
     const reset = () => {
-      timer.reset(false, pomoTime);
+      timer.reset(false, def.pomo);
       buttonsDisabled(timerButtons, false);
       looping = false;
     }
-
-    const stop = () => {
-      clearInterval(startTimer);
-      stopBtn.disabled = true;
-      startBtn.disabled = false;
-    }
-
-    return { loop, reset, stop }
+    
+    return { loop, reset, cycle }
   })();
 
   // ****************************** SETTINGS *********************************** // 
   const settings = (() => {
+
+    const adjustButtons = document.querySelectorAll('.adjust-button');
 
     const incDecMinutes = (e, isInc) => {
       let num;
@@ -217,11 +220,11 @@ function init () {
     }
 
     const apply = (id, min) => {
-      if (id == 'pomo-mins') pomoTime = min.innerText;
+      if (id == 'pomo-mins') def.pomo = min.innerText;
 
-      if (id == 'short-mins') shortTime = min.innerText;
+      if (id == 'short-mins') def.short = min.innerText;
 
-      if (id == 'long-mins') longTime = min.innerText;
+      if (id == 'long-mins') def.long = min.innerText;
     }
 
     let timer = null;
@@ -301,4 +304,5 @@ function init () {
 init();
 
 // cache
-// make less use of local variables
+// continue button for loop 
+// volume control
