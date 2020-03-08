@@ -26,7 +26,7 @@ function init () {
   document.addEventListener("click", e => {
     switch(e.target.id) {
       case 'start':
-        starTime(true, false);
+        starTime();
         break;
       case 'stop':
         thread.stop();
@@ -188,7 +188,7 @@ function init () {
   }
 
   function checkEndTimer() {
-    // prevents playSound() from being called when spamming start and stop
+    // prevents audio.play() from being called when spamming start and stop
     if (secs.innerText <= 1 && mins.innerText <= 0) {
      secs.innerText--;
      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
@@ -197,46 +197,53 @@ function init () {
    if (secs.innerText <= 0 && mins.innerText <= 0) {
      clearInterval(startTimer);
      buttonsDisabled([startBtn, stopBtn], true);
-     playSound();
+     audio.play();
      end = true;
      cycleTimers();
-   }
- }
+    }
+  }
+  
+  const audio = (() => {
+    const alarm = new Audio("./alarm.wav");
 
-  const alarm = new Audio("./alarm.wav");
-  function playSound(){
-    alarm.play();
-    let loopAlarm = setInterval(() => {
+    const play = () =>{
       alarm.play();
-    }, 1000)
-    listenToRemove(loopAlarm);
-  }
 
-  function listenToRemove(loop) {
-    document.querySelectorAll(".buttons").forEach(element => {
-      element.addEventListener('click', () => {
-        clearInterval(loop);
+      let loopAlarm = setInterval(() => {
+        alarm.play();
+      }, 1000)
+
+      listenToRemove(loopAlarm);
+    }
+
+    const listenToRemove = (loop) => {
+      document.querySelectorAll(".buttons").forEach(element => {
+        element.addEventListener('click', () => {
+          clearInterval(loop);
+        });
       });
-    });
+  
+      defaultWaitAudio(loop);
+    }
 
-    defaultWaitAudio(loop);
-  }
+    async function defaultWaitAudio(loop) {
+      await sleep(9200);
+      clearInterval(loop);
+    }
 
-  async function defaultWaitAudio(loop) {
-    await sleep(9200);
-    clearInterval(loop);
-  }
+    async function waitThen(button) {
+      await sleep(9200);
+      button.disabled = false;
+      button.click();
+      button.disabled = true;
+    }
 
-  async function waitForAudio(button) {
-    await sleep(9200);
-    button.disabled = false;
-    button.click();
-    button.disabled = true;
-  }
+    const sleep = ms => {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+    return { play, waitThen }
+  })();
 
   /**
    * Loops one cycle of the pomodoro technique
@@ -253,12 +260,12 @@ function init () {
       }
 
       if (loops == 3 && count == 1) {
-        waitForAudio(longBreakBtn);
+        audio.waitThen(longBreakBtn);
       } else if (count == 1) {
-        waitForAudio(shortBreakBtn);
+        audio.waitThen(shortBreakBtn);
       }
 
-      if (count == 2) waitForAudio(pomodoroBtn);
+      if (count == 2) audio.waitThen(pomodoroBtn);
     }
   }
 
