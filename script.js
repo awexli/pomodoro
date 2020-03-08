@@ -22,11 +22,10 @@ function init () {
   let shortTime = 5;
   let longTime = 15;
 
-  // ****************************** BUTTONS *********************************** //
   document.addEventListener("click", e => {
     switch(e.target.id) {
       case 'start':
-        starTime();
+        timer.start();
         break;
       case 'stop':
         thread.stop();
@@ -38,13 +37,13 @@ function init () {
         thread.loop();
         break;
       case 'pomo':
-        resetTimer(true, pomoTime);
+        timer.reset(true, pomoTime);
         break;
       case 'short':
-        resetTimer(true, shortTime);
+        timer.reset(true, shortTime);
         break;
       case 'long':
-        resetTimer(true, longTime);
+        timer.reset(true, longTime);
         break;
       default:
         break;
@@ -59,8 +58,129 @@ function init () {
     }
   })
 
-  const settings = (() => {
+  // ****************************** MAIN *********************************** // 
+  const timer = (() => {
+
+    const start = () => {
+      tick();
+      startTimer = setInterval(tick, 1000);
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      end = false;
+    }
+
+    const tick = () => {
+      checkEnd();
+
+      if (secs.innerText <= 0 && !end) {
+        secs.innerText = 60;
+
+        if (mins.innerText != 0) mins.innerText--;
+
+        if (mins.innerText < 10 && secs.innerText == 60){
+          mins.innerText = "0" + mins.innerText;
+        } 
+      }
+
+      if (!end) {
+        secs.innerText--;
+        secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+      } 
+      
+      document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
+    }
     
+    const checkEnd = () => {
+      // prevents audio.play() from being called when spamming start and stop
+      if (secs.innerText <= 1 && mins.innerText <= 0) {
+        secs.innerText--;
+        secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
+      }
+ 
+      if (secs.innerText <= 0 && mins.innerText <= 0) {
+        clearInterval(startTimer);
+        buttonsDisabled([startBtn, stopBtn], true);
+        audio.play();
+        end = true;
+        cycle();
+      }
+    }
+
+    /**
+     * Loops one cycle of the pomodoro technique
+     * @param  {void} void
+     * @return {void} undefined
+     */
+    const cycle = () => {
+      if (end && looping && loops != 3) {
+        count++;
+  
+        if (count > 2) {
+          count = 1;
+          loops++;
+        }
+  
+        if (loops == 3 && count == 1) {
+          audio.waitThen(longBreakBtn);
+        } else if (count == 1) {
+          audio.waitThen(shortBreakBtn);
+        }
+  
+        if (count == 2) audio.waitThen(pomodoroBtn);
+      }
+    }
+
+    const reset = (autoStart, min) => {
+      if (!autoStart) {
+        clearInterval(startTimer)
+        buttonsDisabled([startBtn, stopBtn], false);
+        buttonsDisabled(adjustButtons, false);
+      } else {
+        clearInterval(startTimer)
+        startTimer = setInterval(tick, 1000);
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+      }
+      
+      secs.innerText = '0' + 0;
+      mins.innerText = min < 10 ? '0' + min : min;
+      document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
+      end = false;
+    }
+
+    return { start, reset };
+  })();
+
+  // ****************************** THREADS *********************************** // 
+  const thread = (() => {
+
+    const loop = () => {
+      buttonsDisabled(adjustButtons, true);
+      buttonsDisabled(timerButtons, true);
+      timer.reset(true, pomoTime);
+      looping = true;
+      loops = 0;
+      count = 0;
+    }
+
+    const reset = () => {
+      timer.reset(false, pomoTime);
+      buttonsDisabled(timerButtons, false);
+      looping = false;
+    }
+
+    const stop = () => {
+      clearInterval(startTimer);
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+    }
+
+    return { loop, reset, stop }
+  })();
+
+  // ****************************** SETTINGS *********************************** // 
+  const settings = (() => {
+
     const incDecMinutes = (e, isInc) => {
       let num;
       let id;
@@ -76,9 +196,6 @@ function init () {
       update(id, num);
     }
 
-    /**
-     * Increments or decrements minutes in settings
-     */
     const update = (id, operater) => {
       const min = document.getElementById(id);
 
@@ -131,78 +248,7 @@ function init () {
     return { incDecMinutes };
   })();
 
-  // ****************************** MAIN FUNCTIONS *********************************** // 
-
-  const thread = (() => {
-    const loop = () => {
-      buttonsDisabled(adjustButtons, true);
-      buttonsDisabled(timerButtons, true);
-      resetTimer(true, pomoTime);
-      looping = true;
-      loops = 0;
-      count = 0;
-    }
-
-    const reset = () => {
-      resetTimer(false, pomoTime);
-      buttonsDisabled(timerButtons, false);
-      looping = false;
-    }
-
-    const stop = () => {
-      clearInterval(startTimer);
-      stopBtn.disabled = true;
-      startBtn.disabled = false;
-    }
-
-    return { loop, reset, stop }
-  })();
-
-  function starTime() {
-    myTimer();
-    startTimer = setInterval(myTimer, 1000);
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-    end = false;
-  }
-
-  function myTimer() {
-    checkEndTimer();
-
-    if (secs.innerText <= 0 && !end) {
-      secs.innerText = 60;
-
-      if (mins.innerText != 0) mins.innerText--;
-
-      if (mins.innerText < 10 && secs.innerText == 60){
-        mins.innerText = "0" + mins.innerText;
-      } 
-    }
-
-    if (!end) {
-      secs.innerText--;
-      secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-    } 
-    
-    document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
-  }
-
-  function checkEndTimer() {
-    // prevents audio.play() from being called when spamming start and stop
-    if (secs.innerText <= 1 && mins.innerText <= 0) {
-     secs.innerText--;
-     secs.innerText = secs.innerText < 10 ? "0" + secs.innerText : secs.innerText;
-    }
-
-   if (secs.innerText <= 0 && mins.innerText <= 0) {
-     clearInterval(startTimer);
-     buttonsDisabled([startBtn, stopBtn], true);
-     audio.play();
-     end = true;
-     cycleTimers();
-    }
-  }
-  
+  // ****************************** AUDIO *********************************** // 
   const audio = (() => {
     const alarm = new Audio("./alarm.wav");
 
@@ -245,47 +291,6 @@ function init () {
     return { play, waitThen }
   })();
 
-  /**
-   * Loops one cycle of the pomodoro technique
-   * @param  {void} void
-   * @return {void} undefined
-   */
-  function cycleTimers() {
-    if (end && looping && loops != 3) {
-      count++;
-
-      if (count > 2) {
-        count = 1;
-        loops++;
-      }
-
-      if (loops == 3 && count == 1) {
-        audio.waitThen(longBreakBtn);
-      } else if (count == 1) {
-        audio.waitThen(shortBreakBtn);
-      }
-
-      if (count == 2) audio.waitThen(pomodoroBtn);
-    }
-  }
-
-  function resetTimer(autoStart, min) {
-    if (!autoStart) {
-      clearInterval(startTimer)
-      buttonsDisabled([startBtn, stopBtn], false);
-      buttonsDisabled(adjustButtons, false);
-    } else {
-      clearInterval(startTimer)
-      startTimer = setInterval(myTimer, 1000);
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-    }
-    
-    secs.innerText = '0' + 0;
-    mins.innerText = min < 10 ? '0' + min : min;
-    end = false;
-  }
-
   function buttonsDisabled(buttons, bool) {
     buttons.forEach(button => {
       button.disabled = bool;
@@ -294,3 +299,6 @@ function init () {
 }
 
 init();
+
+// cache
+// make less use of local variables
