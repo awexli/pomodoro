@@ -259,12 +259,12 @@ function init () {
   }
 
   async function defaultWaitAudio(audio) {
-    await sleep(18400);
+    await sleep(9200);
     audio.remove();
   }
 
   async function waitForAudio(button) {
-    await sleep(18400);
+    await sleep(9200);
     button.disabled = false;
     button.click();
     button.disabled = true;
