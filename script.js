@@ -6,6 +6,7 @@ function init () {
     short: 5,
     long: 15
   }
+  
   let started = false;
 
   document.addEventListener("click", e => {
@@ -50,8 +51,6 @@ function init () {
     if (e.target.className == "openbtn") {
       document.getElementById("myNav").style.height = "100%";
     }
-
-    console.log(started)
   })
 
   // ****************************** MAIN *********************************** // 
@@ -192,6 +191,7 @@ function init () {
       timer.reset(false, def.pomo);
       buttonsDisabled(timerButtons, false);
       looping = false;
+      started = false;
     }
     
     return { loop, reset, cycle }
