@@ -6,6 +6,7 @@ function init () {
     short: 5,
     long: 15
   }
+  let started = false;
 
   document.addEventListener("click", e => {
     switch(e.target.id || e.target.parentElement.id) {
@@ -49,6 +50,8 @@ function init () {
     if (e.target.className == "openbtn") {
       document.getElementById("myNav").style.height = "100%";
     }
+
+    console.log(started)
   })
 
   // ****************************** MAIN *********************************** // 
@@ -60,7 +63,6 @@ function init () {
     const stopBtn = document.querySelector('#stop');
 
     let startTimer;
-    let started = false;
     let end = false;
 
     const start = () => {
@@ -132,7 +134,7 @@ function init () {
       secs.innerText = '0' + 0;
       mins.innerText = min < 10 ? '0' + min : min;
       document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
-      started = false;
+      started = true;
       end = false;
     }
 
@@ -159,6 +161,7 @@ function init () {
       looping = true;
       loops = 0;
       count = 0;
+      started = true;
     }
 
     /**
