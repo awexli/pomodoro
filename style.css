@@ -141,11 +141,16 @@ footer p {
 
 .overlay-content {
   position: relative;
-  top: 5%;
+  top: 15%;
   width: 100%;
   text-align: center;
   margin-top: 30px;
   overflow-y: hidden;
+  padding: 15px;
+}
+
+.overlay-content p {
+  font-size: 1rem;
 }
 
 .overlay a {
@@ -187,6 +192,10 @@ footer p {
     bottom: 0;
     left: 50%;
     margin-left: -3rem;
+  }
+
+  .overlay-content p {
+    font-size: 1.5rem;
   }
 }
 
