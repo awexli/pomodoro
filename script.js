@@ -8,7 +8,7 @@ function init () {
   }
 
   document.addEventListener("click", e => {
-    switch(e.target.id) {
+    switch(e.target.id || e.target.parentElement.id) {
       case 'start':
         timer.start();
         break;
@@ -60,14 +60,18 @@ function init () {
     const stopBtn = document.querySelector('#stop');
 
     let startTimer;
+    let started = false;
     let end = false;
 
     const start = () => {
-      tick();
-      startTimer = setInterval(tick, 1000);
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-      end = false;
+      if (!started) {
+        tick();
+        startTimer = setInterval(tick, 1000);
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        started = true;
+        end = false;
+      }
     }
 
     const tick = () => {
@@ -111,6 +115,7 @@ function init () {
       clearInterval(startTimer);
       stopBtn.disabled = true;
       startBtn.disabled = false;
+      started = false;
     }
 
     const reset = (autoStart, min) => {
@@ -127,6 +132,7 @@ function init () {
       secs.innerText = '0' + 0;
       mins.innerText = min < 10 ? '0' + min : min;
       document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
+      started = false;
       end = false;
     }
 
