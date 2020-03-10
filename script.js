@@ -41,10 +41,19 @@ function init () {
     if (e.target.classList[1] == "decrement") {
       settings.incDecMinutes(e, false);
     }
+
+    if (e.target.className == "closebtn") {
+      document.getElementById("myNav").style.height = "0%";
+    }
+
+    if (e.target.className == "openbtn") {
+      document.getElementById("myNav").style.height = "100%";
+    }
   })
 
   // ****************************** MAIN *********************************** // 
   const timer = (() => {
+    
     const secs = document.querySelector('#seconds');
     const mins = document.querySelector('#minutes');
     const startBtn = document.querySelector('#start');
@@ -253,6 +262,7 @@ function init () {
 
   // ****************************** AUDIO *********************************** // 
   const audio = (() => {
+    
     const alarm = new Audio("./alarm.wav");
 
     const play = () =>{

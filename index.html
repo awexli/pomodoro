@@ -2,15 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="Description" content="A timer for your browser that incorporates the pomodoro technique">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Pomodoro</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
+
+  <div id="myNav" class="overlay">
+    <a href="javascript:void(0)" class="closebtn">&times;</a>
+    <div class="overlay-content">
+      <p>The Pomodoro Technique is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p>
+      <p>[Pomodoro] - 25 minutes</p>
+      <p>[Short Break] - 3 to 5 minutes</p>
+      <p>[Long Break] - 15 to 30 minutes</p>
+      <p><span><i  class="fa fa-refresh"></i> - loops one entire cycle of the pomodoro technique</span></p>
+      <p> (Pomodoro > Short Break) * 3 + (Pomodoro > Long Break)
+    </div>
+  </div>
+
   <div class="container">
+    
     <h1 class="sections">Pomodoro Timer</h1>
+
     <div id="timers" class="sections">
       <button id="pomo" class="timer-button buttons">Pomodoro</button>
       <button id="short" class="timer-button buttons">Short Break</button>
@@ -24,16 +40,16 @@
     </p>
 
     <div id="main-buttons" class="sections">
-      <button id="start" class="main-button buttons">Start</button>
-      <button id="stop" class="main-button buttons" >Stop</button>
-      <button id="reset" class="main-button buttons">Reset</button>
-      <button id="loop" class="main-button buttons">Loop</button>
+      <button id="start" class="main-button buttons"><i id="start" class="fa fa-play-circle"></i></button>
+      <button id="stop" class="main-button buttons" ><i id="stop" class="fa fa-stop-circle"></i></button>
+      <button id="reset" class="main-button buttons"><i id="reset" class="fa fa-undo"></i></i></button>
+      <button id="loop" class="main-button buttons"><i id="loop" class="fa fa-refresh"></i></button>
     </div>
-
+    
     <div id="settings" class="sections">
       <div>
-        <h2>Settings</h1>
-        <p>[Reset] button to apply your new times (mins)</p>
+        <h2 style="cursor:pointer" class="openbtn">&#9776; Info</h2>
+        <p>Click <span><i class="fa fa-undo"></i></span> to reset all timers and apply your new times</p>
       </div>
   
       <div id="pomo-adjust">
@@ -59,8 +75,9 @@
         </div>
       </div>
     </div>
+
+    <footer><p>By <a href="https://github.com/awexli/pomodoro">Alex Li</a></p></footer>
   </div>
-  <footer><p>By <a href="https://github.com/awexli/pomodoro">Alex Li</a></p></footer>
   <script src="script.js"></script>
 </body>
 </html>
