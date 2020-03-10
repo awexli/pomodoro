@@ -8,6 +8,8 @@ function init () {
   }
   
   let started = false;
+  
+  const overlay = document.getElementById("overlay-nav");
 
   document.addEventListener("click", e => {
     switch(e.target.id || e.target.parentElement.id) {
@@ -45,11 +47,11 @@ function init () {
     }
 
     if (e.target.className == "closebtn") {
-      document.getElementById("myNav").style.height = "0%";
+      overlay.style.height = "0%";
     }
 
     if (e.target.className == "openbtn") {
-      document.getElementById("myNav").style.height = "100%";
+      overlay.style.height = "100%";
     }
   })
 
