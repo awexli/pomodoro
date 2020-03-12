@@ -323,7 +323,3 @@ function init () {
 }
 
 init();
-
-// cache
-// continue button for loop 
-// volume control
