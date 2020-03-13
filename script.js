@@ -12,32 +12,34 @@ function init () {
   const overlay = document.getElementById("overlay-nav");
 
   document.addEventListener("click", e => {
-    switch(e.target.id || e.target.parentElement.id) {
-      case 'start':
-        timer.start();
-        break;
-      case 'stop':
-        timer.stop();
-        break;
-      case 'reset':
-        thread.reset();
-        break;
-      case 'loop':
-        thread.loop();
-        break;
-      case 'pomo':
-        timer.reset(true, def.pomo);
-        break;
-      case 'short':
-        timer.reset(true, def.short);
-        break;
-      case 'long':
-        timer.reset(true, def.long);
-        break;
-      default:
-        break;
+    if (e.target.parentElement !== null) {
+      switch(e.target.id || e.target.parentElement.id) {
+        case 'start':
+          timer.start();
+          break;
+        case 'stop':
+          timer.stop();
+          break;
+        case 'reset':
+          thread.reset();
+          break;
+        case 'loop':
+          thread.loop();
+          break;
+        case 'pomo':
+          timer.reset(true, def.pomo);
+          break;
+        case 'short':
+          timer.reset(true, def.short);
+          break;
+        case 'long':
+          timer.reset(true, def.long);
+          break;
+        default:
+          break;
+      }
     }
-
+    
     if (e.target.classList[1] == "increment") {
       settings.incDecMinutes(e, true);
     }
@@ -53,15 +55,22 @@ function init () {
     if (e.target.className == "openbtn") {
       overlay.style.height = "100%";
     }
+
+    if (timer.isEnd()) {
+      clearInterval(audio.loopInterval());
+    }
   })
 
-  // ****************************** MAIN *********************************** // 
+  // ======================// 
+  //      MAIN (TIMER)
+  // ======================//  
   const timer = (() => {
     
     const secs = document.querySelector('#seconds');
     const mins = document.querySelector('#minutes');
     const startBtn = document.querySelector('#start');
     const stopBtn = document.querySelector('#stop');
+    const clock = document.querySelector('#clock');
 
     let startTimer;
     let end = false;
@@ -74,6 +83,7 @@ function init () {
         stopBtn.disabled = false;
         started = true;
         end = false;
+        clock.style.color = "beige";
       }
     }
 
@@ -106,19 +116,22 @@ function init () {
       }
  
       if (secs.innerText <= 0 && mins.innerText <= 0) {
+        end = true;
         clearInterval(startTimer);
         buttonsDisabled([startBtn, stopBtn], true);
         audio.play();
-        end = true;
         thread.cycle();
+        clock.style.color = "red";
       }
     }
 
     const stop = () => {
-      clearInterval(startTimer);
-      stopBtn.disabled = true;
-      startBtn.disabled = false;
-      started = false;
+      if (!end) {
+        clearInterval(startTimer);
+        stopBtn.disabled = true;
+        startBtn.disabled = false;
+        started = false; 
+      }
     }
 
     const reset = (autoStart, min) => {
@@ -137,6 +150,7 @@ function init () {
       document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
       started = true;
       end = false;
+      clock.style.color = "beige";
     }
 
     const isEnd = () => {
@@ -146,7 +160,9 @@ function init () {
     return { start, stop, reset, isEnd };
   })();
 
-  // ****************************** THREADS (Loops) *********************************** // 
+  // ======================// 
+  //    THREADS (LOOPS)
+  // ======================// 
   const thread = (() => {
     
     const timerButtons = document.querySelectorAll('.timer-button');
@@ -199,7 +215,9 @@ function init () {
     return { loop, reset, cycle }
   })();
 
-  // ****************************** SETTINGS *********************************** // 
+  // ======================// 
+  //        SETTINGS
+  // ======================// 
   const settings = (() => {
 
     const adjustButtons = document.querySelectorAll('.adjust-button');
@@ -271,15 +289,18 @@ function init () {
     return { incDecMinutes };
   })();
 
-  // ****************************** AUDIO *********************************** // 
+  // ======================// 
+  //         AUDIO 
+  // ======================// 
   const audio = (() => {
     
     const alarm = new Audio("./alarm.wav");
+    let loopAlarm;
 
     const play = () =>{
       alarm.play();
 
-      let loopAlarm = setInterval(() => {
+      loopAlarm = setInterval(() => {
         alarm.play();
       }, 1000)
 
@@ -292,7 +313,7 @@ function init () {
           clearInterval(loop);
         });
       });
-  
+
       defaultWaitAudio(loop);
     }
 
@@ -312,7 +333,11 @@ function init () {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    return { play, waitThen }
+    const getLoopInterval = () => {
+      return loopAlarm;
+    }
+
+    return { play, waitThen, loopInterval: getLoopInterval }
   })();
 
   function buttonsDisabled(buttons, bool) {
@@ -322,4 +347,4 @@ function init () {
   }
 }
 
-init();
+window.onload = init();

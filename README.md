@@ -5,6 +5,7 @@ The Pomodoro Technique is a time management method that uses a timer to break do
     - 25 > 5 > 25 > 5 > 25 > 5 > 25 > 15 = 2 hours 10 min
 
 ## To Add
-- local storage
+- local storage  
 - continue button for loop 
-- volume control
+- volume control  
+- unique sounds for timers

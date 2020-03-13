@@ -6,6 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Pomodoro</title>
+  <link rel="apple-touch-icon" sizes="57x57" href="./fav/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="./fav/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="./fav/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="./fav/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="./fav/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="./fav/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="./fav/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./fav/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./fav/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="./fav/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./fav/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="./fav/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./fav/favicon-16x16.png">
+  <link rel="manifest" href="./fav/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="./fav/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -18,9 +35,10 @@
       <p>[Pomodoro] - 25 minutes</p>
       <p>[Short Break] - 3 to 5 minutes</p>
       <p>[Long Break] - 15 to 30 minutes</p>
+      <hr>
       <p><span><i  class="fa fa-refresh"></i> - loops one entire cycle of the pomodoro technique</span></p>
       <p> (Pomodoro > Short Break) * 3 + (Pomodoro > Long Break)</p>
-      <br>
+      <hr>
       <p><a href="https://github.com/awexli/pomodoro">github</a></p>
     </div>
   </div>
@@ -50,29 +68,27 @@
     
     <div id="settings" class="sections">
       <h2 class="openbtn">&#9776; Info</h2>
-      
       <p>Click <span aria-label="Reset"><i class="fa fa-undo"></i></span> to reset all timers and apply your new times</p>
-      
+      <p>* Click anywhere to stop the alarm *</p>
+      <hr>
       <div id="pomo-adjust">
         <div class="adjust-time">
           <p>Pomo</p>
-          <button class="adjust-button increment">+</button>
+          <button class="adjust-button increment buttons">+</button>
           <span id="pomo-mins">25</span>
-          <button class="adjust-button decrement">-</button>
+          <button class="adjust-button decrement buttons">-</button>
         </div>
-  
         <div class="adjust-time">
           <p>Short</p>
-          <button class="adjust-button increment">+</button>
+          <button class="adjust-button increment buttons">+</button>
           <span id="short-mins">5</span>
-          <button class="adjust-button decrement">-</button>
+          <button class="adjust-button decrement buttons">-</button>
         </div>
-  
         <div class="adjust-time">
           <p>Long</p>
-          <button class="adjust-button increment">+</button>
+          <button class="adjust-button increment buttons">+</button>
           <span id="long-mins">15</span>
-          <button class="adjust-button decrement">-</button>
+          <button class="adjust-button decrement buttons">-</button>
         </div>
       </div>
     </div>
