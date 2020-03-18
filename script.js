@@ -293,12 +293,12 @@ function init () {
   //         AUDIO 
   // ======================// 
   const audio = (() => {
-    
-    const alarm = new Audio("./complete.mp3");
-    let loopAlarm;
 
+    let loopAlarm;
+    const alarm = new Audio("./complete.mp3");
+    alarm.volume = 0.5;
+    
     const playAlarm = () =>{
-      alarm.volume = .6;
       alarm.play();
 
       loopAlarm = setInterval(() => {
@@ -334,11 +334,24 @@ function init () {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    const setVolume = (e) => {
+      let vol = e.target.value / 100;
+      alarm.volume = parseFloat(vol);
+      document.getElementById("percentage").innerText = `${vol * 100}%`;
+    }
+
+    document.addEventListener("change", setVolume);
+    document.addEventListener("input", setVolume);
+
     const getLoopInterval = () => {
       return loopAlarm;
     }
 
-    return { playAlarm, waitThen, loopInterval: getLoopInterval }
+    return { 
+      playAlarm, 
+      waitThen, 
+      loopInterval: getLoopInterval 
+    }
   })();
 
   function buttonsDisabled(buttons, bool) {
