@@ -119,9 +119,9 @@ function init () {
         end = true;
         clearInterval(startTimer);
         buttonsDisabled([startBtn, stopBtn], true);
-        audio.play();
+        audio.playAlarm();
         thread.cycle();
-        clock.style.color = "red";
+        clock.style.color = "limegreen";
       }
     }
 
@@ -294,10 +294,11 @@ function init () {
   // ======================// 
   const audio = (() => {
     
-    const alarm = new Audio("./alarm.wav");
+    const alarm = new Audio("./complete.mp3");
     let loopAlarm;
 
-    const play = () =>{
+    const playAlarm = () =>{
+      alarm.volume = .6;
       alarm.play();
 
       loopAlarm = setInterval(() => {
@@ -318,12 +319,12 @@ function init () {
     }
 
     async function defaultWaitAudio(loop) {
-      await sleep(9200);
+      await sleep(8200);
       clearInterval(loop);
     }
 
     async function waitThen(button) {
-      await sleep(9200);
+      await sleep(8200);
       button.disabled = false;
       button.click();
       button.disabled = true;
@@ -337,7 +338,7 @@ function init () {
       return loopAlarm;
     }
 
-    return { play, waitThen, loopInterval: getLoopInterval }
+    return { playAlarm, waitThen, loopInterval: getLoopInterval }
   })();
 
   function buttonsDisabled(buttons, bool) {
