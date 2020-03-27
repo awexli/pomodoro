@@ -47,11 +47,11 @@
     
     <h1 class="sections">Pomodoro Timer</h1>
 
-    <div id="timers" class="sections">
+    <section id="timers" class="sections">
       <button id="pomo" class="timer-button buttons">Pomodoro</button>
       <button id="short" class="timer-button buttons">Short Break</button>
       <button id="long" class="timer-button buttons">Long Break</button>
-    </div>
+    </section>
 
     <p id="clock" class="sections">
       <span id="minutes">25</span>
@@ -59,45 +59,45 @@
       <span id="seconds">00</span>
     </p>
 
-    <div id="main-buttons" class="sections">
+    <section id="main-buttons" class="sections">
       <button id="start" class="main-button buttons" aria-label="Start"><i class="fa fa-play-circle"></i></button>
       <button id="stop" class="main-button buttons" aria-label="Stop"><i class="fa fa-stop-circle"></i></button>
       <button id="reset" class="main-button buttons" aria-label="Reset"><i class="fa fa-undo"></i></i></button>
       <button id="loop" class="main-button buttons" aria-label="Loop"><i class="fa fa-refresh"></i></button>
-    </div>
+    </section>
     
-    <div id="settings" class="sections">
+    <section id="settings" class="sections">
       <h2 class="openbtn">&#9776; Info</h2>
       <p>Click <span aria-label="Reset"><i class="fa fa-undo"></i></span> to reset all timers and apply your new times</p>
       <p>* Click anywhere to stop the alarm *</p>
       <hr>
-      <div id="pomo-adjust">
+      <section id="pomo-adjust">
         <div class="adjust-time">
           <p>Pomo</p>
           <button class="adjust-button increment buttons">+</button>
-          <span id="pomo-mins">25</span>
+          <span id="pomo-mins" class="adjust-display">25</span>
           <button class="adjust-button decrement buttons">-</button>
         </div>
         <div class="adjust-time">
           <p>Short</p>
           <button class="adjust-button increment buttons">+</button>
-          <span id="short-mins">5</span>
+          <span id="short-mins" class="adjust-display">5</span>
           <button class="adjust-button decrement buttons">-</button>
         </div>
         <div class="adjust-time">
           <p>Long</p>
           <button class="adjust-button increment buttons">+</button>
-          <span id="long-mins">15</span>
+          <span id="long-mins" class="adjust-display">15</span>
           <button class="adjust-button decrement buttons">-</button>
         </div>
-      </div>
+      </section>
       <hr>
-      <div id="adjust-volume">
+      <section id="adjust-volume">
         <h3>Adjust Volume</h3>
         <input id="vol-control" type="range" min="0" max="100" step="10"></input>
         <p id="percentage">50%</p>
-      </div>
-    </div>
+      </section>
+    </section>
   </div>
   <script src="script.js"></script>
 </body>

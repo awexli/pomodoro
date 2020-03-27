@@ -37,8 +37,15 @@ h1 {
   flex-direction: column;
 }
 
-.adjust-time span {
-  margin: 5px 0 5px 0;
+.adjust-button {
+  padding: 5px 1rem 5px 1rem;
+  font-size: 3rem;
+  background-color: #2E3136;
+}
+
+.adjust-display  {
+  margin: 2px 0 2px 0;
+  font-size: 1.5rem;
 }
 
 .sections {
@@ -72,7 +79,7 @@ button {
   border-style: none;
   font-weight: bold;
   padding: 15px;
-  transition: 0.5s;
+  transition: 0.1s;
   color: beige;
   cursor: pointer;
 }
@@ -83,8 +90,7 @@ button:disabled {
 }
 
 button:hover {
-  opacity: 0.5;
-  filter: alpha(opacity=50); /* For IE8 and earlier */
+  color: tomato;
 }
 
 button:focus {
@@ -103,16 +109,6 @@ button:focus {
 
 .hamburger {
   font-size: 2rem;
-}
-
-.adjust-button {
-  padding: 5px 1rem 5px 1rem;
-  font-size: 3rem;
-  background-color: #2E3136;
-}
-
-.adjust-time span {
-  font-size: 1.5rem;
 }
 
 .overlay {
@@ -163,6 +159,11 @@ button:focus {
 .openbtn {
   display: inline-block;
   cursor: pointer;
+  transition: 0.1s;
+}
+
+.openbtn:hover {
+  color: tomato;
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -178,6 +179,10 @@ button:focus {
     font-weight: bold;
     margin: 0 5px;
     border-radius: 2px;
+  }
+  
+  .timer-button:hover {
+    background-color: transparent;
   }
 
   .overlay-content p {

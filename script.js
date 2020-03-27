@@ -121,7 +121,7 @@ function init () {
         buttonsDisabled([startBtn, stopBtn], true);
         audio.playAlarm();
         thread.cycle();
-        clock.style.color = "limegreen";
+        clock.style.color = "tomato";
       }
     }
 
