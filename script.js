@@ -7,6 +7,9 @@ function init () {
     long: 15
   }
   
+  const time = {
+    work: 1 * 60,
+  }
   let started = false;
   
   const overlay = document.getElementById("overlay-nav");
@@ -61,6 +64,9 @@ function init () {
     }
   })
 
+  window.setInterval(() => {
+    timer.tickTock();
+  }, 1000);
   // ======================// 
   //      MAIN (TIMER)
   // ======================//  
@@ -73,18 +79,54 @@ function init () {
     const clock = document.querySelector('#clock');
 
     let startTimer;
-    let end = false;
+    let end = false; 
 
     const start = () => {
       if (!started) {
-        tick();
-        startTimer = setInterval(tick, 1000);
+        started = true;
+        //startTimer = setInterval(tick, 1000);
         startBtn.disabled = true;
         stopBtn.disabled = false;
-        started = true;
         end = false;
         clock.style.color = "beige";
       }
+    }
+
+    const updateTime = () => {
+      time.work = def.pomo * 60;
+    }
+   
+    const tickTock = () => {
+      let minutes, seconds;
+
+      if (started && !end) {
+        time.work -=1;
+      }
+
+      minutes = parseInt(time.work / 60);
+      seconds = parseInt(time.work % 60);
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      updateView(minutes, seconds);
+
+      if (parseInt(minutes) === 0 && parseInt(seconds) === 0) {
+        endProcedure();
+      }
+    }
+
+    const updateView = (curMin, curSec) => {
+      mins.innerText = curMin;
+      secs.innerText = curSec;
+      document.title = `(${curMin}:${curSec})`;
+      console.log(`${curMin}:${curSec}`);
+    }
+
+    const endProcedure = () => {
+        audio.playAlarm();
+        buttonsDisabled([startBtn, stopBtn], true);
+        end = true;
+        clock.style.color = "tomato";
     }
 
     const tick = () => {
@@ -127,7 +169,7 @@ function init () {
 
     const stop = () => {
       if (!end) {
-        clearInterval(startTimer);
+        //clearInterval(startTimer);
         stopBtn.disabled = true;
         startBtn.disabled = false;
         started = false; 
@@ -138,26 +180,28 @@ function init () {
       if (!autoStart) {
         clearInterval(startTimer)
         buttonsDisabled([startBtn, stopBtn], false);
+        started = false;
       } else {
         clearInterval(startTimer)
         startTimer = setInterval(tick, 1000);
         startBtn.disabled = true;
         stopBtn.disabled = false;
+        started = true;
       }
-      
-      secs.innerText = '0' + 0;
-      mins.innerText = min < 10 ? '0' + min : min;
-      document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
-      started = true;
+      //secs.innerText = '0' + 0;
+      //mins.innerText = min < 10 ? '0' + min : min;
+      //document.title = `(${mins.innerText}:${secs.innerText}) Pomodoro`;
       end = false;
       clock.style.color = "beige";
+      updateTime();
+      tickTock();
     }
 
     const isEnd = () => {
       return end;
     }
 
-    return { start, stop, reset, isEnd };
+    return { start, stop, reset, isEnd, tickTock};
   })();
 
   // ======================// 

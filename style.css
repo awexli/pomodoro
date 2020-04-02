@@ -84,9 +84,10 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
+button[disabled] {
   opacity: 0.5;
   filter: alpha(opacity=50); /* For IE8 and earlier */
+  cursor: not-allowed
 }
 
 button:hover {
