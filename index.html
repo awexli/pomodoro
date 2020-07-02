@@ -1,104 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="Description" content="A timer for your browser that incorporates the pomodoro technique">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Pomodoro</title>
-  <link rel="apple-touch-icon" sizes="57x57" href="./fav/apple-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="./fav/apple-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="./fav/apple-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="./fav/apple-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="./fav/apple-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="./fav/apple-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="./fav/apple-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="./fav/apple-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="./fav/apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="./fav/android-icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="./fav/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="./fav/favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./fav/favicon-16x16.png">
-  <link rel="manifest" href="./fav/manifest.json">
-  <meta name="msapplication-TileColor" content="#ffffff">
-  <meta name="msapplication-TileImage" content="./fav/ms-icon-144x144.png">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="Description"
+      content="A timer for your browser that incorporates the pomodoro technique"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Pomodoro</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="./fav/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="./fav/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="./fav/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="./fav/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="./fav/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="./fav/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="./fav/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="./fav/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./fav/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="./fav/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./fav/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="./fav/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./fav/favicon-16x16.png"
+    />
+    <link rel="manifest" href="./fav/manifest.json" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="./fav/ms-icon-144x144.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="root">
+      <section class="section">
+        <div class="container has-text-centered">
+          <h1 class="title">
+            Pomodoro Timer
+          </h1>
+        </div>
+      </section>
 
-  <div id="overlay-nav" class="overlay">
-    <a href="javascript:void(0)" class="closebtn">&times;</a>
-    <div class="overlay-content">
-      <p>The Pomodoro Technique is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p>
-      <p>[Pomodoro] - 25 minutes</p>
-      <p>[Short Break] - 3 to 5 minutes</p>
-      <p>[Long Break] - 15 to 30 minutes</p>
-      <hr>
-      <p><span><i  class="fa fa-refresh"></i> - loops one entire cycle of the pomodoro technique</span></p>
-      <p> (Pomodoro > Short Break) * 3 + (Pomodoro > Long Break)</p>
-      <hr>
-      <p><a href="https://github.com/awexli/pomodoro">github</a></p>
+      <section class="section">
+        <div class="container has-text-centered">
+          <button id="pomo" class="timer-button button is-small">
+            Pomodoro
+          </button>
+          <button id="short" class="timer-button button is-small">
+            Short Break
+          </button>
+          <button id="long" class="timer-button button is-small">
+            Long Break
+          </button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container has-text-centered">
+          <p id="clock" class="is-size-1">
+            <span id="minutes">25</span>
+            <span>:</span>
+            <span id="seconds">00</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div id="main-buttons" class="container has-text-centered">
+          <button id="start" class="button is-small">Start</button>
+          <button id="stop" class="button is-small">Stop</button>
+          <button id="reset" class="button is-small">Reset</button>
+          <button id="loop" class="button is-small">Loop</button>
+        </div>
+      </section>
+
+      <section class="section has-text-centered">
+        <button
+          id="for-info"
+          class="button is-primary modal-button"
+          data-target="modal-info"
+          aria-haspopup="true"
+        >
+          Info
+        </button>
+        <button
+          id="for-settings"
+          class="button is-primary modal-button"
+          data-target="modal-info"
+          aria-haspopup="true"
+        >
+          Settings
+        </button>
+      </section>
+
+      <div id="modal-info" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Info</p>
+            <button class="delete" aria-label="close"></button>
+          </header>
+          <section class="modal-card-body modal-font">
+            <section class="section">
+              <p>
+                The Pomodoro Technique is a time management method that uses a
+                timer to break down work into intervals, traditionally 25
+                minutes in length, separated by short breaks.
+              </p>
+              <br />
+              <p>[Pomodoro] - 25 minutes</p>
+              <p>[Short Break] - 3 to 5 minutes</p>
+              <p>[Long Break] - 15 to 30 minutes</p>
+            </section>
+            <hr />
+            <section class="section">
+              <p>
+                [Loop] - loops one entire cycle of the
+                pomodoro technique
+              </p>
+              <br />
+              <p>(Pomodoro > Short Break) * 3 + (Pomodoro > Long Break)</p>
+            </section>
+            <hr />
+            <p class="has-text-centered">
+              <a href="https://github.com/awexli/pomodoro">github</a>
+            </p>
+          </section>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div id="modal-settings" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Settings</p>
+            <button class="delete" aria-label="close"></button>
+          </header>
+          <section class="modal-card-body modal-font">
+            <section class="section settings">
+              <div class="adjust-time">
+                <p>Pomo</p>
+                <button class="adjust-button increment button">+</button>
+                <span id="pomo-mins">25</span>
+                <button class="adjust-button decrement button">-</button>
+              </div>
+              <div class="adjust-time">
+                <p>Short</p>
+                <button class="adjust-button increment button">+</button>
+                <span id="short-mins">5</span>
+                <button class="adjust-button decrement button">-</button>
+              </div>
+              <div class="adjust-time">
+                <p>Long</p>
+                <button class="adjust-button increment button">+</button>
+                <span id="long-mins">15</span>
+                <button class="adjust-button decrement button">-</button>
+              </div>
+            </section>
+            <section id="adjust-volume" class="volume">
+              <p>Adjust Volume</p>
+              <input id="vol-control" type="range" min="0" max="100" step="10"></input>
+              <p id="percentage">50%</p>
+            </section>
+            <br />
+            <p class="has-text-centered">You can click anywhere to stop the alarm</p>
+          </section>
+          <footer class="modal-card-foot">
+            <button class="button is-success">Save changes</button>
+            <button class="button cancel">Cancel</button>
+          </footer>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <div class="container">
-    
-    <h1 class="sections">Pomodoro Timer</h1>
-
-    <section id="timers" class="sections">
-      <button id="pomo" class="timer-button buttons">Pomodoro</button>
-      <button id="short" class="timer-button buttons">Short Break</button>
-      <button id="long" class="timer-button buttons">Long Break</button>
-    </section>
-
-    <p id="clock" class="sections">
-      <span id="minutes">25</span>
-      <span>:</span>
-      <span id="seconds">00</span>
-    </p>
-
-    <section id="main-buttons" class="sections">
-      <button id="start" class="main-button buttons" aria-label="Start"><i class="fa fa-play-circle"></i></button>
-      <button id="stop" class="main-button buttons" aria-label="Stop"><i class="fa fa-stop-circle"></i></button>
-      <button id="reset" class="main-button buttons" aria-label="Reset"><i class="fa fa-undo"></i></i></button>
-      <button id="loop" class="main-button buttons" aria-label="Loop"><i class="fa fa-refresh"></i></button>
-    </section>
-    
-    <section id="settings" class="sections">
-      <h2 class="openbtn">&#9776; Info</h2>
-      <p>Click <span aria-label="Reset"><i class="fa fa-undo"></i></span> to reset all timers and apply your new times</p>
-      <p>* Click anywhere to stop the alarm *</p>
-      <hr>
-      <section id="pomo-adjust">
-        <div class="adjust-time">
-          <p>Pomo</p>
-          <button class="adjust-button increment buttons">+</button>
-          <span id="pomo-mins" class="adjust-display">25</span>
-          <button class="adjust-button decrement buttons">-</button>
-        </div>
-        <div class="adjust-time">
-          <p>Short</p>
-          <button class="adjust-button increment buttons">+</button>
-          <span id="short-mins" class="adjust-display">5</span>
-          <button class="adjust-button decrement buttons">-</button>
-        </div>
-        <div class="adjust-time">
-          <p>Long</p>
-          <button class="adjust-button increment buttons">+</button>
-          <span id="long-mins" class="adjust-display">15</span>
-          <button class="adjust-button decrement buttons">-</button>
-        </div>
-      </section>
-      <hr>
-      <section id="adjust-volume">
-        <h3>Adjust Volume</h3>
-        <input id="vol-control" type="range" min="0" max="100" step="10"></input>
-        <p id="percentage">50%</p>
-      </section>
-    </section>
-  </div>
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
