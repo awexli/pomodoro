@@ -1,202 +1,58 @@
-html, body {
-  box-sizing: border-box;
-  background-color: #36393E;
-  color: beige;
-  padding: 0;
-  margin: 0;
-  font-family: 'Ubuntu', sans-serif;
-}
-
 *,
 *:before,
 *:after {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 
-.container {
-  text-align: center;
-  display: grid;
+html, body {
+  /* background-color: #36393E; */
+  padding: 0;
+  margin: 0;
+  font-family: 'Ubuntu', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
 }
 
-h1 {
-  font-size: 2rem;
+.section {
+  padding: 1rem 1.5rem
 }
 
-#clock span {
-  font-size: 7rem;
+.modal-font {
+  font-size: 0.75rem;
 }
 
-#pomo-adjust {
+.settings {
   display: flex;
   justify-content: center;
 }
 
 .adjust-time {
-  margin: 0 5px 0 5px;
+  margin: 0 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .adjust-button {
-  padding: 5px 1rem 5px 1rem;
-  font-size: 3rem;
-  background-color: #2E3136;
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
 }
 
-.adjust-display  {
-  margin: 2px 0 2px 0;
-  font-size: 1.5rem;
+.volume {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.sections {
-  align-self: center;
-  padding: 0;
-  margin: 1rem 0 0 0;
-}
-
-#settings {
-  background-color: #2E3136;
-  margin-top: 1rem;
-  padding: 0 1rem 1rem 1rem;
-}
-
-p {
-  font-size: 20px;
-  padding: 0;
-  margin: 0 0 1rem 0;
-}
-
-a {
-  color: aqua;
-}
-
-a:visited {
-  color: rgb(146, 179, 228);
-}
-
-button {
-  background-color: #36393E;
-  border-style: none;
-  font-weight: bold;
-  padding: 15px;
-  transition: 0.1s;
-  color: beige;
-  cursor: pointer;
-}
-
-button[disabled] {
-  opacity: 0.5;
-  filter: alpha(opacity=50); /* For IE8 and earlier */
-  cursor: not-allowed
-}
-
-button:hover {
-  color: tomato;
-}
-
-button:focus {
-  outline: 0;
-}
-
-.timer-button {
-  border: beige 1px solid;
-  padding: 12px;
-}
-
-.main-button {
-  padding: 1rem 22px 1rem 22px;
-  font-size: 2rem;
-}
-
-.hamburger {
-  font-size: 2rem;
-}
-
-.overlay {
-  height: 0%;
-  width: 100%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0, 0.9);
-  overflow-y: hidden;
-  overflow:scroll;
-  overflow-x:hidden;
-  overflow:hidden;
-  transition: 0.5s;
-}
-
-.overlay-content {
-  position: relative;
-  top: 15%;
-  width: 100%;
-  text-align: center;
-  margin-top: 30px;
-  overflow-y: hidden;
-  padding: 15px;
-}
-
-.overlay-content p {
-  font-size: 1rem;
-}
-
-.overlay a:hover, .overlay a:focus {
-  color: #f1f1f1;
-}
-
-.overlay .closebtn {
-  position: absolute;
-  right: 0;
-  font-size: 60px;
-  padding: 8px;
-  text-decoration: none;
-  color: #818181;
-  display: block;
-  transition: 0.3s;
-}
-
-.openbtn {
-  display: inline-block;
-  cursor: pointer;
-  transition: 0.1s;
-}
-
-.openbtn:hover {
-  color: tomato;
-}
-
-/* Medium devices (landscape tablets, 768px and up) */
-@media only screen and (min-width: 768px) {
-  h1 {
-    font-size: 3rem;
+@media screen and (min-width: 768px) {
+  .button.is-small {
+    font-size: 1rem;
   }
-
-  .timer-button {
-    font-size: 1.2rem;
-    background-color: beige;
-    color: #36393E;
-    font-weight: bold;
-    margin: 0 5px;
-    border-radius: 2px;
-  }
-  
-  .timer-button:hover {
-    background-color: transparent;
-  }
-
-  .overlay-content p {
-    font-size: 1.5rem;
-  }
-}
-
-@media screen and (max-height: 450px) {
-  .overlay {overflow-y: hidden;}
-  .overlay a {font-size: 20px}
-  .overlay .closebtn {
-  font-size: 40px;
-  top: 15px;
-  right: 35px;
+  .modal-font {
+    font-size: 1rem;
   }
 }

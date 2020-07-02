@@ -6,36 +6,46 @@ function init() {
     long: 15,
   };
 
+  const defSaved = {
+    pomoSaved: 25,
+    shortSaved: 5,
+    longSaved: 15,
+  };
+
   const time = {
     work: def.pomo * 60,
   };
 
   let started = false;
 
-  const overlay = document.getElementById("overlay-nav");
+  const modalInfo = document.getElementById('modal-info');
+  const modalSettings = document.getElementById('modal-settings');
+  const pomoMins = document.getElementById('pomo-mins');
+  const shortMins = document.getElementById('short-mins');
+  const longMins = document.getElementById('long-mins');
 
-  document.addEventListener("click", (e) => {
+  document.addEventListener('click', (e) => {
     if (e.target.parentElement !== null) {
       switch (e.target.id || e.target.parentElement.id) {
-        case "start":
+        case 'start':
           timer.start();
           break;
-        case "stop":
+        case 'stop':
           timer.stop();
           break;
-        case "reset":
+        case 'reset':
           thread.reset();
           break;
-        case "loop":
+        case 'loop':
           thread.loop();
           break;
-        case "pomo":
+        case 'pomo':
           timer.reset(true, def.pomo);
           break;
-        case "short":
+        case 'short':
           timer.reset(true, def.short);
           break;
-        case "long":
+        case 'long':
           timer.reset(true, def.long);
           break;
         default:
@@ -43,20 +53,43 @@ function init() {
       }
     }
 
-    if (e.target.classList[1] == "increment") {
+    if (e.target.classList[1] == 'increment') {
       settings.incDecMinutes(e, true);
     }
 
-    if (e.target.classList[1] == "decrement") {
+    if (e.target.classList[1] == 'decrement') {
       settings.incDecMinutes(e, false);
     }
 
-    if (e.target.className == "closebtn") {
-      overlay.style.height = "0%";
+    if (e.target.id === 'for-info') {
+      modalInfo.className = modalInfo.className + ' is-active';
+    }
+    if (e.target.id === 'for-settings') {
+      modalSettings.className = modalSettings.className + ' is-active';
     }
 
-    if (e.target.className == "openbtn") {
-      overlay.style.height = "100%";
+    if (e.target.className.includes('delete')) {
+      modalInfo.className = modalInfo.className.split(' ')[0];
+      modalSettings.className = modalSettings.className.split(' ')[0];
+    }
+
+    if (e.target.className === 'modal-background') {
+      modalInfo.className = modalInfo.className.split(' ')[0];
+      modalSettings.className = modalSettings.className.split(' ')[0];
+    }
+
+    if (e.target.className.includes('is-success')) {
+      settings.apply();
+      audio.applyVolume();
+      thread.reset(false, def.pomo);
+      modalSettings.className = modalSettings.className.split(' ')[0];
+    }
+
+    if (e.target.className.includes('cancel')) {
+      settings.revert();
+      audio.revertVolume();
+      thread.reset(false, def.pomo);
+      modalSettings.className = modalSettings.className.split(' ')[0];
     }
 
     if (timer.isEnd()) {
@@ -71,11 +104,11 @@ function init() {
   //      MAIN (TIMER)
   // ======================//
   const timer = (() => {
-    const secs = document.querySelector("#seconds");
-    const mins = document.querySelector("#minutes");
-    const startBtn = document.querySelector("#start");
-    const stopBtn = document.querySelector("#stop");
-    const clock = document.querySelector("#clock");
+    const secs = document.querySelector('#seconds');
+    const mins = document.querySelector('#minutes');
+    const startBtn = document.querySelector('#start');
+    const stopBtn = document.querySelector('#stop');
+    const clock = document.querySelector('#clock');
 
     let end = false;
 
@@ -85,7 +118,7 @@ function init() {
         startBtn.disabled = true;
         stopBtn.disabled = false;
         end = false;
-        clock.style.color = "beige";
+        clock.style.color = 'black';
       }
     };
 
@@ -103,8 +136,8 @@ function init() {
     const processTime = () => {
       let minutes = parseInt(time.work / 60);
       let seconds = parseInt(time.work % 60);
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
 
       return {
         min: minutes,
@@ -129,7 +162,7 @@ function init() {
         audio.playAlarm();
         buttonsDisabled([startBtn, stopBtn], true);
         end = true;
-        clock.style.color = "tomato";
+        clock.style.color = 'tomato';
         thread.cycle();
       }
     };
@@ -152,7 +185,7 @@ function init() {
         started = true;
       }
       end = false;
-      clock.style.color = "beige";
+      clock.style.color = 'black';
       updateTime(defTimer);
     };
 
@@ -167,7 +200,7 @@ function init() {
   //    THREADS (LOOPS)
   // ======================//
   const thread = (() => {
-    const timerButtons = document.querySelectorAll(".timer-button");
+    const timerButtons = document.querySelectorAll('.timer-button');
     const [pomoBtn, shortBtn, longBtn] = timerButtons;
 
     let looping = false;
@@ -220,7 +253,7 @@ function init() {
   //        SETTINGS
   // ======================//
   const settings = (() => {
-    const adjustButtons = document.querySelectorAll(".adjust-button");
+    const adjustButtons = document.querySelectorAll('.adjust-button');
 
     const incDecMinutes = (e, isInc) => {
       let num;
@@ -245,19 +278,32 @@ function init() {
         : parseInt(min.innerText) - 1;
       if (min.innerText < 1) min.innerText = 60;
       if (min.innerText > 60) min.innerText = 1;
-      apply(id, min);
     };
 
-    const apply = (id, min) => {
-      if (id == "pomo-mins") def.pomo = min.innerText;
-      if (id == "short-mins") def.short = min.innerText;
-      if (id == "long-mins") def.long = min.innerText;
+    const apply = () => {
+      def.pomo = pomoMins.innerText;
+      def.short = shortMins.innerText;
+      def.long = longMins.innerText;
+
+      defSaved.pomoSaved = def.pomo;
+      defSaved.shortSaved = def.short;
+      defSaved.longSaved = def.long;
+    };
+
+    const revert = () => {
+      def.pomo = defSaved.pomoSaved;
+      def.short = defSaved.shortSaved;
+      def.long = defSaved.longSaved;
+
+      pomoMins.innerText = defSaved.pomoSaved;
+      shortMins.innerText = defSaved.shortSaved;
+      longMins.innerText = defSaved.longSaved;
     };
 
     let timer = null;
     // simulate press and hold
     adjustButtons.forEach((element) =>
-      element.addEventListener("mousedown", (evt) => {
+      element.addEventListener('mousedown', (evt) => {
         timer = setInterval(() => {
           evt.target.click();
         }, 120);
@@ -265,7 +311,7 @@ function init() {
     );
 
     adjustButtons.forEach((element) =>
-      element.addEventListener("mouseup", () => {
+      element.addEventListener('mouseup', () => {
         clearInterval(timer);
       })
     );
@@ -273,12 +319,12 @@ function init() {
     // If the mouse is dragged out of the original element
     // and then the mouse is released, the timer will stop
     adjustButtons.forEach((element) =>
-      element.addEventListener("mouseleave", () => {
+      element.addEventListener('mouseleave', () => {
         clearInterval(timer);
       })
     );
 
-    return { incDecMinutes };
+    return { incDecMinutes, apply, revert };
   })();
 
   // ======================//
@@ -286,8 +332,11 @@ function init() {
   // ======================//
   const audio = (() => {
     let loopAlarm;
-    const alarm = new Audio("./complete.mp3");
+    const alarm = new Audio('./complete.mp3');
     alarm.volume = 0.5;
+    let currentVolume = alarm.volume;
+    let prevVolume = alarm.volume;
+    let prevValue = 50;
 
     const playAlarm = () => {
       alarm.play();
@@ -300,8 +349,8 @@ function init() {
     };
 
     const listenToRemove = (loop) => {
-      document.querySelectorAll(".buttons").forEach((element) => {
-        element.addEventListener("click", () => {
+      document.querySelectorAll('.button').forEach((element) => {
+        element.addEventListener('click', () => {
           clearInterval(loop);
         });
       });
@@ -327,12 +376,26 @@ function init() {
 
     const setVolume = (e) => {
       let vol = e.target.value / 100;
-      alarm.volume = parseFloat(vol);
-      document.getElementById("percentage").innerText = `${vol * 100}%`;
+      currentVolume = parseFloat(vol);
+      document.getElementById('percentage').innerText = `${
+        currentVolume * 100
+      }%`;
     };
 
-    document.addEventListener("change", setVolume);
-    document.addEventListener("input", setVolume);
+    const applyVolume = () => {
+      alarm.volume = currentVolume;
+      prevVolume = alarm.volume;
+      prevValue = document.getElementById('vol-control').value;
+    };
+
+    const revertVolume = () => {
+      alarm.volume = prevVolume;
+      document.getElementById('percentage').innerText = `${prevVolume * 100}%`;
+      document.getElementById('vol-control').value = prevValue;
+    };
+
+    document.addEventListener('change', setVolume);
+    document.addEventListener('input', setVolume);
 
     const getLoopInterval = () => {
       return loopAlarm;
@@ -342,6 +405,8 @@ function init() {
       playAlarm,
       waitThen,
       loopInterval: getLoopInterval,
+      applyVolume,
+      revertVolume,
     };
   })();
 
