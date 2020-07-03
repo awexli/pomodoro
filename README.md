@@ -31,6 +31,13 @@ The loop functionality completes one cycle. For example - total of 2 hours 10 mi
 - You can adjust the volume of the alarm (only works on desktop)
   - You can click anywhere in the browser to stop the alarm - the alarm loops for 3 short intervals
 
+## Utilized
+
+- Vanilla Javascript
+- HTML/CSS
+- Bulma
+- Parcel
+
 ## To Add
 
 - local storage

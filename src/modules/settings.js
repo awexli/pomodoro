@@ -58,7 +58,7 @@ export class Setting {
   };
 
   static ListenToAdjustButtons = () => {
-    const adjustButtons = document.querySelectorAll(".adjust-button");
+    const adjustButtons = document.querySelectorAll('.adjust-button');
     let timer = null;
 
     // simulate press and hold
@@ -83,5 +83,31 @@ export class Setting {
         clearInterval(timer);
       })
     );
-  }
+  };
+
+  static ListenToAdustVolume = (audio) => {
+    const adjustVolume = document.getElementById('vol-control');
+    
+    adjustVolume.addEventListener('input', (e) => {
+      const volume = e.target.value / 100;
+      audio.CurrentVolume = parseFloat(volume);
+      document.getElementById('percentage').innerText = `${
+        audio.CurrentVolume * 100
+      }%`;
+    });
+  };
+
+  static SaveVolumeChanges = (audio) => {
+    audio.AlarmVolume = audio.CurrentVolume;
+    audio.PreviousVolume = audio.AlarmVolume;
+    audio.PreviousValue = document.getElementById('vol-control').value;
+  };
+
+  static RevertVolumeChanges = (audio) => {
+    audio.AlarmVolume = audio.PreviousVolume;
+    document.getElementById('percentage').innerText = `${
+      audio.PreviousVolume * 100
+    }%`;
+    document.getElementById('vol-control').value = audio.PreviousValue;
+  };
 }
