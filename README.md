@@ -1,4 +1,4 @@
-# Pomodoro Timer [(Demo)](https://awexli.github.io/pomodoro/)  
+# Pomodoro Timer [(Demo)](https://pomodoro-tau.vercel.app/)  
 
 ## Description  
 

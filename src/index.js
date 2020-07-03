@@ -103,7 +103,7 @@ function init() {
 
   window.setInterval(() => {
     timer.tickTock();
-  }, 200);
+  }, 1000);
 
   // ======================//
   //      MAIN (TIMER)
