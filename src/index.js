@@ -1,6 +1,9 @@
+import { Modal } from './modules/modal';
+import { Setting } from './modules/settings';
+
 function init() {
   // default times
-  let def = {
+  const def = {
     pomo: 25,
     short: 5,
     long: 15,
@@ -18,11 +21,8 @@ function init() {
 
   let started = false;
 
-  const modalInfo = document.getElementById('modal-info');
-  const modalSettings = document.getElementById('modal-settings');
-  const pomoMins = document.getElementById('pomo-mins');
-  const shortMins = document.getElementById('short-mins');
-  const longMins = document.getElementById('long-mins');
+  const modalInfo = new Modal(document.getElementById('modal-info'));
+  const modalSettings = new Modal(document.getElementById('modal-settings'));
 
   document.addEventListener('click', (e) => {
     if (e.target.parentElement !== null) {
@@ -54,42 +54,42 @@ function init() {
     }
 
     if (e.target.classList[1] == 'increment') {
-      settings.incDecMinutes(e, true);
+      Setting.AdjustMinutes(e, true);
     }
 
     if (e.target.classList[1] == 'decrement') {
-      settings.incDecMinutes(e, false);
+      Setting.AdjustMinutes(e, false);
     }
 
     if (e.target.id === 'for-info') {
-      modalInfo.className = modalInfo.className + ' is-active';
+      modalInfo.openModal();
     }
+
     if (e.target.id === 'for-settings') {
-      modalSettings.className = modalSettings.className + ' is-active';
+      modalSettings.openModal();
     }
 
     if (e.target.className.includes('delete')) {
-      modalInfo.className = modalInfo.className.split(' ')[0];
-      modalSettings.className = modalSettings.className.split(' ')[0];
+      modalInfo.closeModal();
+      modalSettings.closeModal();
     }
 
     if (e.target.className === 'modal-background') {
-      modalInfo.className = modalInfo.className.split(' ')[0];
-      modalSettings.className = modalSettings.className.split(' ')[0];
+      modalInfo.closeModal();
+      modalSettings.closeModal();
     }
 
     if (e.target.className.includes('is-success')) {
-      settings.apply();
+      Setting.SaveAdjustMinutes(def, defSaved);
       audio.applyVolume();
       thread.reset(false, def.pomo);
-      modalSettings.className = modalSettings.className.split(' ')[0];
+      modalSettings.closeModal();
     }
 
     if (e.target.className.includes('cancel')) {
-      settings.revert();
+      Setting.RevertAdjustMinutes(def, defSaved);
       audio.revertVolume();
-      thread.reset(false, def.pomo);
-      modalSettings.className = modalSettings.className.split(' ')[0];
+      modalSettings.closeModal();
     }
 
     if (timer.isEnd()) {
@@ -97,9 +97,13 @@ function init() {
     }
   });
 
+  Setting.ListenToAdjustButtons();
+
   window.setInterval(() => {
     timer.tickTock();
   }, 1000);
+
+
   // ======================//
   //      MAIN (TIMER)
   // ======================//
@@ -247,84 +251,6 @@ function init() {
     };
 
     return { loop, reset, cycle };
-  })();
-
-  // ======================//
-  //        SETTINGS
-  // ======================//
-  const settings = (() => {
-    const adjustButtons = document.querySelectorAll('.adjust-button');
-
-    const incDecMinutes = (e, isInc) => {
-      let num;
-      let id;
-
-      if (isInc) {
-        id = e.target.nextElementSibling.id;
-        num = 1;
-      } else {
-        id = e.target.previousElementSibling.id;
-        num = -1;
-      }
-
-      update(id, num);
-    };
-
-    const update = (id, operater) => {
-      const min = document.getElementById(id);
-      const isPlus = operater === 1;
-      min.innerText = isPlus
-        ? parseInt(min.innerText) + 1
-        : parseInt(min.innerText) - 1;
-      if (min.innerText < 1) min.innerText = 60;
-      if (min.innerText > 60) min.innerText = 1;
-    };
-
-    const apply = () => {
-      def.pomo = pomoMins.innerText;
-      def.short = shortMins.innerText;
-      def.long = longMins.innerText;
-
-      defSaved.pomoSaved = def.pomo;
-      defSaved.shortSaved = def.short;
-      defSaved.longSaved = def.long;
-    };
-
-    const revert = () => {
-      def.pomo = defSaved.pomoSaved;
-      def.short = defSaved.shortSaved;
-      def.long = defSaved.longSaved;
-
-      pomoMins.innerText = defSaved.pomoSaved;
-      shortMins.innerText = defSaved.shortSaved;
-      longMins.innerText = defSaved.longSaved;
-    };
-
-    let timer = null;
-    // simulate press and hold
-    adjustButtons.forEach((element) =>
-      element.addEventListener('mousedown', (evt) => {
-        timer = setInterval(() => {
-          evt.target.click();
-        }, 120);
-      })
-    );
-
-    adjustButtons.forEach((element) =>
-      element.addEventListener('mouseup', () => {
-        clearInterval(timer);
-      })
-    );
-
-    // If the mouse is dragged out of the original element
-    // and then the mouse is released, the timer will stop
-    adjustButtons.forEach((element) =>
-      element.addEventListener('mouseleave', () => {
-        clearInterval(timer);
-      })
-    );
-
-    return { incDecMinutes, apply, revert };
   })();
 
   // ======================//
