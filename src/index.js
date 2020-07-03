@@ -1,5 +1,6 @@
 import { Modal } from './modules/modal';
 import { Setting } from './modules/settings';
+import { AudioService } from './modules/audio-service';
 
 function init() {
   // default times
@@ -23,6 +24,10 @@ function init() {
 
   const modalInfo = new Modal(document.getElementById('modal-info'));
   const modalSettings = new Modal(document.getElementById('modal-settings'));
+
+  const audioUrl = require('./assets/complete.mp3')
+  const alarm = new Audio(audioUrl);
+  const CompleteAudio = new AudioService(0.5, 0.5, 50, alarm);
 
   document.addEventListener('click', (e) => {
     if (e.target.parentElement !== null) {
@@ -81,28 +86,24 @@ function init() {
 
     if (e.target.className.includes('is-success')) {
       Setting.SaveAdjustMinutes(def, defSaved);
-      audio.applyVolume();
+      Setting.SaveVolumeChanges(CompleteAudio);
       thread.reset(false, def.pomo);
       modalSettings.closeModal();
     }
 
     if (e.target.className.includes('cancel')) {
       Setting.RevertAdjustMinutes(def, defSaved);
-      audio.revertVolume();
+      Setting.RevertVolumeChanges(CompleteAudio);
       modalSettings.closeModal();
-    }
-
-    if (timer.isEnd()) {
-      clearInterval(audio.loopInterval());
     }
   });
 
   Setting.ListenToAdjustButtons();
+  Setting.ListenToAdustVolume(CompleteAudio);
 
   window.setInterval(() => {
     timer.tickTock();
   }, 1000);
-
 
   // ======================//
   //      MAIN (TIMER)
@@ -163,7 +164,7 @@ function init() {
 
     const endProcedure = () => {
       if (!end) {
-        audio.playAlarm();
+        CompleteAudio.PlayAlarm();
         buttonsDisabled([startBtn, stopBtn], true);
         end = true;
         clock.style.color = 'tomato';
@@ -235,12 +236,12 @@ function init() {
         }
 
         if (loops == 3 && count == 1) {
-          audio.waitThen(longBtn);
+          CompleteAudio.WaitThenDisable(longBtn);
         } else if (count == 1) {
-          audio.waitThen(shortBtn);
+          CompleteAudio.WaitThenDisable(shortBtn);
         }
 
-        if (count == 2) audio.waitThen(pomoBtn);
+        if (count == 2) CompleteAudio.WaitThenDisable(pomoBtn);
       }
     };
 
@@ -251,89 +252,6 @@ function init() {
     };
 
     return { loop, reset, cycle };
-  })();
-
-  // ======================//
-  //         AUDIO
-  // ======================//
-  const audio = (() => {
-    let loopAlarm;
-    const alarm = new Audio('./complete.mp3');
-    alarm.volume = 0.5;
-    let currentVolume = alarm.volume;
-    let prevVolume = alarm.volume;
-    let prevValue = 50;
-
-    const playAlarm = () => {
-      alarm.play();
-
-      loopAlarm = setInterval(() => {
-        alarm.play();
-      }, 1000);
-
-      listenToRemove(loopAlarm);
-    };
-
-    const listenToRemove = (loop) => {
-      document.querySelectorAll('.button').forEach((element) => {
-        element.addEventListener('click', () => {
-          clearInterval(loop);
-        });
-      });
-
-      defaultWaitAudio(loop);
-    };
-
-    async function defaultWaitAudio(loop) {
-      await sleep(8200);
-      clearInterval(loop);
-    }
-
-    async function waitThen(button) {
-      await sleep(8200);
-      button.disabled = false;
-      button.click();
-      button.disabled = true;
-    }
-
-    const sleep = (ms) => {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    };
-
-    const setVolume = (e) => {
-      let vol = e.target.value / 100;
-      currentVolume = parseFloat(vol);
-      document.getElementById('percentage').innerText = `${
-        currentVolume * 100
-      }%`;
-    };
-
-    const applyVolume = () => {
-      alarm.volume = currentVolume;
-      prevVolume = alarm.volume;
-      prevValue = document.getElementById('vol-control').value;
-    };
-
-    const revertVolume = () => {
-      alarm.volume = prevVolume;
-      document.getElementById('percentage').innerText = `${prevVolume * 100}%`;
-      document.getElementById('vol-control').value = prevValue;
-    };
-
-    document.addEventListener('change', setVolume);
-    document.addEventListener('input', setVolume);
-
-    const getLoopInterval = () => {
-      return loopAlarm;
-    };
-
-    return {
-      playAlarm,
-      waitThen,
-      loopInterval: getLoopInterval,
-      applyVolume,
-      revertVolume,
-    };
   })();
 
   function buttonsDisabled(buttons, bool) {
