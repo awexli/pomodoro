@@ -1,3 +1,5 @@
+import { DefTimes } from './common';
+
 export class Setting {
   static AdjustMinutes = (event, isIncrement) => {
     let operation;
@@ -29,18 +31,18 @@ export class Setting {
     if (min.innerText > 60) min.innerText = 1;
   };
 
-  static SaveAdjustMinutes = (time, timePrev) => {
+  static SaveAdjustMinutes = () => {
     const pomoMins = document.getElementById('pomo-mins');
     const shortMins = document.getElementById('short-mins');
     const longMins = document.getElementById('long-mins');
 
-    time.pomo = pomoMins.innerText;
-    time.short = shortMins.innerText;
-    time.long = longMins.innerText;
+    DefTimes.pomo = pomoMins.innerText;
+    DefTimes.short = shortMins.innerText;
+    DefTimes.long = longMins.innerText;
 
-    timePrev.pomoSaved = time.pomo;
-    timePrev.shortSaved = time.short;
-    timePrev.longSaved = time.long;
+    DefTimes.pomoSaved = DefTimes.pomo;
+    DefTimes.shortSaved = DefTimes.short;
+    DefTimes.longSaved = DefTimes.long;
   };
 
   static RevertAdjustMinutes = (time, timePrev) => {
@@ -48,13 +50,13 @@ export class Setting {
     const shortMins = document.getElementById('short-mins');
     const longMins = document.getElementById('long-mins');
 
-    time.pomo = timePrev.pomoSaved;
-    time.short = timePrev.shortSaved;
-    time.long = timePrev.longSaved;
+    DefTimes.pomo = DefTimes.pomoSaved;
+    DefTimes.short = DefTimes.shortSaved;
+    DefTimes.long = DefTimes.longSaved;
 
-    pomoMins.innerText = timePrev.pomoSaved;
-    shortMins.innerText = timePrev.shortSaved;
-    longMins.innerText = timePrev.longSaved;
+    pomoMins.innerText = DefTimes.pomoSaved;
+    shortMins.innerText = DefTimes.shortSaved;
+    longMins.innerText = DefTimes.longSaved;
   };
 
   static ListenToAdjustButtons = () => {

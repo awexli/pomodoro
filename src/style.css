@@ -4,11 +4,12 @@
   box-sizing: border-box;
 }
 
-html, body {
-  /* background-color: #36393E; */
+html,
+body {
+  background-color: #36393e;
   padding: 0;
   margin: 0;
-  font-family: 'Ubuntu', sans-serif;
+  font-family: sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,7 +17,29 @@ html, body {
 }
 
 .section {
-  padding: 1rem 1.5rem
+  padding: 1rem 1.5rem;
+}
+
+.section .title {
+  color: white;
+}
+
+.section .clock {
+  color: white;
+}
+
+.clock {
+  font-size: 4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.clock :first-child {
+  width: 100px;
+}
+
+.clock :last-child {
+  width: 100px;
 }
 
 .modal-font {
