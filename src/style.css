@@ -5,10 +5,10 @@
 }
 
 html, body {
-  /* background-color: #36393E; */
+  background-color: #36393E;
   padding: 0;
   margin: 0;
-  font-family: 'Ubuntu', sans-serif;
+  font-family: 'Poppins', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,7 +16,19 @@ html, body {
 }
 
 .section {
-  padding: 1rem 1.5rem
+  padding: 1rem 1.5rem;
+}
+
+.section .title {
+  color: white;
+}
+
+.section .clock {
+  color: white;
+}
+
+.clock {
+  font-size: 4rem;
 }
 
 .modal-font {

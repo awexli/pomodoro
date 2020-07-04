@@ -1,6 +1,9 @@
 import { Modal } from './modules/modal';
 import { Setting } from './modules/settings';
 import { AudioService } from './modules/audio-service';
+import { Timer } from './modules/timer';
+import { Thread } from './modules/thread';
+import { DefTimes } from './modules/common';
 
 function init() {
   // default times
@@ -33,10 +36,10 @@ function init() {
     if (e.target.parentElement !== null) {
       switch (e.target.id || e.target.parentElement.id) {
         case 'start':
-          timer.start();
+          Timer.Start();
           break;
         case 'stop':
-          timer.stop();
+          timerThread.stop();
           break;
         case 'reset':
           thread.reset();
@@ -45,13 +48,13 @@ function init() {
           thread.loop();
           break;
         case 'pomo':
-          timer.reset(true, def.pomo);
+          timerThread.reset(true, def.pomo);
           break;
         case 'short':
-          timer.reset(true, def.short);
+          timerThread.reset(true, def.short);
           break;
         case 'long':
-          timer.reset(true, def.long);
+          timerThread.reset(true, def.long);
           break;
         default:
           break;
@@ -85,9 +88,9 @@ function init() {
     }
 
     if (e.target.className.includes('is-success')) {
-      Setting.SaveAdjustMinutes(def, defSaved);
+      Setting.SaveAdjustMinutes();
       Setting.SaveVolumeChanges(CompleteAudio);
-      thread.reset(false, def.pomo);
+      Timer.Reset(false, DefTimes.pomo);
       modalSettings.closeModal();
     }
 
@@ -102,13 +105,13 @@ function init() {
   Setting.ListenToAdustVolume(CompleteAudio);
 
   window.setInterval(() => {
-    timer.tickTock();
-  }, 1000);
+    Timer.Tick(CompleteAudio);
+  }, 100);
 
   // ======================//
   //      MAIN (TIMER)
   // ======================//
-  const timer = (() => {
+  const timerThread = (() => {
     const secs = document.querySelector('#seconds');
     const mins = document.querySelector('#minutes');
     const startBtn = document.querySelector('#start');
@@ -123,7 +126,7 @@ function init() {
         startBtn.disabled = true;
         stopBtn.disabled = false;
         end = false;
-        clock.style.color = 'black';
+        clock.style.color = 'white';
       }
     };
 
@@ -190,7 +193,7 @@ function init() {
         started = true;
       }
       end = false;
-      clock.style.color = 'black';
+      clock.style.color = 'white';
       updateTime(defTimer);
     };
 
@@ -205,7 +208,7 @@ function init() {
   //    THREADS (LOOPS)
   // ======================//
   const thread = (() => {
-    const timerButtons = document.querySelectorAll('.timer-button');
+    const timerButtons = document.querySelectorAll('.timerThread-button');
     const [pomoBtn, shortBtn, longBtn] = timerButtons;
 
     let looping = false;
@@ -214,7 +217,7 @@ function init() {
 
     const loop = () => {
       buttonsDisabled(timerButtons, true);
-      timer.reset(true, def.pomo);
+      timerThread.reset(true, def.pomo);
       looping = true;
       loops = 0;
       count = 0;
@@ -227,7 +230,7 @@ function init() {
      * @return {void} undefined
      */
     const cycle = () => {
-      if (timer.isEnd() && looping && loops != 3) {
+      if (timerThread.isEnd() && looping && loops != 3) {
         count++;
 
         if (count > 2) {
@@ -246,7 +249,7 @@ function init() {
     };
 
     const reset = () => {
-      timer.reset(false, def.pomo);
+      timerThread.reset(false, def.pomo);
       buttonsDisabled(timerButtons, false);
       looping = false;
     };

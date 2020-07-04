@@ -13,6 +13,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css"
     />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/style.css" />
   </head>
   <body>
@@ -41,7 +42,7 @@
 
       <section class="section">
         <div class="container has-text-centered">
-          <p id="clock" class="is-size-1">
+          <p id="clock" class="clock">
             <span id="minutes">25</span>
             <span>:</span>
             <span id="seconds">00</span>
@@ -61,7 +62,7 @@
       <section class="section has-text-centered">
         <button
           id="for-info"
-          class="button is-primary modal-button"
+          class="button is-primary modal-button is-info"
           data-target="modal-info"
           aria-haspopup="true"
         >
@@ -69,7 +70,7 @@
         </button>
         <button
           id="for-settings"
-          class="button is-primary modal-button"
+          class="button modal-button is-info"
           data-target="modal-info"
           aria-haspopup="true"
         >
