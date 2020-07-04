@@ -50,13 +50,13 @@ export class Setting {
     const shortMins = document.getElementById('short-mins');
     const longMins = document.getElementById('long-mins');
 
-    time.pomo = timePrev.pomoSaved;
-    time.short = timePrev.shortSaved;
-    time.long = timePrev.longSaved;
+    DefTimes.pomo = DefTimes.pomoSaved;
+    DefTimes.short = DefTimes.shortSaved;
+    DefTimes.long = DefTimes.longSaved;
 
-    pomoMins.innerText = timePrev.pomoSaved;
-    shortMins.innerText = timePrev.shortSaved;
-    longMins.innerText = timePrev.longSaved;
+    pomoMins.innerText = DefTimes.pomoSaved;
+    shortMins.innerText = DefTimes.shortSaved;
+    longMins.innerText = DefTimes.longSaved;
   };
 
   static ListenToAdjustButtons = () => {
@@ -89,7 +89,7 @@ export class Setting {
 
   static ListenToAdustVolume = (audio) => {
     const adjustVolume = document.getElementById('vol-control');
-    
+
     adjustVolume.addEventListener('input', (e) => {
       const volume = e.target.value / 100;
       audio.CurrentVolume = parseFloat(volume);

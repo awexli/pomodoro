@@ -1,4 +1,5 @@
 import { EnableButtons, DisableButtons, TimeProps, DefTimes } from './common';
+import { Thread } from './thread';
 
 export class Timer {
   static Start = () => {
@@ -13,21 +14,42 @@ export class Timer {
       TimeProps.hasEnded = false;
       clock.style.color = 'white';
     }
-  }
+  };
+
+  static Stop = () => {
+    const startBtn = document.querySelector('#start');
+    const stopBtn = document.querySelector('#stop');
+
+    if (!TimeProps.hasEnded) {
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+      TimeProps.hasStarted = false;
+    }
+  };
 
   static Tick = (alarmInstance) => {
-    if (TimeProps.hasStarted && !TimeProps.hasEnded) {
-      if (!DefTimes.workTime) DefTimes.workTime = (DefTimes.pomo * 60);
+    this.DecrementTime();
 
-      DefTimes.workTime -= 1;
-      const processed = this.ProcessTime();
-      this.UpdateView(processed.mins, processed.secs);
+    const { mins, secs } = this.ProcessTime();
+    this.UpdateView(mins, secs);
 
-      if (parseInt(processed.mins) === 0 && parseInt(processed.secs) === 0) {
-        this.EndProcedure(alarmInstance);
-      }
+    if (this.isCompleted(mins, secs)) {
+      this.EndProcedure(alarmInstance);
     }
-  }
+  };
+
+  static DecrementTime = () => {
+    // prevent workTime property from being reset on every tick
+    if (!DefTimes.workTime) {
+      DefTimes.workTime = DefTimes.pomo * 60;
+    }
+
+    DefTimes.workTime -= 1;
+  };
+
+  static isCompleted = (mins, secs) => {
+    return parseInt(mins) === 0 && parseInt(secs) === 0;
+  };
 
   static EndProcedure = (alarmInstance) => {
     const startBtn = document.querySelector('#start');
@@ -36,13 +58,13 @@ export class Timer {
 
     if (!TimeProps.hasEnded) {
       alarmInstance.PlayAlarm();
-      // prob just only need disable stopBtn
-      DisableButtons([startBtn, stopBtn]); 
+      // prob only need to disable stopBtn
+      DisableButtons([startBtn, stopBtn]);
       TimeProps.hasEnded = true;
       clock.style.color = 'tomato';
-      // thread.cycle();
+      Thread.Cycle(alarmInstance);
     }
-  }
+  };
 
   static Reset = (isAutoStart, defTimer) => {
     const startBtn = document.querySelector('#start');
@@ -53,22 +75,21 @@ export class Timer {
       EnableButtons([startBtn, stopBtn]);
       TimeProps.hasStarted = false;
     } else {
-      stopBtn.disabled = true;
-      startBtn.disabled = false;
+      stopBtn.disabled = false;
+      startBtn.disabled = true;
       TimeProps.hasStarted = true;
     }
 
     TimeProps.hasEnded = false;
-    clock.style.clock = 'white';
+    clock.style.color = 'white';
     this.UpdateTime(defTimer);
-  }
+  };
 
   static UpdateTime = (defTimer) => {
     DefTimes.workTime = defTimer * 60;
-    console.log(DefTimes.workTime)
     const processed = this.ProcessTime();
     this.UpdateView(processed.mins, processed.secs);
-  }
+  };
 
   static ProcessTime = () => {
     let minutes = parseInt(DefTimes.workTime / 60);
@@ -80,8 +101,8 @@ export class Timer {
     return {
       mins: minutes,
       secs: seconds,
-    }
-  }
+    };
+  };
 
   static UpdateView = (currentMinutes, currentSeconds) => {
     const secs = document.querySelector('#seconds');
@@ -90,5 +111,5 @@ export class Timer {
     mins.innerText = currentMinutes;
     secs.innerText = currentSeconds;
     document.title = `(${currentMinutes}:${currentSeconds})`;
-  }
+  };
 }

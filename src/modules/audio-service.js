@@ -19,7 +19,7 @@ export class AudioService {
   ListenToStopAudio = (loopAlarm) => {
     document.addEventListener('click', () => {
       clearInterval(loopAlarm);
-    })
+    });
 
     this.DefaultWaitAudio(loopAlarm);
   };
