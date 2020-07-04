@@ -89,7 +89,7 @@ export class Setting {
 
   static ListenToAdustVolume = (audio) => {
     const adjustVolume = document.getElementById('vol-control');
-
+    
     adjustVolume.addEventListener('input', (e) => {
       const volume = e.target.value / 100;
       audio.CurrentVolume = parseFloat(volume);

@@ -13,6 +13,10 @@ function init() {
   const alarm = new Audio(audioUrl);
   const CompleteAudio = new AudioService(0.5, 0.5, 50, alarm);
 
+  const audioUrl = require('./assets/complete.mp3')
+  const alarm = new Audio(audioUrl);
+  const CompleteAudio = new AudioService(0.5, 0.5, 50, alarm);
+
   document.addEventListener('click', (e) => {
     // remove !== null
     if (e.target.parentElement !== null) {
