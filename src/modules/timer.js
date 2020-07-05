@@ -1,18 +1,18 @@
-import { EnableButtons, DisableButtons, TimeProps, DefTimes } from './common';
+import { EnableButtons, DisableButtons, Clock, DefTimes } from './common';
 import { Thread } from './thread';
 
 export class Timer {
   static Start = () => {
     const startBtn = document.querySelector('#start');
     const stopBtn = document.querySelector('#stop');
-    const clock = document.querySelector('#clock');
+    const clockElement = document.querySelector('#clock');
 
-    if (!TimeProps.hasStarted) {
-      TimeProps.hasStarted = true;
+    if (!Clock.hasStarted) {
+      Clock.hasStarted = true;
       startBtn.disabled = true;
       stopBtn.disabled = false;
-      TimeProps.hasEnded = false;
-      clock.style.color = 'white';
+      Clock.hasEnded = false;
+      clockElement.style.color = 'white';
     }
   };
 
@@ -20,10 +20,10 @@ export class Timer {
     const startBtn = document.querySelector('#start');
     const stopBtn = document.querySelector('#stop');
 
-    if (!TimeProps.hasEnded) {
+    if (!Clock.hasEnded) {
       stopBtn.disabled = true;
       startBtn.disabled = false;
-      TimeProps.hasStarted = false;
+      Clock.hasStarted = false;
     }
   };
 
@@ -54,14 +54,14 @@ export class Timer {
   static EndProcedure = (alarmInstance) => {
     const startBtn = document.querySelector('#start');
     const stopBtn = document.querySelector('#stop');
-    const clock = document.querySelector('#clock');
+    const clockElement = document.querySelector('#clock');
 
-    if (!TimeProps.hasEnded) {
+    if (!Clock.hasEnded) {
       alarmInstance.PlayAlarm();
       // prob only need to disable stopBtn
       DisableButtons([startBtn, stopBtn]);
-      TimeProps.hasEnded = true;
-      clock.style.color = 'tomato';
+      Clock.hasEnded = true;
+      clockElement.style.color = 'tomato';
       Thread.Cycle(alarmInstance);
     }
   };
@@ -73,14 +73,14 @@ export class Timer {
 
     if (!isAutoStart) {
       EnableButtons([startBtn, stopBtn]);
-      TimeProps.hasStarted = false;
+      Clock.hasStarted = false;
     } else {
       stopBtn.disabled = false;
       startBtn.disabled = true;
-      TimeProps.hasStarted = true;
+      Clock.hasStarted = true;
     }
 
-    TimeProps.hasEnded = false;
+    Clock.hasEnded = false;
     clock.style.color = 'white';
     this.UpdateTime(defTimer);
   };

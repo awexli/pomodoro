@@ -3,7 +3,7 @@ import {
   DisableButtons,
   EnableButtons,
   DefTimes,
-  TimeProps,
+  Clock,
 } from './common';
 import { Timer } from './timer';
 
@@ -16,7 +16,7 @@ export class Thread {
     LoopProps.looping = true;
     LoopProps.loops = 0;
     LoopProps.count = 0;
-    TimeProps.hasStarted = true;
+    Clock.hasStarted = true;
   };
 
   static Reset = () => {
@@ -32,7 +32,7 @@ export class Thread {
     //let { looping, loops, count } = LoopProps;
     const [pomoBtn, shortBtn, longBtn] = timerButtons;
 
-    if (TimeProps.hasEnded && LoopProps.looping && LoopProps.loops !== 3) {
+    if (Clock.hasEnded && LoopProps.looping && LoopProps.loops !== 3) {
       LoopProps.count++;
 
       if (LoopProps.count > 2) {
@@ -40,7 +40,7 @@ export class Thread {
         LoopProps.loops++;
       }
 
-      if ((LoopProps.loops === 3) & (LoopProps.count === 1)) {
+      if ((LoopProps.loops === 3) && (LoopProps.count === 1)) {
         console.log('Next up - long break: ', DefTimes.long + 'min(s)');
         Audio.WaitThenDisable(longBtn);
       } else if (LoopProps.count === 1) {

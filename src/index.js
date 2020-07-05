@@ -3,7 +3,7 @@ import { Setting } from './modules/settings';
 import { AudioService } from './modules/audio-service';
 import { Timer } from './modules/timer';
 import { Thread } from './modules/thread';
-import { DefTimes, TimeProps } from './modules/common';
+import { DefTimes, Clock } from './modules/common';
 
 function init() {
   const ModalInfo = new Modal(document.getElementById('modal-info'));
@@ -14,8 +14,7 @@ function init() {
   const CompleteAudio = new AudioService(0.5, 0.5, 50, alarm);
 
   document.addEventListener('click', (e) => {
-    // remove !== null
-    if (e.target.parentElement !== null) {
+    if (e.target.parentElement) {
       switch (e.target.id || e.target.parentElement.id) {
         case 'start':
           Timer.Start();
@@ -85,10 +84,15 @@ function init() {
   Setting.ListenToAdustVolume(CompleteAudio);
 
   window.setInterval(() => {
-    if (TimeProps.hasStarted && !TimeProps.hasEnded) {
+    if (Clock.hasStarted && !Clock.hasEnded) {
       Timer.Tick(CompleteAudio);
     }
   }, 1000);
 }
 
+/**
+ * The load event fires at the end of the document loading process.
+ * At this point, all of the objects in the document are in the DOM,
+ * and all the images, scripts, links and sub-frames have finished loading.
+ */
 window.onload = init();
