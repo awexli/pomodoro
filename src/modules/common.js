@@ -13,7 +13,7 @@ export const DefTimes = {
   longSaved: 15,
 };
 
-export const TimeProps = {
+export const Clock = {
   hasStarted: false,
   hasEnded: false,
 };

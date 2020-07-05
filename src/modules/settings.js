@@ -1,6 +1,7 @@
 import { DefTimes } from './common';
 
 export class Setting {
+  
   static AdjustMinutes = (event, isIncrement) => {
     let operation;
     let id;
@@ -45,7 +46,7 @@ export class Setting {
     DefTimes.longSaved = DefTimes.long;
   };
 
-  static RevertAdjustMinutes = (time, timePrev) => {
+  static RevertAdjustMinutes = () => {
     const pomoMins = document.getElementById('pomo-mins');
     const shortMins = document.getElementById('short-mins');
     const longMins = document.getElementById('long-mins');
