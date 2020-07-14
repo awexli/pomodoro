@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/awexli/pomodoro.git"
   },
-  "author": "",
+  "author": "Alex Li",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/awexli/pomodoro/issues"

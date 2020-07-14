@@ -4,14 +4,13 @@ import {
   EnableButtons,
   DefTimes,
   Clock,
+  Element,
 } from './common';
 import { Timer } from './timer';
 
 export class Thread {
   static Loop = () => {
-    const timerButtons = document.querySelectorAll('.timer-button');
-
-    DisableButtons(timerButtons);
+    DisableButtons(Element.timerButtons);
     Timer.Reset(true, DefTimes.pomo);
     LoopProps.looping = true;
     LoopProps.loops = 0;
@@ -20,17 +19,13 @@ export class Thread {
   };
 
   static Reset = () => {
-    const timerButtons = document.querySelectorAll('.timer-button');
-
     Timer.Reset(false, DefTimes.pomo);
-    EnableButtons(timerButtons);
+    EnableButtons(Element.timerButtons);
     LoopProps.looping = false;
   };
 
   static Cycle = (Audio) => {
-    const timerButtons = document.querySelectorAll('.timer-button');
-    //let { looping, loops, count } = LoopProps;
-    const [pomoBtn, shortBtn, longBtn] = timerButtons;
+    const [pomoBtn, shortBtn, longBtn] = Element.timerButtons;
 
     if (Clock.hasEnded && LoopProps.looping && LoopProps.loops !== 3) {
       LoopProps.count++;

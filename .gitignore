@@ -1,5 +1,7 @@
 node_modules
 package-lock.json
 backup-style.css
-.cache
 dist
+
+.*
+!.gitignore

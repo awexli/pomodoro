@@ -6,12 +6,14 @@ import { Thread } from './modules/thread';
 import { DefTimes, Clock } from './modules/common';
 
 function init() {
-  const ModalInfo = new Modal(document.getElementById('modal-info'));
-  const ModalSettings = new Modal(document.getElementById('modal-settings'));
+  const modalInfoElement = document.getElementById('modal-info');
+  const modalSettingElement = document.getElementById('modal-settings');
+  const ModalInfo = new Modal(modalInfoElement);
+  const ModalSettings = new Modal(modalSettingElement);
 
-  const audioUrl = require('./assets/complete.mp3');
-  const alarm = new Audio(audioUrl);
-  const CompleteAudio = new AudioService(0.5, 0.5, 50, alarm);
+  const alarmAudioUrl = require('./assets/complete.mp3');
+  const Alarm = new Audio(alarmAudioUrl);
+  const CompleteAudio = new AudioService(0.5, 0.5, 50, Alarm);
 
   document.addEventListener('click', (e) => {
     if (e.target.parentElement) {
@@ -42,6 +44,8 @@ function init() {
           break;
         case 'for-settings':
           ModalSettings.openModal();
+          Setting.ListenToAdjustButtons();
+          Setting.ListenToAdustVolume(CompleteAudio);
           break;
         default:
           break;
@@ -61,7 +65,7 @@ function init() {
       ModalSettings.closeModal();
     }
 
-    if (e.target.className === 'modal-background') {
+    if (e.target.className.includes('modal-background')) {
       ModalInfo.closeModal();
       ModalSettings.closeModal();
     }
@@ -79,9 +83,6 @@ function init() {
       ModalSettings.closeModal();
     }
   });
-
-  Setting.ListenToAdjustButtons();
-  Setting.ListenToAdustVolume(CompleteAudio);
 
   window.setInterval(() => {
     if (Clock.hasStarted && !Clock.hasEnded) {

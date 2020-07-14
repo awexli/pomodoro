@@ -18,6 +18,18 @@ export const Clock = {
   hasEnded: false,
 };
 
+export const Element = {
+  pomoMins: document.getElementById('pomo-mins'),
+  shortMins: document.getElementById('short-mins'),
+  longMins: document.getElementById('long-mins'),
+  volumeControl: document.getElementById('vol-control'),
+  percentage: document.getElementById('percentage'),
+  timerButtons: document.querySelectorAll('.timer-button'),
+  startButton: document.getElementById('start'),
+  stopButton: document.getElementById('stop'),
+  clock: document.getElementById('clock'),
+};
+
 export const DisableButtons = (buttons) => {
   buttons.forEach((button) => {
     button.disabled = true;
