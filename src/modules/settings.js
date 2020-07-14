@@ -1,7 +1,6 @@
-import { DefTimes } from './common';
+import { DefTimes, Element } from './common';
 
 export class Setting {
-  
   static AdjustMinutes = (event, isIncrement) => {
     let operation;
     let id;
@@ -33,9 +32,7 @@ export class Setting {
   };
 
   static SaveAdjustMinutes = () => {
-    const pomoMins = document.getElementById('pomo-mins');
-    const shortMins = document.getElementById('short-mins');
-    const longMins = document.getElementById('long-mins');
+    const { pomoMins, shortMins, longMins } = Element;
 
     DefTimes.pomo = pomoMins.innerText;
     DefTimes.short = shortMins.innerText;
@@ -47,9 +44,7 @@ export class Setting {
   };
 
   static RevertAdjustMinutes = () => {
-    const pomoMins = document.getElementById('pomo-mins');
-    const shortMins = document.getElementById('short-mins');
-    const longMins = document.getElementById('long-mins');
+    const { pomoMins, shortMins, longMins } = Element;
 
     DefTimes.pomo = DefTimes.pomoSaved;
     DefTimes.short = DefTimes.shortSaved;
@@ -89,28 +84,24 @@ export class Setting {
   };
 
   static ListenToAdustVolume = (audio) => {
-    const adjustVolume = document.getElementById('vol-control');
-    
+    const adjustVolume = Element.volumeControl;
+
     adjustVolume.addEventListener('input', (e) => {
       const volume = e.target.value / 100;
       audio.CurrentVolume = parseFloat(volume);
-      document.getElementById('percentage').innerText = `${
-        audio.CurrentVolume * 100
-      }%`;
+      Element.percentage.innerText = `${audio.CurrentVolume * 100}%`;
     });
   };
 
   static SaveVolumeChanges = (audio) => {
     audio.AlarmVolume = audio.CurrentVolume;
     audio.PreviousVolume = audio.AlarmVolume;
-    audio.PreviousValue = document.getElementById('vol-control').value;
+    audio.PreviousValue = Element.volumeControl.value;
   };
 
   static RevertVolumeChanges = (audio) => {
     audio.AlarmVolume = audio.PreviousVolume;
-    document.getElementById('percentage').innerText = `${
-      audio.PreviousVolume * 100
-    }%`;
-    document.getElementById('vol-control').value = audio.PreviousValue;
+    Element.percentage.innerText = `${audio.PreviousVolume * 100}%`;
+    Element.volumeControl.value = audio.PreviousValue;
   };
 }

@@ -1,28 +1,27 @@
-import { EnableButtons, DisableButtons, Clock, DefTimes } from './common';
+import {
+  EnableButtons,
+  DisableButtons,
+  Clock,
+  DefTimes,
+  Element,
+} from './common';
 import { Thread } from './thread';
 
 export class Timer {
   static Start = () => {
-    const startBtn = document.querySelector('#start');
-    const stopBtn = document.querySelector('#stop');
-    const clockElement = document.querySelector('#clock');
-
     if (!Clock.hasStarted) {
       Clock.hasStarted = true;
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
+      Element.startButton.disabled = true;
+      Element.stopButton.disabled = false;
       Clock.hasEnded = false;
-      clockElement.style.color = 'white';
+      Element.clock.style.color = 'white';
     }
   };
 
   static Stop = () => {
-    const startBtn = document.querySelector('#start');
-    const stopBtn = document.querySelector('#stop');
-
     if (!Clock.hasEnded) {
-      stopBtn.disabled = true;
-      startBtn.disabled = false;
+      Element.startButton.disabled = false;
+      Element.stopButton.disabled = true;
       Clock.hasStarted = false;
     }
   };
@@ -39,7 +38,8 @@ export class Timer {
   };
 
   static DecrementTime = () => {
-    // prevent workTime property from being reset on every tick
+    // initialize & prevent workTime property from 
+    // being reset on every tick
     if (!DefTimes.workTime) {
       DefTimes.workTime = DefTimes.pomo * 60;
     }
@@ -52,36 +52,28 @@ export class Timer {
   };
 
   static EndProcedure = (alarmInstance) => {
-    const startBtn = document.querySelector('#start');
-    const stopBtn = document.querySelector('#stop');
-    const clockElement = document.querySelector('#clock');
-
     if (!Clock.hasEnded) {
       alarmInstance.PlayAlarm();
       // prob only need to disable stopBtn
-      DisableButtons([startBtn, stopBtn]);
+      DisableButtons([Element.startButton, Element.stopButton]);
       Clock.hasEnded = true;
-      clockElement.style.color = 'tomato';
+      Element.clock.style.color = 'tomato';
       Thread.Cycle(alarmInstance);
     }
   };
 
   static Reset = (isAutoStart, defTimer) => {
-    const startBtn = document.querySelector('#start');
-    const stopBtn = document.querySelector('#stop');
-    const clock = document.querySelector('#clock');
-
     if (!isAutoStart) {
-      EnableButtons([startBtn, stopBtn]);
+      EnableButtons([Element.startButton, Element.stopButton]);
       Clock.hasStarted = false;
     } else {
-      stopBtn.disabled = false;
-      startBtn.disabled = true;
+      Element.startButton.disabled = true;
+      Element.stopButton.disabled = false;
       Clock.hasStarted = true;
     }
 
     Clock.hasEnded = false;
-    clock.style.color = 'white';
+    Element.clock.style.color = 'white';
     this.UpdateTime(defTimer);
   };
 
@@ -105,8 +97,8 @@ export class Timer {
   };
 
   static UpdateView = (currentMinutes, currentSeconds) => {
-    const secs = document.querySelector('#seconds');
-    const mins = document.querySelector('#minutes');
+    const secs = document.getElementById('seconds');
+    const mins = document.getElementById('minutes');
 
     mins.innerText = currentMinutes;
     secs.innerText = currentSeconds;
