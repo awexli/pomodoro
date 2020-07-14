@@ -10,7 +10,7 @@ The Pomodoro Technique is a time management method that uses a timer to break do
 
 - Pomodoro - 25 minutes of work (default)
 - Short break - 5 minutes (default)
-- Long break - 15 minutes (defualt)
+- Long break - 15 minutes (default)
 
 ### Loop
 

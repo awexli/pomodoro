@@ -1,3 +1,12 @@
+:root {
+  --main-background-color: #4470ad;
+  --sec-background-color: #6888be;
+  --main-button-color: #99afd7;
+  --sec-button-color: #233c67;
+  --border-color: #ccdbee;
+  --main-text-color: white;
+}
+
 *,
 *:before,
 *:after {
@@ -6,14 +15,15 @@
 
 html,
 body {
-  background-color: #36393e;
+  font-family: 'Mukta', sans-serif;
+  background-color: var(--main-background-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   padding: 0;
   margin: 0;
-  font-family: sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 70vh;
+  display: grid;
+  place-items: center;
+  height: 80vh;
 }
 
 .section {
@@ -21,11 +31,11 @@ body {
 }
 
 .section .title {
-  color: white;
+  color: var(--main-text-color);
 }
 
 .section .clock {
-  color: white;
+  color: var(--main-text-color);
 }
 
 .clock {
@@ -69,6 +79,77 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.button {
+  background-color: var(--main-button-color);
+  border-color: transparent;
+  color: var(--main-text-color);
+}
+
+.button.is-info,
+.button.is-info:active,
+.button.button.is-info:hover {
+  background-color: var(--main-button-color);
+}
+
+.button.is-success,
+.button.is-success:hover,
+.button.is-success:active {
+  background-color: var(--sec-button-color);
+}
+
+.button.is-success:focus:not(:active) {
+  box-shadow: none;
+}
+
+.button:hover {
+  border-color: transparent;
+  color: var(--main-text-color);
+  opacity: 0.8;
+  transform: translateY(-1px);
+  transition: transform ease 0.3s;
+}
+
+.button:focus {
+  border-color: transparent;
+  color: var(--main-text-color);
+}
+
+.button[disabled] {
+  border-color: transparent;
+  background-color: var(--main-button-color);
+  text-decoration: none;
+}
+
+.modal-card-head {
+  background-color: var(--sec-background-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-card-title {
+  color: var(--main-text-color);
+}
+
+.modal-card-body {
+  background-color: var(--main-background-color);
+  color: var(--main-text-color);
+}
+
+.modal-card-foot {
+  background-color: var(--sec-background-color);
+}
+
+.modal-background {
+  background-color: var(--sec-button-color);
+}
+
+body, button, input, select, textarea {
+  font-family: 'Mukta', sans-serif;
+}
+
+strong {
+  color: white;
 }
 
 @media screen and (min-width: 768px) {
