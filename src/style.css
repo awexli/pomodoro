@@ -30,10 +30,7 @@ body {
   padding: 1rem 1.5rem;
 }
 
-.section .title {
-  color: var(--main-text-color);
-}
-
+.section .title,
 .section .clock {
   color: var(--main-text-color);
 }
@@ -44,10 +41,7 @@ body {
   justify-content: center;
 }
 
-.clock :first-child {
-  width: 100px;
-}
-
+.clock :first-child,
 .clock :last-child {
   width: 100px;
 }
@@ -150,6 +144,14 @@ body, button, input, select, textarea {
 
 strong {
   color: white;
+}
+
+a {
+  color: white;
+}
+
+a:hover {
+  color: var(--main-button-color);
 }
 
 @media screen and (min-width: 768px) {
