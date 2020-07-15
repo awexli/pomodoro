@@ -74,7 +74,7 @@ function init() {
     if (e.target.className.includes('is-success')) {
       Setting.SaveAdjustMinutes();
       Setting.SaveVolumeChanges(CompleteAudio);
-      Timer.Reset(false, DefTimes.pomo);
+      Thread.Reset(false, DefTimes.pomo);
       ModalSettings.closeModal();
     }
 
