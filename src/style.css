@@ -27,7 +27,7 @@ body {
 }
 
 .section {
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
 }
 
 .section .title,
@@ -79,6 +79,7 @@ body {
   background-color: var(--main-button-color);
   border-color: transparent;
   color: var(--main-text-color);
+  transition: transform ease 0.3s;
 }
 
 .button.is-info,
@@ -102,7 +103,6 @@ body {
   color: var(--main-text-color);
   opacity: 0.8;
   transform: translateY(-1px);
-  transition: transform ease 0.3s;
 }
 
 .button:focus {
@@ -147,7 +147,7 @@ strong {
 }
 
 a {
-  color: white;
+  color: tomato;
 }
 
 a:hover {
