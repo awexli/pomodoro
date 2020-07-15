@@ -4,6 +4,7 @@ import { AudioService } from './modules/audio-service';
 import { Timer } from './modules/timer';
 import { Thread } from './modules/thread';
 import { DefTimes, Clock } from './modules/common';
+import { LocalStorageService } from './modules/local-storage';
 
 function init() {
   const modalInfoElement = document.getElementById('modal-info');
@@ -78,11 +79,23 @@ function init() {
     }
 
     if (e.target.className.includes('cancel')) {
-      Setting.RevertAdjustMinutes();
+
+      if (!LocalStorageService.storage.isUsing) {
+        Setting.RevertAdjustMinutes();
+      }
+
       Setting.RevertVolumeChanges(CompleteAudio);
       ModalSettings.closeModal();
     }
   });
+
+  if (LocalStorageService.storageAvailable('localStorage')) {
+    console.log('Using localStorage');
+    LocalStorageService.storage.isUsing = true;
+    LocalStorageService.InitializeTimeValues();
+  } else {
+    console.log('No localStorage');
+  }
 
   window.setInterval(() => {
     if (Clock.hasStarted && !Clock.hasEnded) {

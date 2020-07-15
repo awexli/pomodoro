@@ -1,4 +1,5 @@
 import { DefTimes, Element } from './common';
+import { LocalStorageService } from './local-storage';
 
 export class Setting {
   static AdjustMinutes = (event, isIncrement) => {
@@ -32,15 +33,19 @@ export class Setting {
   };
 
   static SaveAdjustMinutes = () => {
-    const { pomoMins, shortMins, longMins } = Element;
+    if (LocalStorageService.storage.isUsing) {
+      LocalStorageService.SaveMinutes();
+    } else {
+      const { pomoMins, shortMins, longMins } = Element;
 
-    DefTimes.pomo = pomoMins.innerText;
-    DefTimes.short = shortMins.innerText;
-    DefTimes.long = longMins.innerText;
+      DefTimes.pomo = pomoMins.innerText;
+      DefTimes.short = shortMins.innerText;
+      DefTimes.long = longMins.innerText;
 
-    DefTimes.pomoSaved = DefTimes.pomo;
-    DefTimes.shortSaved = DefTimes.short;
-    DefTimes.longSaved = DefTimes.long;
+      DefTimes.pomoSaved = DefTimes.pomo;
+      DefTimes.shortSaved = DefTimes.short;
+      DefTimes.longSaved = DefTimes.long;
+    }
   };
 
   static RevertAdjustMinutes = () => {
