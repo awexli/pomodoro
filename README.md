@@ -1,8 +1,8 @@
-# Pomodoro Timer [(Demo)](https://pomodoro-tau.vercel.app/)  
+# Pomodoro Timer [(Demo)](https://pomodoro-tau.vercel.app/)
 
-## Description  
+## Description
 
-The Pomodoro Technique is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks. [WIKI](https://en.wikipedia.org/wiki/Pomodoro_Technique)  
+The Pomodoro Technique is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks. [WIKI](https://en.wikipedia.org/wiki/Pomodoro_Technique)
 
 ## Functionality
 
@@ -28,17 +28,19 @@ The loop functionality completes one cycle. For example - total of 2 hours 10 mi
 ### Settings
 
 - You can adjust the amount of minutes for your work, short break, and long break.
+  - Your adjusted timers will be saved to your browser locally and will persist even when the browser is closed and reopened.
+  - Settings are only cleared through clearing your Browser cache / Locally Stored Data.
 - You can adjust the volume of the alarm (only works on desktop)
   - You can click anywhere in the browser to stop the alarm - the alarm loops for 3 short intervals
 
 ## Utilized
 
-- Vanilla Javascript
+- JavaScript (ECMAScript 6)
 - HTML/CSS
-- Bulma
-- Parcel
+- [Bulma](https://bulma.io/)
+- [Parcel](https://parceljs.org/)
+- [Local Storage](https://developer.mozilla.org/en-US/docs/Web/API/Storage) for Timers
 
 ## To Add
 
-- local storage
-- unique sounds for timers
+- Unique sounds for Timers
