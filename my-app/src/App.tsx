@@ -20,12 +20,18 @@ import { SettingsIcon, InfoOutlineIcon, RepeatClockIcon, TriangleUpIcon } from '
 const DEFAULT_TIME = 60 * 1;
 
 function App() {
+  // const [startTimes, setStartTimes] = useState({
+  //   pomodoro: DEFAULT_TIME,
+  //   short_break: 60 * 5,
+  //   long_break: 60 * 15,
+  // });
   const [time, setTime] = useState(DEFAULT_TIME);
   const [isStop, setIsStop] = useState(false);
   const [isStart, setIsStart] = useState(false);
   const [isReset, setIsReset] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const stopInterval = useRef(null);
+  const startingTime = useRef(time);
   const runningTime = useRef(time);
 
   useEffect(() => {
@@ -51,6 +57,12 @@ function App() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStart]);
+
+  const handleSetNewTime = (newTime: number) => {
+    setTime(newTime);
+    runningTime.current = newTime;
+    startingTime.current = newTime;
+  };
 
   const handleTime = (ticks: number) => {
     if (runningTime.current > 0) {
@@ -96,17 +108,18 @@ function App() {
     setIsReset(false);
   };
 
-  const handleResetTimer = () => {
-    if (stopInterval.current) {
-      stopInterval.current();
-    }
+  const handleResetTimer = (newTime: number = startingTime.current) => {
+    return () => {
+      if (stopInterval.current) {
+        stopInterval.current();
+      }
 
-    setTime(DEFAULT_TIME);
-    runningTime.current = DEFAULT_TIME;
+      handleSetNewTime(newTime);
 
-    setIsReset(true);
-    setIsStart(false);
-    setIsStop(false);
+      setIsReset(true);
+      setIsStart(false);
+      setIsStop(false);
+    };
   };
 
   const handleOnInfoOpen = () => {
@@ -136,22 +149,36 @@ function App() {
     );
   };
   return (
-    <>
-      <Progress value={(time / DEFAULT_TIME) * 100} />
-      <Grid placeItems={'center'}>
-        <ButtonGroup marginTop={10}>
-          <Button>Pomodoro</Button>
+    <div>
+      <Progress colorScheme="whatsapp" value={(time / startingTime.current) * 100} />
+      <Flex
+        alignItems={'center'}
+        justifyContent={'center'}
+        flexDirection={'column'}
+        style={{ height: '100vh' }}>
+        {/* <ButtonGroup marginTop={10}>
+          <Button
+            onClick={() => {
+              handleResetTimer(60 * 25)();
+            }}>
+            Pomodoro
+          </Button>
           <Button>Short Break</Button>
           <Button>Long Break</Button>
-        </ButtonGroup>
-        <Box marginTop={4} fontSize="7rem">
+        </ButtonGroup> */}
+        <Box fontSize="7rem">
           {renderTime()}
         </Box>
         <ButtonGroup marginTop={4}>
+          <Button onClick={handleResetTimer()} boxShadow="base">
+            <RepeatClockIcon />
+          </Button>
           <Button
             onClick={handleStartStopTimer}
             isDisabled={time === 0}
-            boxShadow={isStart ? 'inner' : 'base'}>
+            boxShadow={isStart ? 'inner' : 'base'}
+            title={isStart ? 'Stop' : 'Start'}
+            aria-label={isStart ? 'Stop' : 'Start'}>
             {isStart ? (
               <span
                 style={{
@@ -169,11 +196,17 @@ function App() {
               <TriangleUpIcon transform={'rotate(90deg)'} />
             )}
           </Button>
-          <Button onClick={handleResetTimer} boxShadow="base">
-            <RepeatClockIcon />
+          <Button
+            onClick={() => {
+              handleOnInfoOpen();
+              console.log('hello');
+            }}
+            title="Settings"
+            aria-label="Settings">
+            <SettingsIcon />
           </Button>
         </ButtonGroup>
-        <ButtonGroup marginTop={12}>
+        {/* <ButtonGroup marginTop={12}>
           <Button
             onClick={handleOnInfoOpen}
             variant="ghost"
@@ -190,8 +223,8 @@ function App() {
             aria-label="Settings">
             <SettingsIcon />
           </Button>
-        </ButtonGroup>
-      </Grid>
+        </ButtonGroup> */}
+      </Flex>
       <Modal isOpen={isModalOpen} onClose={handleOnInfoClose}>
         <ModalOverlay />
         <ModalContent>
@@ -254,7 +287,7 @@ function App() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }
 
