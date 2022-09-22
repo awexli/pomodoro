@@ -1,52 +1,48 @@
-import { useRef, useState } from 'react';
-import { useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import setSelfAdjustingInterval from 'self-adjusting-interval';
 
-import { Button, ButtonGroup } from '@chakra-ui/react';
-import { Box, Flex, Grid } from '@chakra-ui/react';
-import { Progress } from '@chakra-ui/react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Box,
+  Button,
+  ButtonGroup,
+  Flex,
+  Link,
+  CircularProgress,
+  CircularProgressLabel,
 } from '@chakra-ui/react';
-import { SettingsIcon, InfoOutlineIcon, RepeatClockIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, SettingsIcon, RepeatClockIcon, TriangleUpIcon } from '@chakra-ui/icons';
 
+import { Modal } from './modal';
+
+enum TimeId {
+  'DEFAULT' = 'default',
+  'SHORT' = 'short',
+  'LONG' = 'long',
+}
 // Should be >= 60s * 1 && <= 60s * 60;
-const DEFAULT_TIME = 60 * 1;
+const POMODORO = { time: 5, id: TimeId.DEFAULT };
+const SHORT = { time: 3, id: TimeId.SHORT };
+const LONG = { time: 6, id: TimeId.LONG };
 
 function App() {
-  // const [startTimes, setStartTimes] = useState({
-  //   pomodoro: DEFAULT_TIME,
-  //   short_break: 60 * 5,
-  //   long_break: 60 * 15,
-  // });
-  const [time, setTime] = useState(DEFAULT_TIME);
-  const [isStop, setIsStop] = useState(false);
+  const [renderedTime, setCurrentTime] = useState(POMODORO.time);
   const [isStart, setIsStart] = useState(false);
+  const [isStop, setIsStop] = useState(false);
   const [isReset, setIsReset] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsInfoModalOpen] = useState(false);
+  const [cycles, setCycles] = useState(0);
+  const [startingTime, setStartingTime] = useState(POMODORO);
   const stopInterval = useRef(null);
-  const startingTime = useRef(time);
-  const runningTime = useRef(time);
+  const runningTime = useRef(POMODORO.time);
 
   useEffect(() => {
-    console.log({ isStart, isStop });
     if (isStart && runningTime.current === 0) {
       return;
     }
 
     if (isStart) {
-      // only start the timer countdown immediately on initial start
-      if (time === DEFAULT_TIME) {
-        runningTime.current -= 1;
-        setTime(runningTime.current);
-      }
-
+      console.log('interval start');
       stopInterval.current = setSelfAdjustingInterval(handleTime, 1000);
     }
 
@@ -58,24 +54,38 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStart]);
 
-  const handleSetNewTime = (newTime: number) => {
-    setTime(newTime);
-    runningTime.current = newTime;
-    startingTime.current = newTime;
-  };
-
   const handleTime = (ticks: number) => {
     if (runningTime.current > 0) {
       runningTime.current -= ticks;
     }
 
     if (runningTime.current === 0) {
-      setIsStart(false);
-      stopInterval.current();
+      if (cycles < 3) {
+        // we only count a completed cycle after each short break
+        if (startingTime.id === SHORT.id) {
+          setCycles(cycles + 1);
+        }
+
+        handleResetTimer(
+          startingTime.id === POMODORO.id
+            ? SHORT.time
+            : startingTime.id === SHORT.id
+            ? POMODORO.time
+            : POMODORO.time,
+          startingTime.id === POMODORO.id
+            ? SHORT.id
+            : startingTime.id === SHORT.id
+            ? POMODORO.id
+            : POMODORO.id
+        )();
+      } else {
+        setCycles(0);
+        handleResetTimer(LONG.time, TimeId.LONG)();
+      }
     }
 
     if (runningTime.current >= 0) {
-      setTime(runningTime.current);
+      setCurrentTime(runningTime.current);
     }
   };
 
@@ -95,7 +105,7 @@ function App() {
 
   const handleStopTimer = () => {
     // avoid setting state unnecessarily
-    if (!isStart && time === 0) {
+    if (!isStart && renderedTime === 0) {
       return;
     }
 
@@ -108,74 +118,75 @@ function App() {
     setIsReset(false);
   };
 
-  const handleResetTimer = (newTime: number = startingTime.current) => {
+  // has closure
+  const handleResetTimer = (newTime: number = startingTime.time, id: TimeId = startingTime.id) => {
     return () => {
       if (stopInterval.current) {
         stopInterval.current();
       }
 
-      handleSetNewTime(newTime);
+      if (runningTime.current === startingTime.time) {
+        return;
+      }
 
+      runningTime.current = newTime;
+      setCurrentTime(newTime);
+      setStartingTime({ time: newTime, id });
       setIsReset(true);
       setIsStart(false);
       setIsStop(false);
     };
   };
 
-  const handleOnInfoOpen = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOnInfoClose = () => {
-    setIsModalOpen(false);
-  };
-
   const renderTime = () => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
+    const minutes = Math.floor(renderedTime / 60);
+    const seconds = renderedTime % 60;
 
     return (
-      <Flex justifyContent={'center'}>
-        <Box width={36} textAlign="right">
-          {minutes < 10 ? '0' + minutes : `${minutes}`}
-        </Box>
-        <Box paddingLeft="4px" paddingRight="4px">
-          :
-        </Box>
-        <Box width={36} textAlign="left">
-          {seconds < 10 ? '0' + seconds : `${seconds}`}
-        </Box>
-      </Flex>
+      <CircularProgress
+        value={(renderedTime / startingTime.time) * 100}
+        color="green.400"
+        size={'25rem'}
+        thickness="1px">
+        <CircularProgressLabel>
+          <Flex justifyContent={'center'}>
+            <Box width={36} textAlign="right">
+              {minutes < 10 ? '0' + minutes : `${minutes}`}
+            </Box>
+            <Box paddingLeft="4px" paddingRight="4px">
+              :
+            </Box>
+            <Box width={36} textAlign="left">
+              {seconds < 10 ? '0' + seconds : `${seconds}`}
+            </Box>
+          </Flex>
+          <Box fontSize={'1rem'} fontWeight="bold">
+            {startingTime.id === TimeId.DEFAULT
+              ? `Work x ${cycles + 1}`
+              : startingTime.id === TimeId.SHORT
+              ? 'Short break'
+              : 'Long break'}
+          </Box>
+        </CircularProgressLabel>
+      </CircularProgress>
     );
   };
+
   return (
-    <div>
-      <Progress colorScheme="whatsapp" value={(time / startingTime.current) * 100} />
+    <Box>
       <Flex
         alignItems={'center'}
         justifyContent={'center'}
         flexDirection={'column'}
-        style={{ height: '100vh' }}>
-        {/* <ButtonGroup marginTop={10}>
-          <Button
-            onClick={() => {
-              handleResetTimer(60 * 25)();
-            }}>
-            Pomodoro
-          </Button>
-          <Button>Short Break</Button>
-          <Button>Long Break</Button>
-        </ButtonGroup> */}
-        <Box fontSize="7rem">
-          {renderTime()}
-        </Box>
-        <ButtonGroup marginTop={4}>
-          <Button onClick={handleResetTimer()} boxShadow="base">
+        style={{ height: '85vh' }}>
+        <Box>{renderTime()}</Box>
+        <ButtonGroup>
+          <Button onClick={handleResetTimer()} boxShadow="base" title="Reset" aria-label="Reset">
             <RepeatClockIcon />
           </Button>
           <Button
             onClick={handleStartStopTimer}
-            isDisabled={time === 0}
+            isDisabled={renderedTime === 0}
             boxShadow={isStart ? 'inner' : 'base'}
             title={isStart ? 'Stop' : 'Start'}
             aria-label={isStart ? 'Stop' : 'Start'}>
@@ -197,97 +208,65 @@ function App() {
             )}
           </Button>
           <Button
-            onClick={() => {
-              handleOnInfoOpen();
-              console.log('hello');
-            }}
+            onClick={() => setIsSettingsInfoModalOpen(true)}
             title="Settings"
             aria-label="Settings">
             <SettingsIcon />
           </Button>
         </ButtonGroup>
-        {/* <ButtonGroup marginTop={12}>
-          <Button
-            onClick={handleOnInfoOpen}
-            variant="ghost"
-            title="Information"
-            aria-label="Information">
-            <InfoOutlineIcon />
-          </Button>
-          <Button
-            onClick={() => {
-              console.log('hello');
-            }}
-            variant="ghost"
-            title="Settings"
-            aria-label="Settings">
-            <SettingsIcon />
-          </Button>
-        </ButtonGroup> */}
+        <Button
+          onClick={() => setIsInfoModalOpen(true)}
+          marginTop={4}
+          variant={'link'}
+          color="green.400">
+          What is this?
+        </Button>
       </Flex>
-      <Modal isOpen={isModalOpen} onClose={handleOnInfoClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Information</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box as="section" padding="1rem">
-              <p>
-                The Pomodoro Technique is a time management method that uses a timer to break down
-                work into intervals, traditionally 25 minutes in length, separated by short breaks.{' '}
-                <a
-                  href="https://francescocirillo.com/pages/pomodoro-technique"
-                  target="_blank"
-                  rel="noopener noreferrer">
-                  The core process consists of 6 steps
-                </a>
-              </p>
-              <br />
-              <p>[Pomodoro] - 25 minutes</p>
-              <p>[Short Break] - 3 to 5 minutes</p>
-              <p>[Long Break] - 15 to 30 minutes</p>
-              <p>[Loop] - loops one entire cycle of the pomodoro technique</p>
-            </Box>
-            <hr />
-            <Box as="section" padding="1rem">
-              <Box as="ul" listStyleType="none">
-                <li>
-                  Work: <strong>25 minutes</strong>
-                </li>
-                <li>Short Break: 5 minutes</li>
-                <li>
-                  Work: <strong>25 minutes</strong>
-                </li>
-                <li>Short Break: 5 minutes</li>
-                <li>
-                  Work: <strong>25 minutes</strong>
-                </li>
-                <li>Short Break: 5 minutes</li>
-                <li>
-                  Work: <strong>25 minutes</strong>
-                </li>
-                <li>Long Break: 15 minutes</li>
-              </Box>
-            </Box>
-            <hr />
-            <Button variant="link">
-              <a
-                href="https://github.com/awexli/pomodoro"
-                target="_blank"
-                rel="noopener noreferrer">
-                Source Code
-              </a>
-            </Button>
-          </ModalBody>
+      <Modal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        body={InfoModalContent()}
+      />
+      <Modal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsInfoModalOpen(false)}
+        body={<Flex justifyContent="center">FORM</Flex>}
+      />
+    </Box>
+  );
+}
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleOnInfoClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+function InfoModalContent() {
+  return (
+    <>
+      <Box as="section" padding="1rem">
+        <p>
+          The Pomodoro Technique is a time management method that uses a timer to break down work
+          into intervals, traditionally 25 minutes in length, separated by short breaks.
+        </p>
+        <br />
+        <Flex justifyContent="center" alignItems="center">
+          <ol>
+            <li>Choose a task</li>
+            <li>Set the "work" timer to 25 minutes</li>
+            <li>Work on the task until the time rings</li>
+            <li>Take a short break (Start with 5 minutes)</li>
+            <li>Every 4 cycles ("work cycle"), take a longer break</li>
+          </ol>
+        </Flex>
+      </Box>
+      <hr />
+      <Flex margin={4} justifyContent={'center'}>
+        <Link
+          href="https://github.com/awexli/pomodoro"
+          target="_blank"
+          rel="noopener noreferrer"
+          isExternal
+          color="blue.600">
+          Source Code <ExternalLinkIcon mx="2px" />
+        </Link>
+      </Flex>
+    </>
   );
 }
 
