@@ -1,9 +1,6 @@
 import * as React from 'react';
 import {
-  Box,
   Button,
-  Flex,
-  Link,
   Modal as ChakraModal,
   ModalOverlay,
   ModalContent,

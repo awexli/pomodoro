@@ -16,7 +16,9 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Spinner,
 } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import type { UseCounterProps } from '@chakra-ui/react';
 import { ExternalLinkIcon, SettingsIcon, RepeatClockIcon, TriangleUpIcon } from '@chakra-ui/icons';
 
@@ -27,16 +29,18 @@ enum TimeId {
   'SHORT' = 'Short break',
   'LONG' = 'Long break',
 }
+
+type Time = { time: number; id: TimeId };
 // TODO: time >= 60s * 1 && <= 60s * 60;
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
 const SHORT = { time: 3, id: TimeId.SHORT };
 const LONG = { time: 6, id: TimeId.LONG };
 
 function App() {
-  const [pomo, setPomo] = useState(POMODORO);
-  const [short, setShort] = useState(SHORT);
-  const [long, setLong] = useState(LONG);
-  const [renderedTime, setCurrentTime] = useState(POMODORO.time);
+  const [pomo, setPomo] = useState<Time | undefined>(undefined);
+  const [short, setShort] = useState<Time | undefined>(undefined);
+  const [long, setLong] = useState<Time | undefined>(undefined);
+  const [renderedTime, setRenderedTime] = useState(POMODORO.time);
   const [isStart, setIsStart] = useState(false);
   const [isStop, setIsStop] = useState(false);
   const [isReset, setIsReset] = useState(false);
@@ -44,8 +48,30 @@ function App() {
   const [isSettingsModalOpen, setIsSettingsInfoModalOpen] = useState(false);
   const [cycles, setCycles] = useState(0);
   const [startingTime, setStartingTime] = useState(POMODORO);
+  const toast = useToast();
+
   const stopInterval = useRef(null);
   const runningTime = useRef(POMODORO.time);
+
+  useEffect(() => {
+    if (localStorage.getItem('pomodoro')) {
+      const pomodoroStorage: {
+        pomo: Time;
+        short: Time;
+        long: Time;
+      } = JSON.parse(localStorage.getItem('pomodoro'));
+
+      setPomo(pomodoroStorage.pomo);
+      setShort(pomodoroStorage.short);
+      setLong(pomodoroStorage.long);
+      handleResetTimer(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id)();
+    } else {
+      setPomo(POMODORO);
+      setShort(SHORT);
+      setLong(LONG);
+      handleResetTimer(POMODORO.time, POMODORO.id)();
+    }
+  }, []);
 
   useEffect(() => {
     if (isStart && runningTime.current === 0) {
@@ -95,7 +121,7 @@ function App() {
     }
 
     if (runningTime.current >= 0) {
-      setCurrentTime(runningTime.current);
+      setRenderedTime(runningTime.current);
     }
   };
 
@@ -148,7 +174,7 @@ function App() {
       // }
 
       runningTime.current = newTime;
-      setCurrentTime(newTime);
+      setRenderedTime(newTime);
       setStartingTime({ time: newTime, id });
       setIsReset(true);
       setIsStart(false);
@@ -166,25 +192,31 @@ function App() {
         color="green.500"
         size="25rem"
         thickness="1.2px">
-        <CircularProgressLabel>
-          <Flex justifyContent="center">
-            <Box width={36} textAlign="right">
-              {minutes < 10 ? '0' + minutes : `${minutes}`}
-            </Box>
-            <Box paddingLeft="4px" paddingRight="4px">
-              :
-            </Box>
-            <Box width={36} textAlign="left">
-              {seconds < 10 ? '0' + seconds : `${seconds}`}
-            </Box>
-          </Flex>
-          <Box fontSize="1rem" fontWeight="bold">
-            {startingTime.id === TimeId.DEFAULT
-              ? `WORK x${cycles + 1}`
-              : startingTime.id === TimeId.SHORT
-              ? 'SHORT BREAK'
-              : 'LONG BREAK'}
-          </Box>
+        <CircularProgressLabel onClick={handleStartStopTimer} cursor="pointer">
+          {!pomo ? (
+            <Spinner />
+          ) : (
+            <>
+              <Flex justifyContent="center">
+                <Box width={36} textAlign="right">
+                  {minutes < 10 ? '0' + minutes : `${minutes}`}
+                </Box>
+                <Box paddingLeft="4px" paddingRight="4px">
+                  :
+                </Box>
+                <Box width={36} textAlign="left">
+                  {seconds < 10 ? '0' + seconds : `${seconds}`}
+                </Box>
+              </Flex>
+              <Box fontSize="1rem" fontWeight="bold">
+                {startingTime.id === TimeId.DEFAULT
+                  ? `WORK x${cycles + 1}`
+                  : startingTime.id === TimeId.SHORT
+                  ? 'SHORT BREAK'
+                  : 'LONG BREAK'}
+              </Box>
+            </>
+          )}
         </CircularProgressLabel>
       </CircularProgress>
     );
@@ -255,9 +287,25 @@ function App() {
             // TODO: move this out to a handler
             onClick={() => {
               handleResetTimer(pomo.time, pomo.id)();
-              // TODO: save to localstorage
-              // TODO: toast for success
-              setIsSettingsInfoModalOpen(false);
+              localStorage.setItem(
+                'pomodoro',
+                JSON.stringify({
+                  pomo,
+                  short,
+                  long,
+                })
+              );
+
+              toast({
+                title: 'Settings saved',
+                status: 'success',
+                duration: 3000,
+                position: 'top',
+                isClosable: true,
+              });
+
+              // TODO: reset cycle?
+              //setIsSettingsInfoModalOpen(false);
             }}
             variant="solid"
             colorScheme="green"
