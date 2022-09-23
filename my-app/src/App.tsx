@@ -31,6 +31,8 @@ enum TimeId {
 }
 
 type Time = { time: number; id: TimeId };
+
+const Alarm = new Audio(require('./complete.mp3'));
 // TODO: time >= 60s * 1 && <= 60s * 60;
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
 const SHORT = { time: 3, id: TimeId.SHORT };
@@ -51,6 +53,7 @@ function App() {
   const toast = useToast();
 
   const stopInterval = useRef(null);
+  const stopAlarmInterval = useRef(null);
   const runningTime = useRef(POMODORO.time);
 
   useEffect(() => {
@@ -86,6 +89,7 @@ function App() {
     return () => {
       console.log('unmount');
       clearInterval(stopInterval.current);
+      if (stopAlarmInterval.current) clearInterval(stopAlarmInterval.current);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,6 +102,12 @@ function App() {
 
     if (runningTime.current === 0) {
       // TODO: alarm audio (unique per time?)
+      Alarm.play();
+
+      stopAlarmInterval.current = setSelfAdjustingInterval(() => {
+        Alarm.play();
+        console.log('play');
+      }, 3000);
 
       if (cycles < 3) {
         // we only count a completed cycle after each short break
@@ -126,6 +136,11 @@ function App() {
   };
 
   const handleStartStopTimer = () => {
+    if (stopAlarmInterval.current) {
+      stopAlarmInterval.current();
+      clearInterval(stopAlarmInterval.current);
+    }
+
     if (!isStart) {
       handleStartTimer();
     } else {
@@ -164,14 +179,14 @@ function App() {
         startingTime: startingTime.time,
       });
 
-      if (stopInterval.current) {
-        stopInterval.current();
-      }
-
       // TODO: break early if we haven't started the countdown yet
       // if (runningTime.current === startingTime.time) {
       //   return;
       // }
+
+      if (stopInterval.current) {
+        stopInterval.current();
+      }
 
       runningTime.current = newTime;
       setRenderedTime(newTime);
