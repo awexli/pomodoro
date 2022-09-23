@@ -79,7 +79,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStart]);
 
-  const loadTime = () => {
+  const loadTime = (withReset = true) => {
     if (localStorage.getItem('pomodoro')) {
       const pomodoroStorage: {
         pomo: Time;
@@ -90,12 +90,9 @@ function App() {
       setPomo(pomodoroStorage.pomo);
       setShort(pomodoroStorage.short);
       setLong(pomodoroStorage.long);
-      handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id)();
-    } else {
-      setPomo(POMODORO);
-      setShort(SHORT);
-      setLong(LONG);
-      handleResetTimer(POMODORO.time, POMODORO.id)();
+      if (withReset) {
+        handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id)();
+      }
     }
   };
 
@@ -300,7 +297,7 @@ function App() {
       <Modal
         isOpen={isSettingsModalOpen}
         onClose={() => {
-          loadTime();
+          loadTime(false);
           setIsSettingsInfoModalOpen(false);
         }}
         headerText="Settings"
