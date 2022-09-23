@@ -20,7 +20,13 @@ import {
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import type { UseCounterProps } from '@chakra-ui/react';
-import { ExternalLinkIcon, SettingsIcon, RepeatClockIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import {
+  ExternalLinkIcon,
+  SettingsIcon,
+  RepeatClockIcon,
+  TriangleUpIcon,
+  CheckIcon,
+} from '@chakra-ui/icons';
 
 import { Modal } from './modal';
 
@@ -66,12 +72,10 @@ function App() {
     }
 
     if (isStart) {
-      console.log('interval start');
       stopInterval.current = setSelfAdjustingInterval(handleTime, 1000);
     }
 
     return () => {
-      console.log('unmount');
       clearInterval(stopInterval.current);
       if (stopAlarmInterval.current) clearInterval(stopAlarmInterval.current);
     };
@@ -90,24 +94,33 @@ function App() {
       setPomo(pomodoroStorage.pomo);
       setShort(pomodoroStorage.short);
       setLong(pomodoroStorage.long);
+
       if (withReset) {
         handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id)();
       }
+    } else {
+      setPomo(POMODORO);
+      setShort(SHORT);
+      setLong(LONG);
     }
   };
 
   const handleTime = (ticks: number) => {
+    console.log('tick', ticks);
     if (runningTime.current > 0) {
       runningTime.current -= ticks;
     }
 
     if (runningTime.current === 0) {
+      if (stopInterval.current) {
+        stopInterval.current();
+      }
+
       // TODO: alarm audio (unique per time?)
       Alarm.play();
 
       stopAlarmInterval.current = setSelfAdjustingInterval(() => {
         Alarm.play();
-        console.log('play');
       }, 3000);
 
       if (cycles < 3) {
@@ -115,16 +128,6 @@ function App() {
         if (startingTime.id === short.id) {
           setCycles(cycles + 1);
         }
-
-        // TODO: wait x seconds before resetting time?
-        handleResetTimer(
-          startingTime.id === pomo.id
-            ? short.time
-            : startingTime.id === short.id
-            ? pomo.time
-            : pomo.time,
-          startingTime.id === pomo.id ? short.id : startingTime.id === short.id ? pomo.id : pomo.id
-        )();
       } else {
         setCycles(0);
         handleResetTimer(long.time, long.id)();
@@ -137,11 +140,6 @@ function App() {
   };
 
   const handleStartStopTimer = () => {
-    if (stopAlarmInterval.current) {
-      stopAlarmInterval.current();
-      clearInterval(stopAlarmInterval.current);
-    }
-
     if (!isStart) {
       handleStartTimer();
     } else {
@@ -173,22 +171,19 @@ function App() {
   // has closure
   const handleResetTimer = (newTime: number = startingTime.time, id: TimeId = startingTime.id) => {
     return () => {
-      console.log({
-        newTime,
-        id,
-        runningTime: runningTime.current,
-        startingTime: startingTime.time,
-      });
+      // console.log({
+      //   newTime,
+      //   id,
+      //   runningTime: runningTime.current,
+      //   startingTime: startingTime.time,
+      // });
 
       // TODO: break early if we haven't started the countdown yet
       // if (runningTime.current === startingTime.time) {
       //   return;
       // }
 
-      if (stopInterval.current) {
-        stopInterval.current();
-      }
-
+      handleClearAudio();
       runningTime.current = newTime;
       setRenderedTime(newTime);
       setStartingTime({ time: newTime, id });
@@ -196,6 +191,13 @@ function App() {
       setIsStart(false);
       setIsStop(false);
     };
+  };
+
+  const handleClearAudio = () => {
+    if (stopAlarmInterval.current) {
+      stopAlarmInterval.current();
+      clearInterval(stopAlarmInterval.current);
+    }
   };
 
   const renderTime = () => {
@@ -208,7 +210,7 @@ function App() {
         color="green.500"
         size="25rem"
         thickness="1.2px">
-        <CircularProgressLabel onClick={handleStartStopTimer} cursor="pointer">
+        <CircularProgressLabel>
           {!pomo ? (
             <Spinner />
           ) : (
@@ -250,28 +252,57 @@ function App() {
           <Button onClick={handleResetTimer()} boxShadow="base" title="Reset" aria-label="Reset">
             <RepeatClockIcon />
           </Button>
-          <Button
-            onClick={handleStartStopTimer}
-            isDisabled={renderedTime === 0}
-            boxShadow={isStart ? 'inner' : 'base'}
-            title={isStart ? 'Stop' : 'Start'}
-            aria-label={isStart ? 'Stop' : 'Start'}>
-            {isStart ? (
-              <Box
-                as="span"
-                fontWeight="bolder"
-                fontSize="16px"
-                width="16px"
-                height="16px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center">
-                ||
-              </Box>
-            ) : (
-              <TriangleUpIcon transform="rotate(90deg)" />
-            )}
-          </Button>
+          {renderedTime === 0 ? (
+            <Button
+              onClick={() => {
+                if (stopAlarmInterval.current) {
+                  stopAlarmInterval.current();
+                  clearInterval(stopAlarmInterval.current);
+                }
+
+                handleResetTimer(
+                  startingTime.id === pomo.id
+                    ? short.time
+                    : startingTime.id === short.id
+                    ? pomo.time
+                    : pomo.time,
+                  startingTime.id === pomo.id
+                    ? short.id
+                    : startingTime.id === short.id
+                    ? pomo.id
+                    : pomo.id
+                )();
+              }}
+              colorScheme="green"
+              boxShadow={'base'}
+              title={'Okay'}
+              aria-label={'Okay'}>
+              <CheckIcon />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleStartStopTimer}
+              isDisabled={renderedTime === 0}
+              boxShadow={isStart ? 'inner' : 'base'}
+              title={isStart ? 'Stop' : 'Start'}
+              aria-label={isStart ? 'Stop' : 'Start'}>
+              {isStart ? (
+                <Box
+                  as="span"
+                  fontWeight="bolder"
+                  fontSize="16px"
+                  width="16px"
+                  height="16px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center">
+                  ||
+                </Box>
+              ) : (
+                <TriangleUpIcon transform="rotate(90deg)" />
+              )}
+            </Button>
+          )}
           <Button
             onClick={() => setIsSettingsInfoModalOpen(true)}
             boxShadow={isSettingsModalOpen ? 'inner' : 'base'}
@@ -358,7 +389,7 @@ function TimeInput(time = POMODORO, onChange: UseCounterProps['onChange']) {
   return (
     <FormControl marginBottom={4}>
       <FormLabel>{time.id} (min)</FormLabel>
-      <NumberInput max={60} min={1} onChange={onChange} value={time.time}>
+      <NumberInput max={60} min={1} onChange={onChange} value={Number(time.time) ? time.time : 0}>
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
