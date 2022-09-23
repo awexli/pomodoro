@@ -72,7 +72,39 @@ function App() {
     }
 
     if (isStart) {
-      stopInterval.current = setSelfAdjustingInterval(handleTime, 1000);
+      stopInterval.current = setSelfAdjustingInterval((ticks: number) => {
+        console.log('tick', ticks);
+        if (runningTime.current > 0) {
+          runningTime.current -= ticks;
+        }
+
+        if (runningTime.current === 0) {
+          if (stopInterval.current) {
+            stopInterval.current();
+          }
+
+          // TODO: alarm audio (unique per time?)
+          Alarm.play();
+
+          stopAlarmInterval.current = setSelfAdjustingInterval(() => {
+            Alarm.play();
+          }, 3000);
+
+          if (cycles < 3) {
+            // we only count a completed cycle after each short break
+            if (startingTime.id === short.id) {
+              setCycles(cycles + 1);
+            }
+          } else {
+            setCycles(0);
+            handleResetTimer(long.time, long.id);
+          }
+        }
+
+        if (runningTime.current >= 0) {
+          setRenderedTime(runningTime.current);
+        }
+      }, 1000);
     }
 
     return () => {
@@ -96,46 +128,12 @@ function App() {
       setLong(pomodoroStorage.long);
 
       if (withReset) {
-        handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id)();
+        handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id);
       }
     } else {
       setPomo(POMODORO);
       setShort(SHORT);
       setLong(LONG);
-    }
-  };
-
-  const handleTime = (ticks: number) => {
-    console.log('tick', ticks);
-    if (runningTime.current > 0) {
-      runningTime.current -= ticks;
-    }
-
-    if (runningTime.current === 0) {
-      if (stopInterval.current) {
-        stopInterval.current();
-      }
-
-      // TODO: alarm audio (unique per time?)
-      Alarm.play();
-
-      stopAlarmInterval.current = setSelfAdjustingInterval(() => {
-        Alarm.play();
-      }, 3000);
-
-      if (cycles < 3) {
-        // we only count a completed cycle after each short break
-        if (startingTime.id === short.id) {
-          setCycles(cycles + 1);
-        }
-      } else {
-        setCycles(0);
-        handleResetTimer(long.time, long.id)();
-      }
-    }
-
-    if (runningTime.current >= 0) {
-      setRenderedTime(runningTime.current);
     }
   };
 
@@ -168,29 +166,14 @@ function App() {
     setIsReset(false);
   };
 
-  // has closure
   const handleResetTimer = (newTime: number = startingTime.time, id: TimeId = startingTime.id) => {
-    return () => {
-      // console.log({
-      //   newTime,
-      //   id,
-      //   runningTime: runningTime.current,
-      //   startingTime: startingTime.time,
-      // });
-
-      // TODO: break early if we haven't started the countdown yet
-      // if (runningTime.current === startingTime.time) {
-      //   return;
-      // }
-
-      handleClearAudio();
-      runningTime.current = newTime;
-      setRenderedTime(newTime);
-      setStartingTime({ time: newTime, id });
-      setIsReset(true);
-      setIsStart(false);
-      setIsStop(false);
-    };
+    handleClearAudio();
+    runningTime.current = newTime;
+    setRenderedTime(newTime);
+    setStartingTime({ time: newTime, id });
+    setIsReset(true);
+    setIsStart(false);
+    setIsStop(false);
   };
 
   const handleClearAudio = () => {
@@ -198,6 +181,50 @@ function App() {
       stopAlarmInterval.current();
       clearInterval(stopAlarmInterval.current);
     }
+  };
+
+  const handleResetButtonClick = () => {
+    handleResetTimer();
+    handleStopTimer();
+  };
+
+  const handleOkayButtonClick = () => {
+    handleClearAudio();
+    handleResetTimer(
+      startingTime.id === pomo.id
+        ? short.time
+        : startingTime.id === short.id
+        ? pomo.time
+        : pomo.time,
+      startingTime.id === pomo.id ? short.id : startingTime.id === short.id ? pomo.id : pomo.id
+    );
+  };
+
+  const handleSaveButtonClick = () => {
+    handleResetTimer(pomo.time * 60, pomo.id);
+    handleStopTimer();
+
+    localStorage.setItem(
+      'pomodoro',
+      JSON.stringify({
+        pomo,
+        short,
+        long,
+      })
+    );
+
+    toast({
+      title: 'Settings saved',
+      status: 'success',
+      duration: 3000,
+      position: 'top',
+      isClosable: true,
+    });
+
+    // TODO: reset cycle?
+
+    // TODO: to close or not to close on save
+    //setIsSettingsInfoModalOpen(false);
   };
 
   const renderTime = () => {
@@ -249,30 +276,16 @@ function App() {
         style={{ height: '85vh' }}>
         <Box>{renderTime()}</Box>
         <ButtonGroup>
-          <Button onClick={handleResetTimer()} boxShadow="base" title="Reset" aria-label="Reset">
+          <Button
+            onClick={handleResetButtonClick}
+            boxShadow="base"
+            title="Reset"
+            aria-label="Reset">
             <RepeatClockIcon />
           </Button>
           {renderedTime === 0 ? (
             <Button
-              onClick={() => {
-                if (stopAlarmInterval.current) {
-                  stopAlarmInterval.current();
-                  clearInterval(stopAlarmInterval.current);
-                }
-
-                handleResetTimer(
-                  startingTime.id === pomo.id
-                    ? short.time
-                    : startingTime.id === short.id
-                    ? pomo.time
-                    : pomo.time,
-                  startingTime.id === pomo.id
-                    ? short.id
-                    : startingTime.id === short.id
-                    ? pomo.id
-                    : pomo.id
-                )();
-              }}
+              onClick={handleOkayButtonClick}
               colorScheme="green"
               boxShadow={'base'}
               title={'Okay'}
@@ -334,29 +347,7 @@ function App() {
         headerText="Settings"
         secondaryButton={
           <Button
-            // TODO: move this out to a handler
-            onClick={() => {
-              handleResetTimer(pomo.time * 60, pomo.id)();
-              localStorage.setItem(
-                'pomodoro',
-                JSON.stringify({
-                  pomo,
-                  short,
-                  long,
-                })
-              );
-
-              toast({
-                title: 'Settings saved',
-                status: 'success',
-                duration: 3000,
-                position: 'top',
-                isClosable: true,
-              });
-
-              // TODO: reset cycle?
-              //setIsSettingsInfoModalOpen(false);
-            }}
+            onClick={handleSaveButtonClick}
             variant="solid"
             colorScheme="green"
             type="submit">
