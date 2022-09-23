@@ -39,9 +39,9 @@ const SHORT = { time: 3, id: TimeId.SHORT };
 const LONG = { time: 6, id: TimeId.LONG };
 
 function App() {
-  const [pomo, setPomo] = useState<Time | undefined>(undefined);
-  const [short, setShort] = useState<Time | undefined>(undefined);
-  const [long, setLong] = useState<Time | undefined>(undefined);
+  const [pomo, setPomo] = useState<Time>(POMODORO);
+  const [short, setShort] = useState<Time>(SHORT);
+  const [long, setLong] = useState<Time>(LONG);
   const [renderedTime, setRenderedTime] = useState(POMODORO.time);
   const [isStart, setIsStart] = useState(false);
   const [isStop, setIsStop] = useState(false);
@@ -57,23 +57,7 @@ function App() {
   const runningTime = useRef(POMODORO.time);
 
   useEffect(() => {
-    if (localStorage.getItem('pomodoro')) {
-      const pomodoroStorage: {
-        pomo: Time;
-        short: Time;
-        long: Time;
-      } = JSON.parse(localStorage.getItem('pomodoro'));
-
-      setPomo(pomodoroStorage.pomo);
-      setShort(pomodoroStorage.short);
-      setLong(pomodoroStorage.long);
-      handleResetTimer(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id)();
-    } else {
-      setPomo(POMODORO);
-      setShort(SHORT);
-      setLong(LONG);
-      handleResetTimer(POMODORO.time, POMODORO.id)();
-    }
+    loadTime();
   }, []);
 
   useEffect(() => {
@@ -94,6 +78,26 @@ function App() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStart]);
+
+  const loadTime = () => {
+    if (localStorage.getItem('pomodoro')) {
+      const pomodoroStorage: {
+        pomo: Time;
+        short: Time;
+        long: Time;
+      } = JSON.parse(localStorage.getItem('pomodoro'));
+
+      setPomo(pomodoroStorage.pomo);
+      setShort(pomodoroStorage.short);
+      setLong(pomodoroStorage.long);
+      handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id)();
+    } else {
+      setPomo(POMODORO);
+      setShort(SHORT);
+      setLong(LONG);
+      handleResetTimer(POMODORO.time, POMODORO.id)();
+    }
+  };
 
   const handleTime = (ticks: number) => {
     if (runningTime.current > 0) {
@@ -295,13 +299,16 @@ function App() {
       />
       <Modal
         isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsInfoModalOpen(false)}
+        onClose={() => {
+          loadTime();
+          setIsSettingsInfoModalOpen(false);
+        }}
         headerText="Settings"
         secondaryButton={
           <Button
             // TODO: move this out to a handler
             onClick={() => {
-              handleResetTimer(pomo.time, pomo.id)();
+              handleResetTimer(pomo.time * 60, pomo.id)();
               localStorage.setItem(
                 'pomodoro',
                 JSON.stringify({
@@ -353,8 +360,8 @@ function App() {
 function TimeInput(time = POMODORO, onChange: UseCounterProps['onChange']) {
   return (
     <FormControl marginBottom={4}>
-      <FormLabel>{time.id}</FormLabel>
-      <NumberInput max={60} min={0} onChange={onChange} value={time.time}>
+      <FormLabel>{time.id} (min)</FormLabel>
+      <NumberInput max={60} min={1} onChange={onChange} value={time.time}>
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
