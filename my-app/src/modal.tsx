@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   Box,
   Button,
-  ButtonGroup,
   Flex,
   Link,
   Modal as ChakraModal,
@@ -12,28 +11,36 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Progress,
+  ButtonGroup,
 } from '@chakra-ui/react';
 
 export const Modal = ({
   isOpen,
   onClose,
+  headerText,
+  secondaryButton,
   body,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  headerText?: string;
+  secondaryButton?: React.ReactElement;
   body: React.ReactElement;
 }) => {
   return (
     <ChakraModal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" size="lg">
       <ModalOverlay />
       <ModalContent>
+        {headerText && <ModalHeader>{headerText}</ModalHeader>}
         <ModalCloseButton />
         <ModalBody>{body}</ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
-            Close
-          </Button>
+          <ButtonGroup>
+            {secondaryButton ? secondaryButton : null}
+            <Button colorScheme="green" variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          </ButtonGroup>
         </ModalFooter>
       </ModalContent>
     </ChakraModal>

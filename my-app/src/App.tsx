@@ -6,25 +6,36 @@ import {
   Button,
   ButtonGroup,
   Flex,
+  FormControl,
+  FormLabel,
+  NumberInput,
   Link,
   CircularProgress,
   CircularProgressLabel,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from '@chakra-ui/react';
+import type { UseCounterProps } from '@chakra-ui/react';
 import { ExternalLinkIcon, SettingsIcon, RepeatClockIcon, TriangleUpIcon } from '@chakra-ui/icons';
 
 import { Modal } from './modal';
 
 enum TimeId {
-  'DEFAULT' = 'default',
-  'SHORT' = 'short',
-  'LONG' = 'long',
+  'DEFAULT' = 'Work time',
+  'SHORT' = 'Short break',
+  'LONG' = 'Long break',
 }
-// Should be >= 60s * 1 && <= 60s * 60;
+// TODO: time >= 60s * 1 && <= 60s * 60;
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
 const SHORT = { time: 3, id: TimeId.SHORT };
 const LONG = { time: 6, id: TimeId.LONG };
 
 function App() {
+  const [pomo, setPomo] = useState(POMODORO);
+  const [short, setShort] = useState(SHORT);
+  const [long, setLong] = useState(LONG);
   const [renderedTime, setCurrentTime] = useState(POMODORO.time);
   const [isStart, setIsStart] = useState(false);
   const [isStop, setIsStop] = useState(false);
@@ -62,25 +73,21 @@ function App() {
     if (runningTime.current === 0) {
       if (cycles < 3) {
         // we only count a completed cycle after each short break
-        if (startingTime.id === SHORT.id) {
+        if (startingTime.id === short.id) {
           setCycles(cycles + 1);
         }
 
         handleResetTimer(
-          startingTime.id === POMODORO.id
-            ? SHORT.time
-            : startingTime.id === SHORT.id
-            ? POMODORO.time
-            : POMODORO.time,
-          startingTime.id === POMODORO.id
-            ? SHORT.id
-            : startingTime.id === SHORT.id
-            ? POMODORO.id
-            : POMODORO.id
+          startingTime.id === pomo.id
+            ? short.time
+            : startingTime.id === short.id
+            ? pomo.time
+            : pomo.time,
+          startingTime.id === pomo.id ? short.id : startingTime.id === short.id ? pomo.id : pomo.id
         )();
       } else {
         setCycles(0);
-        handleResetTimer(LONG.time, TimeId.LONG)();
+        handleResetTimer(long.time, long.id)();
       }
     }
 
@@ -121,13 +128,20 @@ function App() {
   // has closure
   const handleResetTimer = (newTime: number = startingTime.time, id: TimeId = startingTime.id) => {
     return () => {
+      console.log({
+        newTime,
+        id,
+        runningTime: runningTime.current,
+        startingTime: startingTime.time,
+      });
+
       if (stopInterval.current) {
         stopInterval.current();
       }
-
-      if (runningTime.current === startingTime.time) {
-        return;
-      }
+      // break early if we haven't started the countdown yet
+      // if (runningTime.current === startingTime.time) {
+      //   return;
+      // }
 
       runningTime.current = newTime;
       setCurrentTime(newTime);
@@ -145,11 +159,11 @@ function App() {
     return (
       <CircularProgress
         value={(renderedTime / startingTime.time) * 100}
-        color="green.400"
-        size={'25rem'}
-        thickness="1px">
+        color="green.500"
+        size="25rem"
+        thickness="1.2px">
         <CircularProgressLabel>
-          <Flex justifyContent={'center'}>
+          <Flex justifyContent="center">
             <Box width={36} textAlign="right">
               {minutes < 10 ? '0' + minutes : `${minutes}`}
             </Box>
@@ -160,12 +174,12 @@ function App() {
               {seconds < 10 ? '0' + seconds : `${seconds}`}
             </Box>
           </Flex>
-          <Box fontSize={'1rem'} fontWeight="bold">
+          <Box fontSize="1rem" fontWeight="bold">
             {startingTime.id === TimeId.DEFAULT
-              ? `Work x ${cycles + 1}`
+              ? `WORK x${cycles + 1}`
               : startingTime.id === TimeId.SHORT
-              ? 'Short break'
-              : 'Long break'}
+              ? 'SHORT BREAK'
+              : 'LONG BREAK'}
           </Box>
         </CircularProgressLabel>
       </CircularProgress>
@@ -173,11 +187,11 @@ function App() {
   };
 
   return (
-    <Box>
+    <Box style={{ height: '100vh' }} bgGradient="linear(to-br, green.300, green.50)">
       <Flex
-        alignItems={'center'}
-        justifyContent={'center'}
-        flexDirection={'column'}
+        alignItems="center"
+        justifyContent="center"
+        flexDirection="column"
         style={{ height: '85vh' }}>
         <Box>{renderTime()}</Box>
         <ButtonGroup>
@@ -191,24 +205,24 @@ function App() {
             title={isStart ? 'Stop' : 'Start'}
             aria-label={isStart ? 'Stop' : 'Start'}>
             {isStart ? (
-              <span
-                style={{
-                  fontWeight: 'bolder',
-                  fontSize: '16px',
-                  width: '16px',
-                  height: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
+              <Box
+                as="span"
+                fontWeight="bolder"
+                fontSize="16px"
+                width="16px"
+                height="16px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center">
                 ||
-              </span>
+              </Box>
             ) : (
-              <TriangleUpIcon transform={'rotate(90deg)'} />
+              <TriangleUpIcon transform="rotate(90deg)" />
             )}
           </Button>
           <Button
             onClick={() => setIsSettingsInfoModalOpen(true)}
+            boxShadow={isSettingsModalOpen ? 'inner' : 'base'}
             title="Settings"
             aria-label="Settings">
             <SettingsIcon />
@@ -217,8 +231,9 @@ function App() {
         <Button
           onClick={() => setIsInfoModalOpen(true)}
           marginTop={4}
-          variant={'link'}
-          color="green.400">
+          variant="link"
+          color="green.600"
+          textDecoration="underline">
           What is this?
         </Button>
       </Flex>
@@ -230,9 +245,56 @@ function App() {
       <Modal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsInfoModalOpen(false)}
-        body={<Flex justifyContent="center">FORM</Flex>}
+        headerText="Settings"
+        secondaryButton={
+          <Button
+            onClick={() => {
+              // reset time
+              handleResetTimer(pomo.time, pomo.id)();
+              // save to localstorage
+              // toast for success
+              setIsSettingsInfoModalOpen(false);
+            }}
+            variant="solid"
+            colorScheme="green"
+            type="submit">
+            Save
+          </Button>
+        }
+        body={
+          <Flex justifyContent="center" flexDirection="column">
+            <p>Customize the times that works for you</p>
+            <br />
+            <>
+              {TimeInput(pomo, (_, time) => {
+                setPomo({ ...pomo, time });
+              })}
+              {TimeInput(short, (_, time) => {
+                setShort({ ...short, time });
+              })}
+              {TimeInput(long, (_, time) => {
+                setLong({ ...long, time });
+              })}
+            </>
+          </Flex>
+        }
       />
     </Box>
+  );
+}
+
+function TimeInput(time = POMODORO, onChange: UseCounterProps['onChange']) {
+  return (
+    <FormControl marginBottom={4}>
+      <FormLabel>{time.id}</FormLabel>
+      <NumberInput max={60} min={0} onChange={onChange} value={time.time}>
+        <NumberInputField />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      </NumberInput>
+    </FormControl>
   );
 }
 
@@ -256,13 +318,14 @@ function InfoModalContent() {
         </Flex>
       </Box>
       <hr />
-      <Flex margin={4} justifyContent={'center'}>
+      <Flex margin={4} justifyContent="center">
         <Link
           href="https://github.com/awexli/pomodoro"
           target="_blank"
           rel="noopener noreferrer"
           isExternal
-          color="blue.600">
+          color="green.600"
+          fontWeight="bold">
           Source Code <ExternalLinkIcon mx="2px" />
         </Link>
       </Flex>
