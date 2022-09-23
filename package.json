@@ -18,14 +18,6 @@
   },
   "homepage": "https://github.com/awexli/pomodoro#readme",
   "dependencies": {
-    "@fontsource/cousine": "^4.5.9",
-    "@fontsource/khula": "^4.5.9",
-    "@fontsource/montserrat": "^4.5.12",
-    "@fontsource/open-sans": "^4.5.11",
-    "@fontsource/raleway": "^4.5.10",
-    "@fontsource/roboto": "^4.5.8",
-    "@fontsource/ubuntu": "^4.5.11",
-    "@fontsource/ubuntu-condensed": "^4.5.11",
     "add": "^2.0.6",
     "yarn": "^1.22.19"
   },
