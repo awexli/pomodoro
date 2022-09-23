@@ -71,12 +71,15 @@ function App() {
     }
 
     if (runningTime.current === 0) {
+      // TODO: alarm audio (unique per time?)
+
       if (cycles < 3) {
         // we only count a completed cycle after each short break
         if (startingTime.id === short.id) {
           setCycles(cycles + 1);
         }
 
+        // TODO: wait x seconds before resetting time?
         handleResetTimer(
           startingTime.id === pomo.id
             ? short.time
@@ -138,7 +141,8 @@ function App() {
       if (stopInterval.current) {
         stopInterval.current();
       }
-      // break early if we haven't started the countdown yet
+
+      // TODO: break early if we haven't started the countdown yet
       // if (runningTime.current === startingTime.time) {
       //   return;
       // }
@@ -248,11 +252,11 @@ function App() {
         headerText="Settings"
         secondaryButton={
           <Button
+            // TODO: move this out to a handler
             onClick={() => {
-              // reset time
               handleResetTimer(pomo.time, pomo.id)();
-              // save to localstorage
-              // toast for success
+              // TODO: save to localstorage
+              // TODO: toast for success
               setIsSettingsInfoModalOpen(false);
             }}
             variant="solid"
