@@ -16,7 +16,6 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Spinner,
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import type { UseCounterProps } from '@chakra-ui/react';
@@ -39,7 +38,6 @@ enum TimeId {
 type Time = { time: number; id: TimeId };
 
 const Alarm = new Audio(require('./complete.mp3'));
-// TODO: time >= 60s * 1 && <= 60s * 60;
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
 const SHORT = { time: 3, id: TimeId.SHORT };
 const LONG = { time: 6, id: TimeId.LONG };
@@ -55,9 +53,8 @@ function App() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsInfoModalOpen] = useState(false);
   const [cycles, setCycles] = useState(0);
-  const [startingTime, setStartingTime] = useState(POMODORO);
+  const [startingTime, setStartingTime] = useState<Time>(POMODORO);
   const toast = useToast();
-
   const stopInterval = useRef(null);
   const stopAlarmInterval = useRef(null);
   const runningTime = useRef(POMODORO.time);
@@ -79,31 +76,23 @@ function App() {
         }
 
         if (runningTime.current === 0) {
-          if (stopInterval.current) {
-            stopInterval.current();
-          }
+          stopInterval.current();
 
           // TODO: alarm audio (unique per time?)
           Alarm.play();
-
           stopAlarmInterval.current = setSelfAdjustingInterval(() => {
             Alarm.play();
           }, 3000);
 
-          if (cycles < 3) {
-            // we only count a completed cycle after each short break
-            if (startingTime.id === short.id) {
-              setCycles(cycles + 1);
-            }
-          } else {
+          // we only count a completed cycle after each short break
+          if (cycles < 3 && startingTime.id === short.id) {
+            setCycles(cycles + 1);
+          } else if (cycles >= 3) {
             setCycles(0);
-            handleResetTimer(long.time, long.id);
           }
         }
 
-        if (runningTime.current >= 0) {
-          setRenderedTime(runningTime.current);
-        }
+        setRenderedTime(runningTime.current);
       }, 1000);
     }
 
@@ -111,12 +100,10 @@ function App() {
       clearInterval(stopInterval.current);
       if (stopAlarmInterval.current) clearInterval(stopAlarmInterval.current);
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStart]);
 
-  const loadTime = (withReset = true) => {
-    if (localStorage.getItem('pomodoro')) {
+  const loadTime = (isResetTime = true) => {
+    if (localStorage.getItem('pomodoro') && isResetTime) {
       const pomodoroStorage: {
         pomo: Time;
         short: Time;
@@ -126,10 +113,7 @@ function App() {
       setPomo(pomodoroStorage.pomo);
       setShort(pomodoroStorage.short);
       setLong(pomodoroStorage.long);
-
-      if (withReset) {
-        handleResetTimer(pomodoroStorage.pomo.time * 60, pomodoroStorage.pomo.id);
-      }
+      resetTime(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id);
     } else {
       setPomo(POMODORO);
       setShort(SHORT);
@@ -137,21 +121,13 @@ function App() {
     }
   };
 
-  const handleStartStopTimer = () => {
-    if (!isStart) {
-      handleStartTimer();
-    } else {
-      handleStopTimer();
-    }
-  };
-
-  const handleStartTimer = () => {
+  const startTime = () => {
     setIsStart(true);
     setIsStop(false);
     setIsReset(false);
   };
 
-  const handleStopTimer = () => {
+  const stopTime = () => {
     // avoid setting state unnecessarily
     if (!isStart && renderedTime === 0) {
       return;
@@ -166,43 +142,54 @@ function App() {
     setIsReset(false);
   };
 
-  const handleResetTimer = (newTime: number = startingTime.time, id: TimeId = startingTime.id) => {
-    handleClearAudio();
-    runningTime.current = newTime;
-    setRenderedTime(newTime);
-    setStartingTime({ time: newTime, id });
+  const resetTime = (newTime: number, id: TimeId) => {
+    const newTimeInMinutes = newTime * 60;
+
+    clearAudio();
+    runningTime.current = newTimeInMinutes;
+    setRenderedTime(newTimeInMinutes);
+    setStartingTime({ time: newTimeInMinutes, id });
     setIsReset(true);
     setIsStart(false);
     setIsStop(false);
   };
 
-  const handleClearAudio = () => {
+  const clearAudio = () => {
     if (stopAlarmInterval.current) {
       stopAlarmInterval.current();
       clearInterval(stopAlarmInterval.current);
     }
   };
 
+  const handleStartStopTime = () => {
+    if (!isStart) {
+      startTime();
+    } else {
+      stopTime();
+    }
+  };
+
   const handleResetButtonClick = () => {
-    handleResetTimer();
-    handleStopTimer();
+    const newTime =
+      startingTime.id === pomo.id ? pomo : startingTime.id === short.id ? short : long;
+    resetTime(newTime.time, newTime.id);
+    stopTime();
   };
 
   const handleOkayButtonClick = () => {
-    handleClearAudio();
-    handleResetTimer(
-      startingTime.id === pomo.id
-        ? short.time
-        : startingTime.id === short.id
-        ? pomo.time
-        : pomo.time,
-      startingTime.id === pomo.id ? short.id : startingTime.id === short.id ? pomo.id : pomo.id
-    );
+    clearAudio();
+
+    if (cycles < 3) {
+      const newTime = startingTime.id === pomo.id ? short : pomo;
+      resetTime(newTime.time, newTime.id);
+    } else {
+      resetTime(long.time, long.id);
+    }
   };
 
   const handleSaveButtonClick = () => {
-    handleResetTimer(pomo.time * 60, pomo.id);
-    handleStopTimer();
+    resetTime(pomo.time, pomo.id);
+    stopTime();
 
     localStorage.setItem(
       'pomodoro',
@@ -221,50 +208,7 @@ function App() {
       isClosable: true,
     });
 
-    // TODO: reset cycle?
-
     // TODO: to close or not to close on save
-    //setIsSettingsInfoModalOpen(false);
-  };
-
-  const renderTime = () => {
-    const minutes = Math.floor(renderedTime / 60);
-    const seconds = renderedTime % 60;
-
-    return (
-      <CircularProgress
-        value={(renderedTime / startingTime.time) * 100}
-        color="green.500"
-        size="25rem"
-        thickness="1.2px">
-        <CircularProgressLabel>
-          {!pomo ? (
-            <Spinner />
-          ) : (
-            <>
-              <Flex justifyContent="center">
-                <Box width={36} textAlign="right">
-                  {minutes < 10 ? '0' + minutes : `${minutes}`}
-                </Box>
-                <Box paddingLeft="4px" paddingRight="4px">
-                  :
-                </Box>
-                <Box width={36} textAlign="left">
-                  {seconds < 10 ? '0' + seconds : `${seconds}`}
-                </Box>
-              </Flex>
-              <Box fontSize="1rem" fontWeight="bold">
-                {startingTime.id === TimeId.DEFAULT
-                  ? `WORK x${cycles + 1}`
-                  : startingTime.id === TimeId.SHORT
-                  ? 'SHORT BREAK'
-                  : 'LONG BREAK'}
-              </Box>
-            </>
-          )}
-        </CircularProgressLabel>
-      </CircularProgress>
-    );
   };
 
   return (
@@ -274,7 +218,7 @@ function App() {
         justifyContent="center"
         flexDirection="column"
         style={{ height: '85vh' }}>
-        <Box>{renderTime()}</Box>
+        <Box>{RenderTime(renderedTime, startingTime, cycles)}</Box>
         <ButtonGroup>
           <Button
             onClick={handleResetButtonClick}
@@ -294,7 +238,7 @@ function App() {
             </Button>
           ) : (
             <Button
-              onClick={handleStartStopTimer}
+              onClick={handleStartStopTime}
               isDisabled={renderedTime === 0}
               boxShadow={isStart ? 'inner' : 'base'}
               title={isStart ? 'Stop' : 'Start'}
@@ -341,16 +285,15 @@ function App() {
       <Modal
         isOpen={isSettingsModalOpen}
         onClose={() => {
+          // we are not saving anything here
+          // we want to load the times from local storage, but not repaint the current times
+          // the point of this is to reset the values in the TimeInput(s)
           loadTime(false);
           setIsSettingsInfoModalOpen(false);
         }}
         headerText="Settings"
         secondaryButton={
-          <Button
-            onClick={handleSaveButtonClick}
-            variant="solid"
-            colorScheme="green"
-            type="submit">
+          <Button onClick={handleSaveButtonClick} variant="solid" colorScheme="green" type="submit">
             Save
           </Button>
         }
@@ -373,6 +316,40 @@ function App() {
         }
       />
     </Box>
+  );
+}
+
+function RenderTime(renderedTime: number, startingTime: Time, cycles: number) {
+  const minutes = Math.floor(renderedTime / 60);
+  const seconds = renderedTime % 60;
+
+  return (
+    <CircularProgress
+      value={(renderedTime / startingTime.time) * 100}
+      color="green.500"
+      size="25rem"
+      thickness="1.2px">
+      <CircularProgressLabel>
+        <Flex justifyContent="center">
+          <Box width={36} textAlign="right">
+            {minutes < 10 ? '0' + minutes : `${minutes}`}
+          </Box>
+          <Box paddingLeft="4px" paddingRight="4px">
+            :
+          </Box>
+          <Box width={36} textAlign="left">
+            {seconds < 10 ? '0' + seconds : `${seconds}`}
+          </Box>
+        </Flex>
+        <Box fontSize="1rem" fontWeight="bold">
+          {startingTime.id === TimeId.DEFAULT
+            ? `WORK x${cycles + 1}`
+            : startingTime.id === TimeId.SHORT
+            ? 'SHORT BREAK'
+            : 'LONG BREAK'}
+        </Box>
+      </CircularProgressLabel>
+    </CircularProgress>
   );
 }
 
