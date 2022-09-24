@@ -103,7 +103,7 @@ function App() {
   }, [isStart]);
 
   const loadTime = (isResetTime = true) => {
-    if (localStorage.getItem('pomodoro') && isResetTime) {
+    if (localStorage.getItem('pomodoro')) {
       const pomodoroStorage: {
         pomo: Time;
         short: Time;
@@ -113,7 +113,10 @@ function App() {
       setPomo(pomodoroStorage.pomo);
       setShort(pomodoroStorage.short);
       setLong(pomodoroStorage.long);
-      resetTime(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id);
+
+      if (isResetTime) {
+        resetTime(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id);
+      }
     } else {
       setPomo(POMODORO);
       setShort(SHORT);
