@@ -302,9 +302,9 @@ function App() {
         }
         body={
           <Flex justifyContent="center" flexDirection="column">
-            <p>Customize the times that works for you</p>
+            <p>Customize the times that work best for you</p>
             <br />
-            <>
+            <Flex columnGap="1rem">
               {TimeInput(pomo, (_, time) => {
                 setPomo({ ...pomo, time });
               })}
@@ -314,7 +314,7 @@ function App() {
               {TimeInput(long, (_, time) => {
                 setLong({ ...long, time });
               })}
-            </>
+            </Flex>
           </Flex>
         }
       />
