@@ -27,15 +27,11 @@ import {
   CheckIcon,
 } from '@chakra-ui/icons';
 
-import { Modal } from './modal';
-
-enum TimeId {
-  'DEFAULT' = 'Work time',
-  'SHORT' = 'Short break',
-  'LONG' = 'Long break',
-}
-
-type Time = { time: number; id: TimeId };
+import { Modal } from './components/modal';
+import { Clock } from './components/clock';
+import { Controls } from './components/controls';
+import type { Time } from './types';
+import { TimeId } from './types';
 
 const Alarm = new Audio(require('./complete.mp3'));
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
@@ -46,7 +42,7 @@ function App() {
   const [pomo, setPomo] = useState<Time>(POMODORO);
   const [short, setShort] = useState<Time>(SHORT);
   const [long, setLong] = useState<Time>(LONG);
-  const [renderedTime, setRenderedTime] = useState(POMODORO.time);
+  const [currentTime, setCurrentTime] = useState(POMODORO.time);
   const [isStart, setIsStart] = useState(false);
   const [isStop, setIsStop] = useState(false);
   const [isReset, setIsReset] = useState(false);
@@ -58,6 +54,8 @@ function App() {
   const stopInterval = useRef(null);
   const stopAlarmInterval = useRef(null);
   const runningTime = useRef(POMODORO.time);
+
+  console.log({ currentTime, runningTime });
 
   useEffect(() => {
     loadTime();
@@ -92,7 +90,7 @@ function App() {
           }
         }
 
-        setRenderedTime(runningTime.current);
+        setCurrentTime(runningTime.current);
       }, 1000);
     }
 
@@ -132,7 +130,7 @@ function App() {
 
   const stopTime = () => {
     // avoid setting state unnecessarily
-    if (!isStart && renderedTime === 0) {
+    if (!isStart && currentTime === 0) {
       return;
     }
 
@@ -150,7 +148,7 @@ function App() {
 
     clearAudio();
     runningTime.current = newTimeInMinutes;
-    setRenderedTime(newTimeInMinutes);
+    setCurrentTime(newTimeInMinutes);
     setStartingTime({ time: newTimeInMinutes, id });
     setIsReset(true);
     setIsStart(false);
@@ -221,56 +219,69 @@ function App() {
         justifyContent="center"
         flexDirection="column"
         style={{ height: '85vh' }}>
-        <Box>{RenderTime(renderedTime, startingTime, cycles)}</Box>
-        <ButtonGroup>
-          <Button
-            onClick={handleResetButtonClick}
-            boxShadow="base"
-            title="Reset"
-            aria-label="Reset">
-            <RepeatClockIcon />
-          </Button>
-          {renderedTime === 0 ? (
-            <Button
-              onClick={handleOkayButtonClick}
-              colorScheme="green"
-              boxShadow={'base'}
-              title={'Okay'}
-              aria-label={'Okay'}>
-              <CheckIcon />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleStartStopTime}
-              isDisabled={renderedTime === 0}
-              boxShadow={isStart ? 'inner' : 'base'}
-              title={isStart ? 'Stop' : 'Start'}
-              aria-label={isStart ? 'Stop' : 'Start'}>
-              {isStart ? (
-                <Box
-                  as="span"
-                  fontWeight="bolder"
-                  fontSize="16px"
-                  width="16px"
-                  height="16px"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center">
-                  ||
-                </Box>
-              ) : (
-                <TriangleUpIcon transform="rotate(90deg)" />
-              )}
-            </Button>
-          )}
-          <Button
-            onClick={() => setIsSettingsInfoModalOpen(true)}
-            boxShadow={isSettingsModalOpen ? 'inner' : 'base'}
-            title="Settings"
-            aria-label="Settings">
-            <SettingsIcon />
-          </Button>
-        </ButtonGroup>
+        <CircularProgress
+          value={(currentTime / startingTime.time) * 100}
+          color="green.500"
+          size="25rem"
+          thickness="1.2px">
+          <CircularProgressLabel>
+            <Clock currentTime={currentTime} />
+            <Box fontSize="1rem" fontWeight="bold">
+              {startingTime.id === TimeId.DEFAULT
+                ? `WORK x${cycles + 1}`
+                : startingTime.id === TimeId.SHORT
+                ? 'SHORT BREAK'
+                : 'LONG BREAK'}
+            </Box>
+          </CircularProgressLabel>
+        </CircularProgress>
+        <Controls
+          buttons={[
+            {
+              onClick: handleResetButtonClick,
+              boxShadow: 'base',
+              title: 'Reset',
+              'aria-label': 'Reset',
+              icon: <RepeatClockIcon />,
+            },
+            currentTime === 0
+              ? {
+                  onClick: handleOkayButtonClick,
+                  colorScheme: 'green',
+                  boxShadow: 'base',
+                  title: 'Okay',
+                  'aria-label': 'Okay',
+                  icon: <CheckIcon />,
+                }
+              : {
+                  onClick: handleStartStopTime,
+                  boxShadow: isStart ? 'inner' : 'base',
+                  title: isStart ? 'Stop' : 'Start',
+                  icon: isStart ? (
+                    <Box
+                      as="span"
+                      fontWeight="bolder"
+                      fontSize="16px"
+                      width="16px"
+                      height="16px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center">
+                      ||
+                    </Box>
+                  ) : (
+                    <TriangleUpIcon transform="rotate(90deg)" />
+                  ),
+                },
+            {
+              onClick: () => setIsSettingsInfoModalOpen(true),
+              boxShadow: isSettingsModalOpen ? 'inner' : 'base',
+              title: 'Settings',
+              'aria-label': 'Settings',
+              icon: <SettingsIcon />,
+            },
+          ]}
+        />
         <Button
           onClick={() => setIsInfoModalOpen(true)}
           marginTop={4}
@@ -319,40 +330,6 @@ function App() {
         }
       />
     </Box>
-  );
-}
-
-function RenderTime(renderedTime: number, startingTime: Time, cycles: number) {
-  const minutes = Math.floor(renderedTime / 60);
-  const seconds = renderedTime % 60;
-
-  return (
-    <CircularProgress
-      value={(renderedTime / startingTime.time) * 100}
-      color="green.500"
-      size="25rem"
-      thickness="1.2px">
-      <CircularProgressLabel>
-        <Flex justifyContent="center">
-          <Box width={36} textAlign="right">
-            {minutes < 10 ? '0' + minutes : `${minutes}`}
-          </Box>
-          <Box paddingLeft="4px" paddingRight="4px">
-            :
-          </Box>
-          <Box width={36} textAlign="left">
-            {seconds < 10 ? '0' + seconds : `${seconds}`}
-          </Box>
-        </Flex>
-        <Box fontSize="1rem" fontWeight="bold">
-          {startingTime.id === TimeId.DEFAULT
-            ? `WORK x${cycles + 1}`
-            : startingTime.id === TimeId.SHORT
-            ? 'SHORT BREAK'
-            : 'LONG BREAK'}
-        </Box>
-      </CircularProgressLabel>
-    </CircularProgress>
   );
 }
 
