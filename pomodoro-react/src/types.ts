@@ -5,3 +5,8 @@ export enum TimeId {
 }
 
 export type Time = { time: number; id: TimeId };
+export type Settings = {
+  pomo: Time;
+  short: Time;
+  long: Time;
+};

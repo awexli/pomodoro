@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
-import setSelfAdjustingInterval from 'self-adjusting-interval';
+import { useState, useEffect } from 'react';
 
 import {
   Box,
@@ -27,13 +26,14 @@ import {
   CheckIcon,
 } from '@chakra-ui/icons';
 
+import { Controller } from './controller';
 import { Modal } from './components/modal';
 import { Clock } from './components/clock';
 import { Controls } from './components/controls';
 import type { Time } from './types';
 import { TimeId } from './types';
+import { useTime } from './use-interval';
 
-const Alarm = new Audio(require('./complete.mp3'));
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
 const SHORT = { time: 3, id: TimeId.SHORT };
 const LONG = { time: 6, id: TimeId.LONG };
@@ -43,127 +43,71 @@ function App() {
   const [short, setShort] = useState<Time>(SHORT);
   const [long, setLong] = useState<Time>(LONG);
   const [currentTime, setCurrentTime] = useState(POMODORO.time);
-  const [isStart, setIsStart] = useState(false);
-  const [isStop, setIsStop] = useState(false);
-  const [isReset, setIsReset] = useState(false);
+  const [isStartPressed, setIsStartPressed] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsInfoModalOpen] = useState(false);
   const [cycles, setCycles] = useState(0);
   const [startingTime, setStartingTime] = useState<Time>(POMODORO);
   const toast = useToast();
-  const stopInterval = useRef(null);
-  const stopAlarmInterval = useRef(null);
-  const runningTime = useRef(POMODORO.time);
-
-  console.log({ currentTime, runningTime });
 
   useEffect(() => {
     loadTime();
   }, []);
 
-  useEffect(() => {
-    if (isStart && runningTime.current === 0) {
-      return;
-    }
-
-    if (isStart) {
-      stopInterval.current = setSelfAdjustingInterval((ticks: number) => {
-        console.log('tick', ticks);
-        if (runningTime.current > 0) {
-          runningTime.current -= ticks;
-        }
-
-        if (runningTime.current === 0) {
-          stopInterval.current();
-
-          // TODO: alarm audio (unique per time?)
-          Alarm.play();
-          stopAlarmInterval.current = setSelfAdjustingInterval(() => {
-            Alarm.play();
-          }, 3000);
-
-          // we only count a completed cycle after each short break
-          if (cycles < 3 && startingTime.id === short.id) {
-            setCycles(cycles + 1);
-          } else if (cycles >= 3) {
-            setCycles(0);
-          }
-        }
-
-        setCurrentTime(runningTime.current);
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(stopInterval.current);
-      if (stopAlarmInterval.current) clearInterval(stopAlarmInterval.current);
-    };
-  }, [isStart]);
+  const { stopInterval, stopAlarmInterval, setRunningTime } = useTime({
+    isStartPressed,
+    startingTime: POMODORO.time,
+    onTick: (time) => {
+      setCurrentTime(time);
+    },
+    onComplete: () => {
+      // TODO: move into handler
+      if (cycles < 3 && startingTime.id === short.id) {
+        setCycles(cycles + 1);
+      } else if (cycles >= 3) {
+        setCycles(0);
+      }
+    },
+  });
 
   const loadTime = (isResetTime = true) => {
-    if (localStorage.getItem('pomodoro')) {
-      const pomodoroStorage: {
-        pomo: Time;
-        short: Time;
-        long: Time;
-      } = JSON.parse(localStorage.getItem('pomodoro'));
+    const pomodoroStorage = Controller.loadSettings({ pomo, short, long });
 
-      setPomo(pomodoroStorage.pomo);
-      setShort(pomodoroStorage.short);
-      setLong(pomodoroStorage.long);
+    setPomo(pomodoroStorage.pomo);
+    setShort(pomodoroStorage.short);
+    setLong(pomodoroStorage.long);
 
-      if (isResetTime) {
-        resetTime(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id);
-      }
-    } else {
-      setPomo(POMODORO);
-      setShort(SHORT);
-      setLong(LONG);
+    if (isResetTime) {
+      resetTime(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id);
     }
   };
 
   const startTime = () => {
-    setIsStart(true);
-    setIsStop(false);
-    setIsReset(false);
+    setIsStartPressed(true);
   };
 
   const stopTime = () => {
-    // avoid setting state unnecessarily
-    if (!isStart && currentTime === 0) {
-      return;
-    }
-
-    if (stopInterval.current) {
-      stopInterval.current();
-    }
-
-    setIsStop(true);
-    setIsStart(false);
-    setIsReset(false);
+    stopInterval();
+    setIsStartPressed(false);
   };
 
   const resetTime = (newTime: number, id: TimeId) => {
     const newTimeInMinutes = newTime * 60;
 
-    clearAudio();
-    runningTime.current = newTimeInMinutes;
+    stopAlarmInterval();
+    setRunningTime(newTimeInMinutes);
     setCurrentTime(newTimeInMinutes);
     setStartingTime({ time: newTimeInMinutes, id });
-    setIsReset(true);
-    setIsStart(false);
-    setIsStop(false);
+    setIsStartPressed(false);
   };
 
-  const clearAudio = () => {
-    if (stopAlarmInterval.current) {
-      stopAlarmInterval.current();
-      clearInterval(stopAlarmInterval.current);
-    }
-  };
-
-  const handleStartStopTime = () => {
-    if (!isStart) {
+  const handleStartStopOkayButtonClick = () => {
+    if (currentTime === 0) {
+      const newTime =
+        startingTime.id === pomo.id ? pomo : startingTime.id === short.id ? short : long;
+      resetTime(newTime.time, newTime.id);
+      stopTime();
+    } else if (!isStartPressed) {
       startTime();
     } else {
       stopTime();
@@ -177,30 +121,10 @@ function App() {
     stopTime();
   };
 
-  const handleOkayButtonClick = () => {
-    clearAudio();
-
-    if (cycles < 3) {
-      const newTime = startingTime.id === pomo.id ? short : pomo;
-      resetTime(newTime.time, newTime.id);
-    } else {
-      resetTime(long.time, long.id);
-    }
-  };
-
   const handleSaveButtonClick = () => {
-    resetTime(pomo.time, pomo.id);
+    Controller.saveSettings({ pomo, short, long });
     stopTime();
-
-    localStorage.setItem(
-      'pomodoro',
-      JSON.stringify({
-        pomo,
-        short,
-        long,
-      })
-    );
-
+    resetTime(pomo.time, pomo.id);
     toast({
       title: 'Settings saved',
       status: 'success',
@@ -208,8 +132,7 @@ function App() {
       position: 'top',
       isClosable: true,
     });
-
-    // TODO: to close or not to close on save
+    setIsSettingsInfoModalOpen(false);
   };
 
   return (
@@ -244,35 +167,31 @@ function App() {
               'aria-label': 'Reset',
               icon: <RepeatClockIcon />,
             },
-            currentTime === 0
-              ? {
-                  onClick: handleOkayButtonClick,
-                  colorScheme: 'green',
-                  boxShadow: 'base',
-                  title: 'Okay',
-                  'aria-label': 'Okay',
-                  icon: <CheckIcon />,
-                }
-              : {
-                  onClick: handleStartStopTime,
-                  boxShadow: isStart ? 'inner' : 'base',
-                  title: isStart ? 'Stop' : 'Start',
-                  icon: isStart ? (
-                    <Box
-                      as="span"
-                      fontWeight="bolder"
-                      fontSize="16px"
-                      width="16px"
-                      height="16px"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center">
-                      ||
-                    </Box>
-                  ) : (
-                    <TriangleUpIcon transform="rotate(90deg)" />
-                  ),
-                },
+            {
+              onClick: handleStartStopOkayButtonClick,
+              boxShadow: isStartPressed ? 'inner' : 'base',
+              colorScheme: currentTime === 0 ? 'green' : null,
+              title: currentTime === 0 ? 'Okay' : isStartPressed ? 'Stop' : 'Start',
+              'aria-label': currentTime === 0 ? 'Okay' : isStartPressed ? 'Stop' : 'Start',
+              icon:
+                currentTime === 0 ? (
+                  <CheckIcon />
+                ) : isStartPressed ? (
+                  <Box
+                    as="span"
+                    fontWeight="bolder"
+                    fontSize="16px"
+                    width="16px"
+                    height="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center">
+                    ||
+                  </Box>
+                ) : (
+                  <TriangleUpIcon transform="rotate(90deg)" />
+                ),
+            },
             {
               onClick: () => setIsSettingsInfoModalOpen(true),
               boxShadow: isSettingsModalOpen ? 'inner' : 'base',
@@ -308,7 +227,7 @@ function App() {
         headerText="Settings"
         secondaryButton={
           <Button onClick={handleSaveButtonClick} variant="solid" colorScheme="green" type="submit">
-            Save
+            Save and Close
           </Button>
         }
         body={
