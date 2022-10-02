@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
-  ButtonGroup,
   Flex,
   FormControl,
   FormLabel,
@@ -18,21 +17,15 @@ import {
 } from '@chakra-ui/react';
 import { useToast } from '@chakra-ui/react';
 import type { UseCounterProps } from '@chakra-ui/react';
-import {
-  ExternalLinkIcon,
-  SettingsIcon,
-  RepeatClockIcon,
-  TriangleUpIcon,
-  CheckIcon,
-} from '@chakra-ui/icons';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 import { Controller } from './controller';
 import { Modal } from './components/modal';
 import { Clock } from './components/clock';
-import { Controls } from './components/controls';
 import type { Time } from './types';
 import { TimeId } from './types';
 import { useTime } from './use-interval';
+import { ControlsButtons } from './components/controls-buttons';
 
 const POMODORO = { time: 5, id: TimeId.DEFAULT };
 const SHORT = { time: 3, id: TimeId.SHORT };
@@ -101,22 +94,29 @@ function App() {
     setIsStartPressed(false);
   };
 
-  const handleStartStopOkayButtonClick = () => {
-    if (currentTime === 0) {
-      const newTime =
-        startingTime.id === pomo.id ? pomo : startingTime.id === short.id ? short : long;
-      resetTime(newTime.time, newTime.id);
-      stopTime();
-    } else if (!isStartPressed) {
-      startTime();
-    } else {
-      stopTime();
+  const handleOkayButtonClick = () => {
+    if (currentTime > 0) {
+      return;
     }
+
+    let newTime: Time;
+
+    if (cycles < 3) {
+      newTime = startingTime.id === pomo.id ? short : pomo;
+    } else {
+      newTime = long;
+    }
+
+    resetTime(newTime.time, newTime.id);
   };
 
   const handleResetButtonClick = () => {
     const newTime =
-      startingTime.id === pomo.id ? pomo : startingTime.id === short.id ? short : long;
+      startingTime.id === pomo.id
+        ? pomo
+        : startingTime.id === short.id
+        ? short
+        : long;
     resetTime(newTime.time, newTime.id);
     stopTime();
   };
@@ -136,17 +136,22 @@ function App() {
   };
 
   return (
-    <Box style={{ height: '100vh' }} bgGradient="linear(to-br, green.300, green.50)">
+    <Box
+      style={{ height: '100vh' }}
+      bgGradient="linear(to-br, green.300, green.50)"
+    >
       <Flex
         alignItems="center"
         justifyContent="center"
         flexDirection="column"
-        style={{ height: '85vh' }}>
+        style={{ height: '80vh' }} // TODO: make this responsive
+      >
         <CircularProgress
           value={(currentTime / startingTime.time) * 100}
           color="green.500"
-          size="25rem"
-          thickness="1.2px">
+          size="23rem" // TODO: make this responsive
+          thickness="1px"
+        >
           <CircularProgressLabel>
             <Clock currentTime={currentTime} />
             <Box fontSize="1rem" fontWeight="bold">
@@ -158,55 +163,22 @@ function App() {
             </Box>
           </CircularProgressLabel>
         </CircularProgress>
-        <Controls
-          buttons={[
-            {
-              onClick: handleResetButtonClick,
-              boxShadow: 'base',
-              title: 'Reset',
-              'aria-label': 'Reset',
-              icon: <RepeatClockIcon />,
-            },
-            {
-              onClick: handleStartStopOkayButtonClick,
-              boxShadow: isStartPressed ? 'inner' : 'base',
-              colorScheme: currentTime === 0 ? 'green' : null,
-              title: currentTime === 0 ? 'Okay' : isStartPressed ? 'Stop' : 'Start',
-              'aria-label': currentTime === 0 ? 'Okay' : isStartPressed ? 'Stop' : 'Start',
-              icon:
-                currentTime === 0 ? (
-                  <CheckIcon />
-                ) : isStartPressed ? (
-                  <Box
-                    as="span"
-                    fontWeight="bolder"
-                    fontSize="16px"
-                    width="16px"
-                    height="16px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center">
-                    ||
-                  </Box>
-                ) : (
-                  <TriangleUpIcon transform="rotate(90deg)" />
-                ),
-            },
-            {
-              onClick: () => setIsSettingsInfoModalOpen(true),
-              boxShadow: isSettingsModalOpen ? 'inner' : 'base',
-              title: 'Settings',
-              'aria-label': 'Settings',
-              icon: <SettingsIcon />,
-            },
-          ]}
+        <ControlsButtons
+          onReset={handleResetButtonClick}
+          onStart={startTime}
+          onStop={stopTime}
+          onOkay={handleOkayButtonClick}
+          onSettings={() => setIsSettingsInfoModalOpen(true)}
+          currentTime={currentTime}
+          isStartPressed={isStartPressed}
         />
         <Button
           onClick={() => setIsInfoModalOpen(true)}
           marginTop={4}
           variant="link"
           color="green.600"
-          textDecoration="underline">
+          textDecoration="underline"
+        >
           What is this?
         </Button>
       </Flex>
@@ -226,7 +198,12 @@ function App() {
         }}
         headerText="Settings"
         secondaryButton={
-          <Button onClick={handleSaveButtonClick} variant="solid" colorScheme="green" type="submit">
+          <Button
+            onClick={handleSaveButtonClick}
+            variant="solid"
+            colorScheme="green"
+            type="submit"
+          >
             Save and Close
           </Button>
         }
@@ -248,6 +225,8 @@ function App() {
           </Flex>
         }
       />
+      <div>current time: {currentTime}</div>
+      <div>startingTime: {startingTime.time}</div>
     </Box>
   );
 }
@@ -256,7 +235,12 @@ function TimeInput(time = POMODORO, onChange: UseCounterProps['onChange']) {
   return (
     <FormControl marginBottom={4}>
       <FormLabel>{time.id} (min)</FormLabel>
-      <NumberInput max={60} min={1} onChange={onChange} value={Number(time.time) ? time.time : 0}>
+      <NumberInput
+        max={60}
+        min={1}
+        onChange={onChange}
+        value={Number(time.time) ? time.time : 0}
+      >
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
@@ -272,8 +256,9 @@ function InfoModalContent() {
     <>
       <Box as="section" padding="1rem">
         <p>
-          The Pomodoro Technique is a time management method that uses a timer to break down work
-          into intervals, traditionally 25 minutes in length, separated by short breaks.
+          The Pomodoro Technique is a time management method that uses a timer
+          to break down work into intervals, traditionally 25 minutes in length,
+          separated by short breaks.
         </p>
         <br />
         <Flex justifyContent="center" alignItems="center">
@@ -294,7 +279,8 @@ function InfoModalContent() {
           rel="noopener noreferrer"
           isExternal
           color="green.600"
-          fontWeight="bold">
+          fontWeight="bold"
+        >
           Source Code <ExternalLinkIcon mx="2px" />
         </Link>
       </Flex>

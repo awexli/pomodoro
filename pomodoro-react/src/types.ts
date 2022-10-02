@@ -1,3 +1,5 @@
+import { ButtonProps } from '@chakra-ui/button';
+
 export enum TimeId {
   'DEFAULT' = 'Work time',
   'SHORT' = 'Short break',
@@ -10,3 +12,6 @@ export type Settings = {
   short: Time;
   long: Time;
 };
+
+// UI
+export type ModifiedButtonProps = ButtonProps & { icon: React.ReactNode };
