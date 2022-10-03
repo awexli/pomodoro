@@ -34,7 +34,7 @@ export const useTime = ({
           onTick(runningTime.current);
         }
 
-        if (runningTime.current === 0) {
+        if (runningTime.current <= 0) {
           stopInterval.current();
 
           // TODO: alarm audio (unique per time?)
