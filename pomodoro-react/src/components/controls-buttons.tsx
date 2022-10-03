@@ -1,7 +1,7 @@
 import {
   CheckIcon,
   RepeatClockIcon,
-  SettingsIcon,
+  // SettingsIcon,
   TriangleUpIcon,
 } from '@chakra-ui/icons';
 import { Box } from '@chakra-ui/react';
@@ -16,7 +16,7 @@ export const ControlsButtons: React.FC<{
   onStart: ButtonHandler;
   onStop: ButtonHandler;
   onOkay: ButtonHandler;
-  onSettings: ButtonHandler;
+  // onSettings: ButtonHandler;
   currentTime: number;
   isStartPressed: boolean;
 }> = ({
@@ -24,7 +24,7 @@ export const ControlsButtons: React.FC<{
   onStart,
   onStop,
   onOkay,
-  onSettings,
+  // onSettings,
   currentTime,
   isStartPressed,
 }) => {
@@ -103,19 +103,19 @@ export const ControlsButtons: React.FC<{
     };
   };
 
-  const settingsButton = ({
-    onClick,
-  }: {
-    onClick: ButtonHandler;
-  }): ModifiedButtonProps => {
-    return {
-      onClick,
-      boxShadow: 'base',
-      title: 'Settings',
-      'aria-label': 'Settings',
-      icon: <SettingsIcon />,
-    };
-  };
+  // const settingsButton = ({
+  //   onClick,
+  // }: {
+  //   onClick: ButtonHandler;
+  // }): ModifiedButtonProps => {
+  //   return {
+  //     onClick,
+  //     boxShadow: 'base',
+  //     title: 'Settings',
+  //     'aria-label': 'Settings',
+  //     icon: <SettingsIcon />,
+  //   };
+  // };
 
   return (
     <Controls
@@ -126,7 +126,7 @@ export const ControlsButtons: React.FC<{
           : isStartPressed
           ? stopButton({ onClick: onStop, isStartPressed })
           : startButton({ onClick: onStart }),
-        settingsButton({ onClick: onSettings }),
+        // settingsButton({ onClick: onSettings }),
       ]}
     />
   );

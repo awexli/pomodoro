@@ -1,4 +1,10 @@
-import { Settings } from '../src/types';
+import { Settings, TimeId } from '../src/types';
+
+const mockTime = {
+  pomo: { time: 5 / 60, id: TimeId.DEFAULT },
+  short: { time: 5 / 60, id: TimeId.SHORT },
+  long: { time: 5 / 60, id: TimeId.LONG },
+};
 
 export class Controller {
   static loadSettings({ pomo, short, long }: Settings): Settings {
