@@ -31,7 +31,7 @@ export const useTime = ({
       stopInterval.current = setSelfAdjustingInterval((ticks: number) => {
         if (runningTime.current > 0) {
           runningTime.current -= ticks;
-          onTick(runningTime.current);
+          onTick(runningTime.current <= 0 ? 0 : runningTime.current);
         }
 
         if (runningTime.current <= 0) {
@@ -43,7 +43,7 @@ export const useTime = ({
             Alarm.play();
           }, 3000);
 
-          onComplete(runningTime.current);
+          onComplete(0);
         }
       }, 1000);
     }
