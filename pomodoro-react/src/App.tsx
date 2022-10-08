@@ -11,7 +11,7 @@ import {
 import { Controller } from './controller';
 import { Clock } from './components/clock';
 import { TimeId } from './types';
-import { useTime } from './use-interval';
+import { useCountdown } from './use-countdown';
 import { ControlsButtons } from './components/controls-buttons';
 import { InfoModal } from './components/info-modal';
 import { SettingsModal } from './components/settings-modal';
@@ -23,30 +23,30 @@ function App() {
   const [pomo, setPomo] = useState<Time>(POMODORO);
   const [short, setShort] = useState<Time>(SHORT);
   const [long, setLong] = useState<Time>(LONG);
+  const [startingTime, setStartingTime] = useState<Time>(POMODORO);
   const [currentTime, setCurrentTime] = useState(POMODORO.time);
   const [isStartPressed, setIsStartPressed] = useState(false);
   const [cycles, setCycles] = useState(0);
-  const [startingTime, setStartingTime] = useState<Time>(POMODORO);
 
   useEffect(() => {
     loadTime();
   }, []);
 
-  const { stopInterval, stopAlarmInterval, setRunningTime } = useTime({
-    isStartPressed,
-    startingTime: POMODORO.time,
-    onTick: (time) => {
-      setCurrentTime(time);
-    },
-    onComplete: () => {
-      // TODO: move into handler
-      if (cycles < 3 && startingTime.id === short.id) {
-        setCycles(cycles + 1);
-      } else if (cycles >= 3) {
-        setCycles(0);
-      }
-    },
-  });
+  const { stopCountdownInterval, stopAlarmInterval, setRunningTime } =
+    useCountdown({
+      isStarted: isStartPressed,
+      startingTime: pomo.time,
+      onTick: (time) => {
+        setCurrentTime(time);
+      },
+      onComplete: () => {
+        if (cycles < 3 && startingTime.id === short.id) {
+          setCycles(cycles + 1);
+        } else if (cycles >= 3) {
+          setCycles(0);
+        }
+      },
+    });
 
   const loadTime = (isResetTime = true) => {
     const pomodoroStorage = Controller.loadSettings({ pomo, short, long });
@@ -65,7 +65,7 @@ function App() {
   };
 
   const stopTime = () => {
-    stopInterval();
+    stopCountdownInterval();
     setIsStartPressed(false);
   };
 
