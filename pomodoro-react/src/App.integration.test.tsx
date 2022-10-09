@@ -31,7 +31,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('should render the correct time after starting the countdown', () => {
+it('should render the correct time after starting the countdown', () => {
   render(wrapper);
 
   fireEvent.click(screen.getByTitle('Start'));
@@ -46,7 +46,7 @@ test('should render the correct time after starting the countdown', () => {
   expect(screen.getByTestId('clock-seconds')).toHaveTextContent('59');
 });
 
-test('should render the correct time after stopping the countdown', () => {
+it('should render the correct time after stopping the countdown', () => {
   render(wrapper);
 
   fireEvent.click(screen.getByTitle('Start'));
@@ -61,7 +61,7 @@ test('should render the correct time after stopping the countdown', () => {
   expect(screen.getByTestId('clock-seconds')).toHaveTextContent('55');
 });
 
-test('should render the correct time after resetting the countdown', () => {
+it('should render the correct time after resetting the countdown', () => {
   render(wrapper);
 
   fireEvent.click(screen.getByTitle('Start'));
@@ -80,7 +80,7 @@ test('should render the correct time after resetting the countdown', () => {
 });
 
 describe('countdown completes', () => {
-  test('should render the correct time when the countdown completes', () => {
+  it('should render the correct time when the countdown completes', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -91,7 +91,7 @@ describe('countdown completes', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
   });
 
-  test('should not continue the time when the countdown completes', () => {
+  it('should not continue the time when the countdown completes', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -103,7 +103,7 @@ describe('countdown completes', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
   });
 
-  test('should render the okay button when the countdown completes', () => {
+  it('should render the okay button when the countdown completes', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -113,7 +113,7 @@ describe('countdown completes', () => {
     expect(screen.getByTitle('Okay')).toBeInTheDocument();
   });
 
-  test('should not continue the timer when the countdown completes', () => {
+  it('should not continue the timer when the countdown completes', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -128,7 +128,7 @@ describe('countdown completes', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
   });
 
-  test('should play an audio when the countdown completes', () => {
+  it('should play an audio when the countdown completes', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -141,7 +141,7 @@ describe('countdown completes', () => {
 });
 
 describe('cycles', () => {
-  test('should start the short break time', () => {
+  it('should start the short break time', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -158,7 +158,7 @@ describe('cycles', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
   });
 
-  test('should complete one cycle', () => {
+  it('should complete one cycle', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -173,7 +173,7 @@ describe('cycles', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
   });
 
-  test('should complete all cycles', () => {
+  it('should complete all cycles', () => {
     render(wrapper);
 
     const startAndCompleteWork = () => {
@@ -210,7 +210,7 @@ describe('cycles', () => {
 });
 
 describe('settings', () => {
-  test('should continue the countdown while the settings modal is open', async () => {
+  it('should continue the countdown while the settings modal is open', async () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -229,7 +229,7 @@ describe('settings', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('58');
   });
 
-  test('should continue the countdown after closing the settings', () => {
+  it('should continue the countdown after closing the settings', () => {
     render(wrapper);
 
     fireEvent.click(screen.getByTitle('Start'));
@@ -251,7 +251,7 @@ describe('settings', () => {
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('58');
   });
 
-  test('should set the new time when saving the settings', () => {
+  it('should set the new time when saving the settings', () => {
     render(wrapper);
 
     expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
