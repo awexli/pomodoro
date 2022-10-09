@@ -11,14 +11,14 @@ export const Clock: React.FC<{ currentTime: number }> = (props) => {
 
   return (
     <>
-      <Flex justifyContent="center">
-        <Box width={36} textAlign="right">
+      <Flex justifyContent="center" data-testid="clock">
+        <Box width={36} textAlign="right" data-testid="clock-minutes">
           {minutes}
         </Box>
         <Box paddingLeft="4px" paddingRight="4px">
           :
         </Box>
-        <Box width={36} textAlign="left">
+        <Box width={36} textAlign="left" data-testid="clock-seconds">
           {seconds}
         </Box>
       </Flex>

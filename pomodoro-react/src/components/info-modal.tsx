@@ -23,6 +23,7 @@ export const InfoModal = () => {
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        headerText="Info"
         body={
           <>
             <Box as="section" padding="1rem">

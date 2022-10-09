@@ -122,6 +122,7 @@ function App() {
           color="green.500"
           size="23rem" // TODO: make this responsive
           thickness="1px"
+          data-testid="circular-progress"
         >
           <CircularProgressLabel>
             <Clock currentTime={currentTime} />
