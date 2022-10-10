@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [master]
 jobs:
-  Deploy-Preview:
+  deploy-preview:
     runs-on: ubuntu-latest
+    environment:
+      # https://voracious.dev/blog/how-to-deploy-to-vercel-with-github-actions
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v2
       - name: Install Vercel CLI
@@ -18,3 +22,5 @@ jobs:
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - id: deploy
+        run: echo "::set-output name=url::$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
