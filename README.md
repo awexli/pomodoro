@@ -1,6 +1,6 @@
 # Pomodoro Timer ([Demo](https://pomodoro-tau.vercel.app/))
 
-[![Test CI](https://github.com/awexli/pomodoro/actions/workflows/test-github-actions.yml/badge.svg)](https://github.com/awexli/pomodoro/actions/workflows/test-github-actions.yml)
+[![Prod](https://github.com/awexli/pomodoro/actions/workflows/master.yml/badge.svg)](https://github.com/awexli/pomodoro/actions/workflows/master.yml)
 
 ## Description
 
