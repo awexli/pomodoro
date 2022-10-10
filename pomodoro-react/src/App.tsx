@@ -30,6 +30,8 @@ function App() {
 
   useEffect(() => {
     loadTime();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { stopCountdownInterval, stopAlarmInterval, setRunningTime } =

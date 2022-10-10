@@ -8,13 +8,13 @@ const wrapper = (
   </ChakraProvider>
 );
 
-test('should render a circular progress', () => {
+it('should render a circular progress', () => {
   render(wrapper);
 
   expect(screen.getByTestId('circular-progress')).toBeInTheDocument();
 });
 
-test('should render the default time', () => {
+it('should render the default time', () => {
   render(wrapper);
 
   expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');

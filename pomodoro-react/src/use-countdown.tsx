@@ -63,6 +63,7 @@ export const useCountdown = ({
       clearInterval(stopCountdownInterval.current);
       clearInterval(stopAlarmInterval.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStarted]);
 
   return {

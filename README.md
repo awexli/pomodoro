@@ -1,17 +1,22 @@
 # Pomodoro Timer ([Demo](https://pomodoro-tau.vercel.app/))
 
+[![Test CI](https://github.com/awexli/pomodoro/actions/workflows/test-github-actions.yml/badge.svg)](https://github.com/awexli/pomodoro/actions/workflows/test-github-actions.yml)
+
 ## Description
 
 The Pomodoro Technique is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks. [WIKI](https://en.wikipedia.org/wiki/Pomodoro_Technique)
 
 ## Utilized
+
 `Sep 2022`
+
 - React
 - Chakra UI
 - [Local Storage](https://developer.mozilla.org/en-US/docs/Web/API/Storage) for Timers
 - [Vercel](https://vercel.com/)
 
 `Jul 2020`
+
 - JavaScript (ECMAScript 6)
 - HTML/CSS
 - [Bulma](https://bulma.io/)
