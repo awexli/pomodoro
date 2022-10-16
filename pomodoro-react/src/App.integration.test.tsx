@@ -19,10 +19,17 @@ beforeEach(() => {
     .spyOn(window.HTMLMediaElement.prototype, 'play')
     .mockImplementation(async () => {});
   jest.spyOn(Controller, 'loadSettings').mockImplementation(() => ({
-    pomo: { time: 5, id: TimeId.DEFAULT },
+    pomo: { time: 5, id: TimeId.WORK },
     short: { time: 3, id: TimeId.SHORT },
     long: { time: 5, id: TimeId.LONG },
   }));
+  // globalThis.Notification = {
+  //   requestPermission: jest.fn(),
+  //   permission: 'granted',
+  // } as unknown as jest.Mocked<typeof Notification>;
+  // jest
+  //   .spyOn(window.Notification, 'requestPermission')
+  //   .mockImplementation(() => Promise.resolve('granted'));
 });
 
 afterEach(() => {
@@ -188,14 +195,16 @@ describe('cycles', () => {
       fireEvent.click(screen.getByTitle('Okay'));
     };
 
+    expect(screen.getByText(/Work x1/i)).toBeInTheDocument();
     startAndCompleteWork();
+    expect(screen.getByText(/Short break/i)).toBeInTheDocument();
     startAndCompleteShortBreak();
-
+    expect(screen.getByText(/Work x2/i)).toBeInTheDocument();
     startAndCompleteWork();
+    expect(screen.getByText(/Short break/i)).toBeInTheDocument();
     startAndCompleteShortBreak();
-
+    expect(screen.getByText(/Work x3/i)).toBeInTheDocument();
     startAndCompleteWork();
-    startAndCompleteShortBreak();
 
     // long break
     fireEvent.click(screen.getByTitle('Start'));
@@ -203,9 +212,9 @@ describe('cycles', () => {
     fireEvent.click(screen.getByTitle('Okay'));
 
     // back to work x1
+    expect(screen.getByText(/Work x1/i)).toBeInTheDocument();
     expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
-    expect(screen.getByText(/Work x1/i)).toBeInTheDocument();
   });
 });
 
@@ -261,7 +270,7 @@ describe('settings', () => {
 
     expect(screen.getByText(/Settings/i)).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work time' }), {
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
       target: { value: 25 },
     });
 

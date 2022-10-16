@@ -18,6 +18,17 @@ import { SettingsModal } from './components/settings-modal';
 
 import type { Time } from './types';
 import { POMODORO, SHORT, LONG } from './constants';
+import { getRenderedTime } from './components/utils';
+
+function checkNotificationPromise() {
+  try {
+    Notification.requestPermission().then();
+  } catch (e) {
+    return false;
+  }
+
+  return true;
+}
 
 function App() {
   const [pomo, setPomo] = useState<Time>(POMODORO);
@@ -26,29 +37,66 @@ function App() {
   const [startingTime, setStartingTime] = useState<Time>(POMODORO);
   const [currentTime, setCurrentTime] = useState(POMODORO.time);
   const [isStartPressed, setIsStartPressed] = useState(false);
+  const [isNotificationGranted, setIsNotificationGranted] = useState(false);
   const [cycles, setCycles] = useState(0);
 
   useEffect(() => {
     loadTime();
-
+    setBrowserNotification();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleOnTick = (time: number) => {
+    setCurrentTime(time);
+    document.title = `${getRenderedTime(
+      Math.floor(time / 60)
+    )}:${getRenderedTime(time % 60)}`;
+  };
+
+  const handleOnComplete = () => {
+    // the first two cycles are only completed after each short break
+    if (cycles < 2 && startingTime.id === TimeId.SHORT) {
+      setCycles(cycles + 1);
+    }
+
+    if (isNotificationGranted) {
+      new Notification(
+        `${
+          startingTime.id === TimeId.WORK
+            ? `${
+                cycles === 2
+                  ? 'Time for a long break!'
+                  : 'Time for a short break!'
+              }`
+            : 'Time to work!'
+        }`
+      );
+    }
+  };
 
   const { stopCountdownInterval, stopAlarmInterval, setRunningTime } =
     useCountdown({
       isStarted: isStartPressed,
       startingTime: pomo.time,
-      onTick: (time) => {
-        setCurrentTime(time);
-      },
-      onComplete: () => {
-        if (cycles < 3 && startingTime.id === short.id) {
-          setCycles(cycles + 1);
-        } else if (cycles >= 3) {
-          setCycles(0);
-        }
-      },
+      onTick: handleOnTick,
+      onComplete: handleOnComplete,
     });
+
+  const setBrowserNotification = () => {
+    if (!('Notification' in window)) {
+      return;
+    }
+
+    if (checkNotificationPromise()) {
+      Notification.requestPermission().then((permission) => {
+        setIsNotificationGranted(permission === 'granted');
+      });
+    } else {
+      Notification.requestPermission((permission) => {
+        setIsNotificationGranted(permission === 'granted');
+      });
+    }
+  };
 
   const loadTime = (isResetTime = true) => {
     const pomodoroStorage = Controller.loadSettings({ pomo, short, long });
@@ -86,14 +134,16 @@ function App() {
       return;
     }
 
-    let newTime: Time;
+    const isReadyForLongBreak = cycles === 2 && startingTime.id === TimeId.WORK;
+    const newTime = isReadyForLongBreak
+      ? long
+      : startingTime.id === long.id
+      ? pomo
+      : startingTime.id === pomo.id
+      ? short
+      : pomo;
 
-    if (cycles < 3) {
-      newTime = startingTime.id === pomo.id ? short : pomo;
-    } else {
-      newTime = long;
-    }
-
+    if (isReadyForLongBreak) setCycles(0);
     setTime(newTime.time, newTime.id);
   };
 
@@ -129,11 +179,9 @@ function App() {
           <CircularProgressLabel>
             <Clock currentTime={currentTime} />
             <Box fontSize="1rem" fontWeight="bold">
-              {startingTime.id === TimeId.DEFAULT
-                ? `WORK x${cycles + 1}`
-                : startingTime.id === TimeId.SHORT
-                ? 'SHORT BREAK'
-                : 'LONG BREAK'}
+              {`${startingTime.id} ${
+                startingTime.id === TimeId.WORK ? `x${cycles + 1}` : ''
+              }`}
             </Box>
           </CircularProgressLabel>
         </CircularProgress>

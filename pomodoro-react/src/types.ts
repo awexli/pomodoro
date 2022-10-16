@@ -1,7 +1,7 @@
 import { ButtonProps } from '@chakra-ui/button';
 
 export enum TimeId {
-  'DEFAULT' = 'Work time',
+  'WORK' = 'Work',
   'SHORT' = 'Short break',
   'LONG' = 'Long break',
 }

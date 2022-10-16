@@ -1,8 +1,5 @@
 import { Box, Flex } from '@chakra-ui/react';
-
-const getRenderedTime = (time: number) => {
-  return time < 10 ? '0' + time : `${time}`;
-};
+import { getRenderedTime } from './utils';
 
 export const Clock: React.FC<{ currentTime: number }> = (props) => {
   const { currentTime } = props;

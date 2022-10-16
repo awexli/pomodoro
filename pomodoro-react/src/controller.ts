@@ -1,7 +1,7 @@
 import { Settings, TimeId } from '../src/types';
 
 export const mockTime = {
-  pomo: { time: 5 / 60, id: TimeId.DEFAULT },
+  pomo: { time: 5 / 60, id: TimeId.WORK },
   short: { time: 3 / 60, id: TimeId.SHORT },
   long: { time: 5 / 60, id: TimeId.LONG },
 };
