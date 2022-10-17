@@ -2,8 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import App from './App';
-import { Controller } from './controller';
-import { TimeId } from './types';
+import { LONG, POMODORO, SHORT } from './constants';
 
 const wrapper = (
   <ChakraProvider>
@@ -13,16 +12,33 @@ const wrapper = (
 
 let playStub;
 
+let mockStorage = {};
+const defaultMockTimes = {
+  pomo: POMODORO,
+  short: SHORT,
+  long: LONG,
+};
+
 beforeEach(() => {
+  // timer stuff
   jest.useFakeTimers();
+
+  // audio stuff
   playStub = jest
     .spyOn(window.HTMLMediaElement.prototype, 'play')
     .mockImplementation(async () => {});
-  jest.spyOn(Controller, 'loadSettings').mockImplementation(() => ({
-    pomo: { time: 5, id: TimeId.WORK },
-    short: { time: 3, id: TimeId.SHORT },
-    long: { time: 5, id: TimeId.LONG },
-  }));
+
+  // local storage stuff
+  mockStorage = {};
+  global.Storage.prototype.setItem = jest.fn((key, value) => {
+    mockStorage[key] = value;
+  });
+  global.Storage.prototype.getItem = jest.fn((key) => mockStorage[key]);
+  global.Storage.prototype.setItem(
+    'pomodoro',
+    JSON.stringify(defaultMockTimes)
+  );
+  // notification stuff
   // globalThis.Notification = {
   //   requestPermission: jest.fn(),
   //   permission: 'granted',
@@ -36,6 +52,10 @@ afterEach(() => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
   jest.restoreAllMocks();
+});
+
+afterAll(() => {
+  jest.clearAllMocks();
 });
 
 it('should render the correct time after starting the countdown', () => {
@@ -273,10 +293,125 @@ describe('settings', () => {
     fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
       target: { value: 25 },
     });
-
     fireEvent.click(screen.getByText(/save/i));
 
     expect(screen.getByTestId('clock-minutes')).toHaveTextContent('25');
     expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+  });
+
+  it('should not set the new time when closing the settings', () => {
+    render(wrapper);
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+
+    fireEvent.click(screen.getByTitle('Settings'));
+
+    expect(screen.getByText(/Settings/i)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
+      target: { value: 25 },
+    });
+    fireEvent.click(screen.getByText(/close/i));
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+  });
+
+  it('should keep saved settings when opening the modal again', () => {
+    render(wrapper);
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+    // open settings, make some changes, save, and open the settings again
+    fireEvent.click(screen.getByTitle('Settings'));
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
+      target: { value: 25 },
+    });
+    fireEvent.click(screen.getByText(/save/i));
+    fireEvent.click(screen.getByTitle('Settings'));
+
+    expect(screen.getByRole('spinbutton', { name: 'Work' })).toHaveValue('25');
+  });
+
+  it('should keep saved settings after refreshing the page', () => {
+    render(wrapper);
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+    // open settings, make some changes, save, and open the settings again
+    fireEvent.click(screen.getByTitle('Settings'));
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
+      target: { value: 25 },
+    });
+    fireEvent.click(screen.getByText(/save/i));
+
+    const location: Location = window.location;
+    delete window.location;
+    window.location = {
+      ...location,
+      reload: jest.fn(),
+    };
+    window.location.reload();
+
+    expect(window.location.reload).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTitle('Settings'));
+
+    expect(screen.getByRole('spinbutton', { name: 'Work' })).toHaveValue('25');
+    window.location = location;
+  });
+
+  it('should not keep changes in settings when opening the modal again', () => {
+    render(wrapper);
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+
+    // open settings, make some changes, close, and open the settings again
+    fireEvent.click(screen.getByTitle('Settings'));
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
+      target: { value: 25 },
+    });
+    fireEvent.click(screen.getByText(/close/i));
+    fireEvent.click(screen.getByTitle('Settings'));
+
+    expect(screen.getByRole('spinbutton', { name: 'Work' })).toHaveValue('5');
+  });
+});
+
+describe('localStorage', () => {
+  it('should render the correct time from local storage on mount', () => {
+    global.Storage.prototype.setItem(
+      'pomodoro',
+      JSON.stringify({ ...defaultMockTimes, pomo: { ...POMODORO, time: 25 } })
+    );
+    render(wrapper);
+
+    expect(localStorage.getItem).toHaveBeenCalledWith('pomodoro');
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('25');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+  });
+
+  it('should get local storage when closing settings', () => {
+    expect(localStorage.getItem).toHaveBeenCalledTimes(0);
+    render(wrapper);
+
+    fireEvent.click(screen.getByTitle('Settings'));
+    fireEvent.click(screen.getByText(/close/i));
+
+    expect(localStorage.getItem).toHaveBeenCalledWith('pomodoro');
+  });
+
+  it('should set local storage when saving settings', () => {
+    render(wrapper);
+
+    fireEvent.click(screen.getByTitle('Settings'));
+    fireEvent.click(screen.getByText(/save/i));
+
+    expect(localStorage.setItem).toHaveBeenLastCalledWith(
+      'pomodoro',
+      JSON.stringify(defaultMockTimes)
+    );
   });
 });

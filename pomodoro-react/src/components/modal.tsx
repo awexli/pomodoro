@@ -17,24 +17,37 @@ export const Modal = ({
   headerText,
   secondaryButton,
   body,
+  colorScheme,
 }: {
   isOpen: boolean;
   onClose: () => void;
   headerText?: string;
   secondaryButton?: React.ReactElement;
   body: React.ReactElement;
+  colorScheme: string;
 }) => {
   return (
-    <ChakraModal isOpen={isOpen} onClose={onClose} scrollBehavior="inside" size="lg">
+    <ChakraModal
+      isOpen={isOpen}
+      onClose={onClose}
+      scrollBehavior="inside"
+      size="lg"
+    >
       <ModalOverlay />
       <ModalContent>
-        {headerText && <ModalHeader>{headerText}</ModalHeader>}
+        {headerText && (
+          <ModalHeader data-testid="modal-header">{headerText}</ModalHeader>
+        )}
         <ModalCloseButton />
         <ModalBody>{body}</ModalBody>
         <ModalFooter>
           <ButtonGroup>
             {secondaryButton ? secondaryButton : null}
-            <Button colorScheme="green" variant="outline" onClick={onClose}>
+            <Button
+              colorScheme={colorScheme}
+              variant="outline"
+              onClick={onClose}
+            >
               Close
             </Button>
           </ButtonGroup>

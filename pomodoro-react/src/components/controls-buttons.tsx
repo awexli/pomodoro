@@ -19,6 +19,7 @@ export const ControlsButtons: React.FC<{
   // onSettings: ButtonHandler;
   currentTime: number;
   isStartPressed: boolean;
+  colorScheme: string
 }> = ({
   onReset,
   onStart,
@@ -27,6 +28,7 @@ export const ControlsButtons: React.FC<{
   // onSettings,
   currentTime,
   isStartPressed,
+  colorScheme
 }) => {
   const resetButton = ({
     onClick,
@@ -97,7 +99,7 @@ export const ControlsButtons: React.FC<{
       boxShadow: 'base',
       title: 'Okay',
       'aria-label': 'Okay',
-      colorScheme: 'green',
+      colorScheme,
       width: '96px',
       icon: <CheckIcon />,
     };

@@ -39,8 +39,25 @@ function App() {
   const [isStartPressed, setIsStartPressed] = useState(false);
   const [isNotificationGranted, setIsNotificationGranted] = useState(false);
   const [cycles, setCycles] = useState(0);
+  const [color, setColor] = useState('green');
 
   useEffect(() => {
+    const setBrowserNotification = () => {
+      if (!('Notification' in window)) {
+        return;
+      }
+
+      if (checkNotificationPromise()) {
+        Notification.requestPermission().then((permission) => {
+          setIsNotificationGranted(permission === 'granted');
+        });
+      } else {
+        Notification.requestPermission((permission) => {
+          setIsNotificationGranted(permission === 'granted');
+        });
+      }
+    };
+
     loadTime();
     setBrowserNotification();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,22 +99,6 @@ function App() {
       onComplete: handleOnComplete,
     });
 
-  const setBrowserNotification = () => {
-    if (!('Notification' in window)) {
-      return;
-    }
-
-    if (checkNotificationPromise()) {
-      Notification.requestPermission().then((permission) => {
-        setIsNotificationGranted(permission === 'granted');
-      });
-    } else {
-      Notification.requestPermission((permission) => {
-        setIsNotificationGranted(permission === 'granted');
-      });
-    }
-  };
-
   const loadTime = (isResetTime = true) => {
     const pomodoroStorage = Controller.loadSettings({ pomo, short, long });
 
@@ -121,7 +122,9 @@ function App() {
 
   const setTime = (newTime: number, id: TimeId) => {
     const newTimeInMinutes = newTime * 60;
-
+    setColor(
+      id === TimeId.WORK ? 'green' : id === TimeId.SHORT ? 'blue' : 'orange'
+    );
     stopAlarmInterval();
     setRunningTime(newTimeInMinutes);
     setCurrentTime(newTimeInMinutes);
@@ -161,7 +164,7 @@ function App() {
   return (
     <Box
       style={{ height: '100vh' }}
-      bgGradient="linear(to-br, green.300, green.50)"
+      bgGradient={`linear(to-br, ${color}.300, ${color}.50)`}
     >
       <Flex
         alignItems="center"
@@ -171,7 +174,7 @@ function App() {
       >
         <CircularProgress
           value={(currentTime / startingTime.time) * 100}
-          color="green.500"
+          color={`${color}.500`}
           size="23rem" // TODO: make this responsive
           thickness="1px"
           data-testid="circular-progress"
@@ -193,15 +196,17 @@ function App() {
             onStop={stopTime}
             currentTime={currentTime}
             isStartPressed={isStartPressed}
+            colorScheme={color}
           />
           <SettingsModal
             times={{ pomo, short, long }}
             loadTime={loadTime}
             setTime={setTime}
             stopTime={stopTime}
+            colorScheme={color}
           />
         </ButtonGroup>
-        <InfoModal />
+        <InfoModal colorScheme={color} />
       </Flex>
     </Box>
   );

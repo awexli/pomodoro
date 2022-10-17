@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@chakra-ui/button';
 import { Flex } from '@chakra-ui/layout';
@@ -24,17 +24,25 @@ export const SettingsModal = ({
   loadTime,
   setTime,
   stopTime,
+  colorScheme,
 }: {
   times: Settings;
   loadTime: (isResetTime: boolean) => void;
   setTime: (newTime: number, id: TimeId) => void;
   stopTime: () => void;
+  colorScheme: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [newPomo, setPomo] = useState<Time>(times.pomo);
   const [newShort, setShort] = useState<Time>(times.short);
   const [newLong, setLong] = useState<Time>(times.long);
   const toast = useToast();
+
+  useEffect(() => {
+    setPomo(times.pomo);
+    setShort(times.short);
+    setLong(times.long);
+  }, [times]);
 
   const handleOnSave = () => {
     Controller.saveSettings({
@@ -62,7 +70,10 @@ export const SettingsModal = ({
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          loadTime(false);
+          setIsOpen(true);
+        }}
         boxShadow="base"
         title="Settings"
         aria-label="Settings"
@@ -73,11 +84,12 @@ export const SettingsModal = ({
         isOpen={isOpen}
         onClose={handleOnClose}
         headerText="Settings"
+        colorScheme={colorScheme}
         secondaryButton={
           <Button
             onClick={handleOnSave}
             variant="solid"
-            colorScheme="green"
+            colorScheme={colorScheme}
             type="submit"
           >
             Save

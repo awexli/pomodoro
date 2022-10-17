@@ -6,7 +6,7 @@ import { Box, Flex, Link } from '@chakra-ui/layout';
 
 import { Modal } from './modal';
 
-export const InfoModal = () => {
+export const InfoModal = ({ colorScheme }: { colorScheme: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -15,7 +15,7 @@ export const InfoModal = () => {
         onClick={() => setIsOpen(true)}
         marginTop={4}
         variant="link"
-        color="green.600"
+        color={`${colorScheme}.600`}
         textDecoration="underline"
       >
         What is this?
@@ -24,6 +24,7 @@ export const InfoModal = () => {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         headerText="Info"
+        colorScheme={colorScheme}
         body={
           <>
             <Box as="section" padding="1rem">
@@ -50,7 +51,7 @@ export const InfoModal = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 isExternal
-                color="green.600"
+                color={`${colorScheme}.600`}
                 fontWeight="bold"
               >
                 Source Code <ExternalLinkIcon mx="2px" />
