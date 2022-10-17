@@ -38,12 +38,6 @@ export const SettingsModal = ({
   const [newLong, setLong] = useState<Time>(times.long);
   const toast = useToast();
 
-  useEffect(() => {
-    setPomo(times.pomo);
-    setShort(times.short);
-    setLong(times.long);
-  }, [times]);
-
   const handleOnSave = () => {
     Controller.saveSettings({
       pomo: newPomo,
@@ -71,7 +65,14 @@ export const SettingsModal = ({
     <>
       <Button
         onClick={() => {
-          loadTime(false);
+          const storageTimes = Controller.loadSettings({
+            pomo: times.pomo,
+            short: times.short,
+            long: times.long,
+          });
+          setPomo(storageTimes.pomo);
+          setShort(storageTimes.short);
+          setLong(storageTimes.long);
           setIsOpen(true);
         }}
         boxShadow="base"
