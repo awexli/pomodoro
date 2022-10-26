@@ -28,7 +28,7 @@ export const SettingsModal = ({
 }: {
   times: Settings;
   loadTime: (isResetTime: boolean) => void;
-  setTime: (newTime: number, id: TimeId) => void;
+  setTime: ({ pomo, short, long }: Settings) => void;
   stopTime: () => void;
   colorScheme: string;
 }) => {
@@ -52,7 +52,7 @@ export const SettingsModal = ({
       isClosable: true,
     });
     stopTime();
-    setTime(newPomo.time, newPomo.id);
+    setTime({ pomo: newPomo, short: newShort, long: newLong });
     setIsOpen(false);
   };
 

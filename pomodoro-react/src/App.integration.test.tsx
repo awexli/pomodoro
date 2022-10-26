@@ -414,4 +414,28 @@ describe('localStorage', () => {
       JSON.stringify(defaultMockTimes)
     );
   });
+
+  it('should reset to saved time', () => {
+    render(wrapper);
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('05');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+
+    fireEvent.click(screen.getByTitle('Settings'));
+
+    expect(screen.getByText(/Settings/i)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Work' }), {
+      target: { value: 25 },
+    });
+    fireEvent.click(screen.getByText(/save/i));
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('25');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+
+    fireEvent.click(screen.getByTitle('Reset'));
+
+    expect(screen.getByTestId('clock-minutes')).toHaveTextContent('25');
+    expect(screen.getByTestId('clock-seconds')).toHaveTextContent('00');
+  });
 });

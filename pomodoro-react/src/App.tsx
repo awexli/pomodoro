@@ -99,12 +99,20 @@ function App() {
       onComplete: handleOnComplete,
     });
 
+  const updateTimes = ({ pomo, short, long }) => {
+    setPomo(pomo);
+    setShort(short);
+    setLong(long);
+  };
+
   const loadTime = (isResetTime = true) => {
     const pomodoroStorage = Controller.loadSettings({ pomo, short, long });
 
-    setPomo(pomodoroStorage.pomo);
-    setShort(pomodoroStorage.short);
-    setLong(pomodoroStorage.long);
+    updateTimes({
+      pomo: pomodoroStorage.pomo,
+      short: pomodoroStorage.short,
+      long: pomodoroStorage.long,
+    });
 
     if (isResetTime) {
       setTime(pomodoroStorage.pomo.time, pomodoroStorage.pomo.id);
@@ -201,7 +209,10 @@ function App() {
           <SettingsModal
             times={{ pomo, short, long }}
             loadTime={loadTime}
-            setTime={setTime}
+            setTime={({ pomo, short, long }) => {
+              updateTimes({ pomo, short, long });
+              setTime(pomo.time, pomo.id);
+            }}
             stopTime={stopTime}
             colorScheme={color}
           />
