@@ -1,4 +1,4 @@
-# Pomodoro Timer ([Demo](https://pomodoro-tau.vercel.app/))
+# Pomodoro Timer ([Demo](https://pomodoro-awexli.vercel.app/))
 
 [![Prod](https://github.com/awexli/pomodoro/actions/workflows/master.yml/badge.svg)](https://github.com/awexli/pomodoro/actions/workflows/master.yml)
 
@@ -35,4 +35,4 @@ The Pomodoro Technique is a time management method that uses a timer to break do
 - `Apr 17, 2020`: Refactored the timer logic for better maintainability.
 - `July 4, 2020`: Used Bulma framework for convenient styling and parcel to bundle IIFE into their own modules/files for readability and maintenance.
 - `Jul 14, 2020`: Added local storage for timers.
-- `Sep 23, 2022`: Refactor project to be in react, chakra ui, and add allow preferred time through keyboard in settings
+- `Sep 23, 2022`: Refactor project to be in react, chakra ui, and add tests
