@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@chakra-ui/button';
 import { Flex } from '@chakra-ui/layout';
@@ -16,7 +16,7 @@ import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { Modal } from './modal';
 import { POMODORO } from '../constants';
 import { Controller } from '../controller';
-import type { Settings, Time, TimeId } from '../types';
+import type { Settings, Time } from '../types';
 import { SettingsIcon } from '@chakra-ui/icons';
 
 export const SettingsModal = ({
@@ -61,20 +61,22 @@ export const SettingsModal = ({
     setIsOpen(false);
   };
 
+  const handleOnOpen = async () => {
+    const storageTimes = await Controller.loadSettings({
+      pomo: times.pomo,
+      short: times.short,
+      long: times.long,
+    });
+    setPomo(storageTimes.pomo);
+    setShort(storageTimes.short);
+    setLong(storageTimes.long);
+    setIsOpen(true);
+  };
+
   return (
     <>
       <Button
-        onClick={() => {
-          const storageTimes = Controller.loadSettings({
-            pomo: times.pomo,
-            short: times.short,
-            long: times.long,
-          });
-          setPomo(storageTimes.pomo);
-          setShort(storageTimes.short);
-          setLong(storageTimes.long);
-          setIsOpen(true);
-        }}
+        onClick={handleOnOpen}
         boxShadow="base"
         title="Settings"
         aria-label="Settings"
