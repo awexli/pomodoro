@@ -1,4 +1,4 @@
-# Pomodoro Timer ([Demo](https://pomodoro-awexli.vercel.app/))
+# Pomodoro Timer ([Demo](https://pomodoro-mauve-eight.vercel.app))
 
 [![Prod](https://github.com/awexli/pomodoro/actions/workflows/master.yml/badge.svg)](https://github.com/awexli/pomodoro/actions/workflows/master.yml)
 
