@@ -1,6 +1,6 @@
 import * as React from 'react';
 import setSelfAdjustingInterval from 'self-adjusting-interval';
-const completeAlarm = require('./complete.mp3');
+const completeAlarm = require('./complete.wav');
 const alarm = typeof Audio !== 'undefined' && new Audio(completeAlarm);
 
 export const useCountdown = ({
@@ -50,7 +50,7 @@ export const useCountdown = ({
             alarm.play(); // TODO: custom/unique alarms
             stopAlarmInterval.current = setSelfAdjustingInterval(() => {
               alarm.play();
-            }, 3000);
+            }, 2000);
 
             onComplete(0);
           }

@@ -7,7 +7,7 @@ export const mockTime = {
 };
 
 export class Controller {
-  static loadSettings({ pomo, short, long }: Settings): Settings {
+  static loadSettings({ pomo, short, long }: Settings) {
     try {
       return (
         JSON.parse(localStorage.getItem('pomodoro')) || { pomo, short, long }
