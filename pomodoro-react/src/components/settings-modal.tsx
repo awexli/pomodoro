@@ -61,8 +61,8 @@ export const SettingsModal = ({
     setIsOpen(false);
   };
 
-  const handleOnOpen = async () => {
-    const storageTimes = await Controller.loadSettings({
+  const handleOnOpen = () => {
+    const storageTimes = Controller.loadSettings({
       pomo: times.pomo,
       short: times.short,
       long: times.long,

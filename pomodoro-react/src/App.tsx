@@ -105,8 +105,8 @@ function App() {
     setLong(long);
   };
 
-  const loadTime = async (isResetTime = true) => {
-    const pomodoroStorage = await Controller.loadSettings({ pomo, short, long });
+  const loadTime = (isResetTime = true) => {
+    const pomodoroStorage = Controller.loadSettings({ pomo, short, long });
 
     updateTimes({
       pomo: pomodoroStorage.pomo,

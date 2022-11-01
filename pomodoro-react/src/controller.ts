@@ -7,15 +7,15 @@ export const mockTime = {
 };
 
 export class Controller {
-  static loadSettings({ pomo, short, long }: Settings): Promise<Settings> {
-    const settings = mockTime || {
-      pomo,
-      short,
-      long,
-    };
-    return new Promise((resolve) => {
-      resolve(settings);
-    });
+  static loadSettings({ pomo, short, long }: Settings) {
+    try {
+      return (
+        JSON.parse(localStorage.getItem('pomodoro')) || { pomo, short, long }
+      );
+    } catch (error) {
+      console.log(error);
+      return { pomo, short, long };
+    }
   }
 
   static loadCurrentTimeAndCycle({ currentTime, cycle }) {}
